@@ -9,6 +9,8 @@ import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
 import 'package:real_estate/controllers/bottom_navigation_bar_controller.dart';
+import 'package:real_estate/controllers/property_controller.dart';
+import 'package:real_estate/models/property.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 import 'package:real_estate/widgets/my_bottom_navigation_bar.dart';
 import 'package:real_estate/widgets/my_snackbar.dart';
@@ -30,18 +32,78 @@ class OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
   LatLng? destination;
   LatLng? initialCenter;
   List<LatLng> route = [];
-  List<LatLng> markers = [];
+  List<Marker> markers = [];
   LatLng? newPropertyMarker;
   List<LatLng> routeToNewProperty = [];
   late bool isNewProperty;
   final Map<String, dynamic> args = Get.arguments;
   final BottomNavigationBarController bottomController =
       Get.find<BottomNavigationBarController>();
+  final PropertyController propertyController = Get.find<PropertyController>();
   @override
   void initState() {
     super.initState();
     isNewProperty = args['isNewProperty'];
     initialCenter = args['initialCenter'];
+    markers = propertyController.properties.map((property) {
+      if (initialCenter != null &&
+          property.latitude! == initialCenter!.latitude &&
+          property.longitude! == initialCenter!.longitude) {
+        return Marker(
+          height: 50,
+          width: 50,
+          point: initialCenter!,
+          child: const Icon(
+            Icons.my_location_outlined,
+            color: Colors.blue,
+            size: 50,
+          ),
+        );
+      }
+      return Marker(
+        point: LatLng(property.latitude!, property.longitude!),
+        child: IconButton(
+          onPressed: () {
+            Get.toNamed('/propertyDetails',
+                arguments: {'propertyId': property.id!});
+          },
+          icon: Icon(
+            Icons.location_on,
+            color: primaryColor,
+            size: 50,
+          ),
+        ),
+        height: 50,
+        width: 50,
+      );
+    }).toList();
+
+    if (destination != null) {
+      markers.add(Marker(
+        height: 50,
+        width: 50,
+        point: destination!,
+        child: const Icon(
+          Icons.location_pin,
+          color: Colors.red,
+          size: 50,
+        ),
+      ));
+    }
+    if (newPropertyMarker != null) {
+      markers.add(
+        Marker(
+          height: 50,
+          width: 50,
+          point: newPropertyMarker!,
+          child: const Icon(
+            Icons.house_sharp,
+            color: primaryColorInactive,
+            size: 50,
+          ),
+        ),
+      );
+    }
     _initializeLocation();
   }
 
@@ -235,41 +297,7 @@ class OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
                         ),
                       ),
                       MarkerLayer(
-                        markers: [
-                          if (initialCenter != null)
-                            Marker(
-                              height: 50,
-                              width: 50,
-                              point: initialCenter!,
-                              child: const Icon(
-                                Icons.my_location_outlined,
-                                color: Colors.blue,
-                                size: 50,
-                              ),
-                            ),
-                          if (destination != null)
-                            Marker(
-                              height: 50,
-                              width: 50,
-                              point: destination!,
-                              child: const Icon(
-                                Icons.location_pin,
-                                color: Colors.red,
-                                size: 50,
-                              ),
-                            ),
-                          if (newPropertyMarker != null)
-                            Marker(
-                              height: 50,
-                              width: 50,
-                              point: newPropertyMarker!,
-                              child: const Icon(
-                                Icons.house_sharp,
-                                color: primaryColorInactive,
-                                size: 50,
-                              ),
-                            ),
-                        ],
+                        markers: markers,
                       ),
                       PolylineLayer(
                         polylines: [

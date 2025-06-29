@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:real_estate/controllers/property_details_controller.dart';
@@ -20,7 +19,6 @@ class PropertyDetailsPage extends StatefulWidget {
 }
 
 class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
-  LatLng? _currentLocation;
   final MapController _mapController = MapController();
   final PropertyDetailsController pdController =
       Get.find<PropertyDetailsController>();
@@ -230,16 +228,17 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
             onTap: (tapPosition, point) {
               Get.toNamed('/openStreetMap', arguments: {
                 'isNewProperty': false,
-                'initialCenter' : LatLng(pdController.propertyDetails!.latitude!,
+                'initialCenter': LatLng(pdController.propertyDetails!.latitude!,
                     pdController.propertyDetails!.longitude!),
               });
             },
             interactionOptions: const InteractionOptions(
               flags: InteractiveFlag.none, // Disables all interactions
             ),
-            initialCenter: pdController.propertyDetails?.latitude != null ? LatLng(pdController.propertyDetails!.latitude!,
-                pdController.propertyDetails!.longitude!)
-             : const LatLng(35.1867283, 35.9517433),
+            initialCenter: pdController.propertyDetails?.latitude != null
+                ? LatLng(pdController.propertyDetails!.latitude!,
+                    pdController.propertyDetails!.longitude!)
+                : const LatLng(35.1867283, 35.9517433),
             initialZoom: 15.0,
           ),
           children: [
