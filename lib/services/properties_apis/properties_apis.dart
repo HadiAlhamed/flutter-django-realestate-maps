@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:real_estate/models/facility.dart';
 import 'package:real_estate/models/filter_options.dart';
@@ -19,6 +20,7 @@ class PropertiesApis {
     print("trying to add a property...");
     print(property);
     try {
+      print("hi add proeprties");
       final response = await _dio.post(
         "${Api.baseUrl}/properties/add/",
         data: property.toJson(),
@@ -34,9 +36,13 @@ class PropertiesApis {
         return null;
       }
     } catch (e) {
-      print("Network Error : $e");
-      return null;
+      if (e is DioException) {
+        print("Status code: ${e.response?.statusCode}");
+        print("Error body: ${e.response?.data}");
+      }
+      print("Network Error add new property : $e");
     }
+    return null;
   }
 
   static Future<Property?> updateProperty({required Property property}) async {
@@ -59,8 +65,7 @@ class PropertiesApis {
     } catch (e) {
       if (e is DioException) {
         print("Dio Exception : ${e.response?.data}");
-      }
-      else {
+      } else {
         print("Network Error : $e");
       }
     }
@@ -149,6 +154,7 @@ class PropertiesApis {
       if (response.statusCode == 200) {
         print("Retrived successfully");
         Map<String, dynamic> data = response.data;
+        print(data);
         List<Property> properties = (data['results'] as List).map((property) {
           return Property.fromJson(property);
         }).toList();
@@ -159,7 +165,7 @@ class PropertiesApis {
         return PaginatedProperty(nextPageUrl: null, properties: []);
       }
     } catch (e) {
-      print("Network Error : $e");
+      print("Network Error getProperties api : $e");
       return PaginatedProperty(nextPageUrl: null, properties: []);
     }
   }

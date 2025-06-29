@@ -11,8 +11,8 @@ class Property {
   final double area;
   final double price;
   final bool isForRent;
-  final LatLng? latitude;
-  final LatLng? longitude;
+  final double? latitude;
+  final double? longitude;
   final String? mainPhotoUrl;
   final String? address;
 
@@ -41,8 +41,8 @@ class Property {
       numberOfRooms: json['number_of_rooms'] as int,
       price: double.parse(json['price'] as String),
       propertyType: json['ptype'] as String,
-      latitude: json['latitude'],
-      longitude: json['longitude'],
+      latitude: double.tryParse(json['latitude'] ),
+      longitude: double.tryParse(json['longitude'] ), 
       mainPhotoUrl: json['main_photo'],
       address: json['address'],
     );
@@ -56,6 +56,8 @@ class Property {
       'area': area.toString(),
       'price': price.toString(),
       'is_for_rent': isForRent,
+      'latitude' : latitude!.toStringAsFixed(5), 
+      'longitude': longitude!.toStringAsFixed(5),
     };
   }
 

@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:latlong2/latlong.dart';
 
 class AddPropertyController extends GetxController {
   List<bool> facilitiesSelected = List.generate(6, (index) => false);
@@ -7,6 +8,11 @@ class AddPropertyController extends GetxController {
   bool isForRent = true;
   String selectedType = '';
   String selectedCity = '';
+  LatLng newPropertyCoordinates = LatLng(0, 0);
+  set setNewPropertyCoord(LatLng coord) {
+    newPropertyCoordinates = coord;
+  }
+
   bool isAddLoading = false;
   void changeIsAddLoading(bool value) {
     isAddLoading = value;

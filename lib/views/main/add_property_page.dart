@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:real_estate/controllers/add_property_controller.dart';
 import 'package:real_estate/controllers/bottom_navigation_bar_controller.dart';
 import 'package:real_estate/controllers/drop_down_controller.dart';
@@ -155,7 +156,20 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
                   height: 20,
                 ),
                 propertyInput(
+                  ontap: () async {
+                    final addressCoordinate =
+                        await Get.toNamed('/openStreetMap', arguments: {
+                      'isNewProperty': true,
+                    });
+                    print("address Coordinate : $addressCoordinate");
+                    if (addressCoordinate != null) {
+                      addProController.setNewPropertyCoord = addressCoordinate;
+                      addressController.text =
+                          "${addressCoordinate.latitude} , ${addressCoordinate.longitude}";
+                    }
+                  },
                   hint: 'Property Address',
+                  readOnly: true,
                   controller: addressController,
                   suffixWidget: const Icon(Icons.place),
                 ),
@@ -292,12 +306,14 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
       addProController.changeIsAddLoading(true);
       final Property? propertyResult = await PropertiesApis.addProperty(
         property: Property(
-          propertyType: addProController.selectedType.toLowerCase(),
+          propertyType: addProController.selectedType.trim().toLowerCase(),
           city: addProController.selectedCity,
-          area: double.parse(areaController.text),
-          price: double.parse(priceController.text),
-          numberOfRooms: int.parse(roomController.text),
+          area: double.parse(areaController.text.trim()),
+          price: double.parse(priceController.text.trim()),
+          numberOfRooms: int.parse(roomController.text.trim()),
           isForRent: addProController.isForRent,
+          latitude: addProController.newPropertyCoordinates.latitude,
+          longitude: addProController.newPropertyCoordinates.longitude,
         ),
       );
       addProController.changeIsAddLoading(false);

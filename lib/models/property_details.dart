@@ -18,8 +18,8 @@ class PropertyDetails {
   final double price;
   final bool isForRent;
   final String? details;
-  final LatLng? latitude;
-  final LatLng? longitude;
+  final double? latitude;
+  final double? longitude;
   final List<Facility?> facilities;
   final List<PropertyImage?> images;
   PropertyDetails({
@@ -50,8 +50,8 @@ class PropertyDetails {
     double? price,
     bool? isForRent,
     String? details,
-    LatLng? latitude,
-    LatLng? longitude,
+    double? latitude,
+    double? longitude,
     List<Facility?>? facilities,
     List<PropertyImage?>? images,
   }) {
@@ -122,8 +122,8 @@ class PropertyDetails {
       price: double.parse(map['price'] as String),
       isForRent: map['is_for_rent'] as bool,
       details: map['details'] != null ? map['details'] as String : null,
-      latitude: map['latitude'],
-      longitude: map['longitude'],
+      latitude: double.tryParse(map['latitude'] as String),
+      longitude: double.tryParse(map['longitude'] as String), 
       facilities: List<Facility?>.from(
         (map['facilities'] as List).map<Facility?>(
           (x) => Facility.fromJson(x as Map<String, dynamic>),

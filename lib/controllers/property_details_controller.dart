@@ -9,11 +9,13 @@ class PropertyDetailsController extends GetxController {
   List<bool> isFavorite = List.generate(100005, (index) => false);
   Set<Property> isFavoriteSet = {};
   List<double> cardAnimationScale = List.generate(100005, (index) => 1.0);
-  void changeCardScale(int index , int builderId, double newScale) {
+  void updateFlutterMap() {
+    update(["flutterMap"]);
+  }
+
+  void changeCardScale(int index, int builderId, double newScale) {
     cardAnimationScale[index] = newScale;
-    update([
-      "isFavorite$builderId"
-    ]);
+    update(["isFavorite$builderId"]);
   }
 
   void changeIsLoading(bool value) {
@@ -21,7 +23,9 @@ class PropertyDetailsController extends GetxController {
     update(['main']);
   }
 
-  void flipIsFavorite({required int propertyId,}) {
+  void flipIsFavorite({
+    required int propertyId,
+  }) {
     isFavorite[propertyId] = !isFavorite[propertyId];
     update(['isFavorite', "isFavorite$propertyId"]);
   }

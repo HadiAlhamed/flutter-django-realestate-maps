@@ -25,14 +25,12 @@ class MyBottomNavigationBar extends StatelessWidget {
     // Determine gap location and corner radius dynamically
     final bool isGapEnd = bottomController.selectedIndex != 2;
 
-
-
     return GetBuilder<BottomNavigationBarController>(
       init: bottomController,
       builder: (controller) => AnimatedBottomNavigationBar(
         icons: iconList,
         activeIndex: controller.selectedIndex,
-        gapLocation: GapLocation.end,
+        gapLocation: isGapEnd ? GapLocation.end : GapLocation.none,
         notchSmoothness: NotchSmoothness.verySmoothEdge,
         backgroundColor: Theme.of(context).brightness == Brightness.light
             ? Colors.white
@@ -48,15 +46,16 @@ class MyBottomNavigationBar extends StatelessWidget {
   }
 
   void handleBottomNavigation(int index) {
-    print("index : $index");
+    debugPrint("bottom navigation bar index : $index");
     bottomController.changeSelectedIndex(index: index);
-
     if (index == 0) {
       Get.offNamed('/home');
     } else if (index == 1) {
       Get.offNamed("/chatsPage");
     } else if (index == 2) {
-      Get.offNamed('/openStreetMap');
+      Get.offNamed('/openStreetMap', arguments: {
+        'isNewProperty' : false,
+      });
     } else if (index == 3) {
       Get.offNamed('/favoritesPage');
     } else if (index == 4) {
