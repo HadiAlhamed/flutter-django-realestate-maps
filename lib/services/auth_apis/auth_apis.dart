@@ -197,12 +197,17 @@ class AuthApis {
         return false;
       }
     } catch (e) {
+      if (e is DioException && e.response?.statusCode == 401) {
+        await TokenService
+            .clearTokens(); // only clear if server rejected refresh
+      }
       if (e is DioException) {
         print("Dio Exception : ${e.response?.data}");
       } else {
         print("Network error : $e");
       }
       // await TokenService.clearTokens();
+     
       return false;
     }
   }

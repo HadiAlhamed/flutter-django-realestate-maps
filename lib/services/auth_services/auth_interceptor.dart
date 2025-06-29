@@ -21,14 +21,16 @@ class AuthInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
-    if (err.response?.statusCode == 401) {
-      print("dio got an 401 error!!!");
+   if (err.response?.statusCode == 401 &&
+        !err.requestOptions.extra.containsKey('retry')) {
       final success = await AuthApis.refreshToken();
       if (success) {
         final newToken = await TokenService.getAccessToken();
-
-        // Retry original request with new token
         final retryRequest = err.requestOptions;
+
+        // Add retry flag
+        retryRequest.extra['retry'] = true;
+
         retryRequest.headers['Authorization'] = 'Bearer $newToken';
         retryRequest.headers['Content-Type'] = 'application/json';
 
