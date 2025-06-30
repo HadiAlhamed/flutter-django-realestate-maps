@@ -194,6 +194,15 @@ class Login extends StatelessWidget {
   void handleLogin() async {
     if (formState.currentState!.validate()) {
       loginController.changeIsLoading(true);
+      Future.delayed(
+        const Duration(
+          seconds: 10,
+        ),
+        (){
+          loginController.changeIsLoading(false);
+
+        },
+      );
       bool result = await AuthApis.login(
         email: emailController.text.trim(),
         password: passwordController.text,
@@ -206,7 +215,6 @@ class Login extends StatelessWidget {
           //store user info in box
           profileController.changeCurrentUserInfo(userInfo);
           Get.offNamed('/home');
-          
         } else {
           Get.toNamed('/profilePage', arguments: {'isNew': true});
           //if new store it in the profile page

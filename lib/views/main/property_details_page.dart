@@ -22,9 +22,14 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
   final MapController _mapController = MapController();
   final PropertyDetailsController pdController =
       Get.find<PropertyDetailsController>();
+  late final bool mapReadOnly;
+  late final int propertyId;
   @override
   void initState() {
     super.initState();
+    final args = Get.arguments as Map<String, dynamic>;
+    mapReadOnly = args['mapReadOnly'] ?? false;
+    propertyId = args['propertyId'];
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _fetchPropertyDetails();
       _determinePosition();
@@ -39,8 +44,7 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
 
   Future<void> _fetchPropertyDetails() async {
     pdController.changeIsLoading(true);
-    final args = Get.arguments as Map<String, dynamic>;
-    final propertyId = args['propertyId'];
+
     final PropertyDetails? propertyDetails =
         await PropertiesApis.getPropertyDetails(
       propertyId: propertyId,
@@ -225,13 +229,16 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
         child: FlutterMap(
           mapController: _mapController,
           options: MapOptions(
-            onTap: (tapPosition, point) {
-              Get.toNamed('/openStreetMap', arguments: {
-                'isNewProperty': false,
-                'initialCenter': LatLng(pdController.propertyDetails!.latitude!,
-                    pdController.propertyDetails!.longitude!),
-              });
-            },
+            onTap: mapReadOnly
+                ? null
+                : (tapPosition, point) {
+                    Get.toNamed('/openStreetMap', arguments: {
+                      'isNewProperty': false,
+                      'initialCenter': LatLng(
+                          pdController.propertyDetails!.latitude!,
+                          pdController.propertyDetails!.longitude!),
+                    });
+                  },
             interactionOptions: const InteractionOptions(
               flags: InteractiveFlag.none, // Disables all interactions
             ),

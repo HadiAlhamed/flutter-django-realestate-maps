@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
 import 'package:real_estate/controllers/bottom_navigation_bar_controller.dart';
+import 'package:real_estate/controllers/my_map_controller.dart';
 import 'package:real_estate/controllers/property_controller.dart';
 import 'package:real_estate/models/property.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
@@ -26,33 +27,36 @@ class OpenStreetMapScreen extends StatefulWidget {
 class OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
   final MapController _mapController = MapController();
   final Location location = Location();
+  final MyMapController myMapController = Get.find<MyMapController>();
   final TextEditingController locationController = TextEditingController();
-  bool isLoading = true;
-  LatLng? currentLocation;
-  LatLng? destination;
-  LatLng? initialCenter;
-  List<LatLng> route = [];
-  List<Marker> markers = [];
-  LatLng? newPropertyMarker;
-  List<LatLng> routeToNewProperty = [];
+
   late bool isNewProperty;
   final Map<String, dynamic> args = Get.arguments;
   final BottomNavigationBarController bottomController =
       Get.find<BottomNavigationBarController>();
   final PropertyController propertyController = Get.find<PropertyController>();
   @override
+  void dispose() {
+    // TODO: implement dispose
+    locationController.dispose();
+    myMapController.clear();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
-    isNewProperty = args['isNewProperty'];
-    initialCenter = args['initialCenter'];
-    markers = propertyController.properties.map((property) {
-      if (initialCenter != null &&
-          property.latitude! == initialCenter!.latitude &&
-          property.longitude! == initialCenter!.longitude) {
+    isNewProperty = args['isNewProperty'] ?? false;
+    myMapController.initialCenter = args['initialCenter'];
+    myMapController.setMarkers = propertyController.properties.map((property) {
+      if (myMapController.initialCenter != null &&
+          property.latitude! == myMapController.initialCenter!.latitude &&
+          property.longitude! == myMapController.initialCenter!.longitude) {
         return Marker(
           height: 50,
           width: 50,
-          point: initialCenter!,
+          point: myMapController.initialCenter!,
+          key: ValueKey(property.id!),
           child: const Icon(
             Icons.my_location_outlined,
             color: Colors.blue,
@@ -61,11 +65,25 @@ class OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
         );
       }
       return Marker(
+        key: ValueKey(property.id),
+        height: 50,
+        width: 50,
         point: LatLng(property.latitude!, property.longitude!),
         child: IconButton(
+          onLongPress: () {
+            print("long pressing property..");
+
+            _fetchRouteFromTo(myMapController.currentLocation,
+                LatLng(property.latitude!, property.longitude!));
+          },
           onPressed: () {
-            Get.toNamed('/propertyDetails',
-                arguments: {'propertyId': property.id!});
+            Get.toNamed(
+              '/propertyDetails',
+              arguments: {
+                'propertyId': property.id!,
+                'mapReadOnly': true,
+              },
+            );
           },
           icon: Icon(
             Icons.location_on,
@@ -73,35 +91,25 @@ class OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
             size: 50,
           ),
         ),
-        height: 50,
-        width: 50,
       );
     }).toList();
 
-    if (destination != null) {
-      markers.add(Marker(
-        height: 50,
-        width: 50,
-        point: destination!,
-        child: const Icon(
-          Icons.location_pin,
-          color: Colors.red,
-          size: 50,
-        ),
-      ));
+    if (myMapController.destination != null) {
+      myMapController.updateMarkers(
+        key: ValueKey('destination'),
+        newLocation: myMapController.destination!,
+        oldLocation: null,
+        color: Colors.red,
+        icon: Icons.location_pin,
+      );
     }
-    if (newPropertyMarker != null) {
-      markers.add(
-        Marker(
-          height: 50,
-          width: 50,
-          point: newPropertyMarker!,
-          child: const Icon(
-            Icons.house_sharp,
-            color: primaryColorInactive,
-            size: 50,
-          ),
-        ),
+    if (myMapController.newPropertyLocation != null) {
+      myMapController.updateMarkers(
+        key: ValueKey('newPropertyLocation'),
+        newLocation: myMapController.newPropertyLocation!,
+        oldLocation: null,
+        color: primaryColor,
+        icon: Icons.add_location,
       );
     }
     _initializeLocation();
@@ -114,13 +122,10 @@ class OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
     PolylinePoints polylinePoints = PolylinePoints();
     List<PointLatLng> decodedPoints =
         polylinePoints.decodePolyline(encodedPolyline);
-    if (mounted) {
-      setState(() {
-        route = decodedPoints
-            .map((point) => LatLng(point.latitude, point.longitude))
-            .toList();
-      });
-    }
+    print("decoding route ...");
+    myMapController.setRoute = decodedPoints
+        .map((point) => LatLng(point.latitude, point.longitude))
+        .toList();
   }
 
   Future<void> _fetchRouteFromTo(LatLng? from, LatLng? to) async {
@@ -128,28 +133,6 @@ class OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
     debugPrint("trying to fetch route From $from to $to..");
     final Uri url = Uri.parse(
         "http://router.project-osrm.org/route/v1/driving/${from.longitude},${from.latitude};${to.longitude},${to.latitude}?overview=full&geometries=polyline");
-    try {
-      final response = await http.get(url);
-      debugPrint("got route response... ${response.statusCode}");
-      final data = json.decode(response.body);
-      debugPrint("got route response... $data");
-
-      if (response.statusCode == 200) {
-        final geometry = data['routes'][0]['geometry'];
-        _decodePolyline(geometry);
-      } else {
-        errorMessage("failed to fetch route");
-      }
-    } catch (e) {
-      errorMessage("Network Error : failed to fetch route : $e");
-    }
-  }
-
-  Future<void> _fetchRoute() async {
-    if (currentLocation == null || destination == null) return;
-    debugPrint("trying to fetch route..");
-    final Uri url = Uri.parse(
-        "http://router.project-osrm.org/route/v1/driving/${currentLocation!.longitude},${currentLocation!.latitude};${destination!.longitude},${destination!.latitude}?overview=full&geometries=polyline");
     try {
       final response = await http.get(url);
       debugPrint("got route response... ${response.statusCode}");
@@ -181,23 +164,35 @@ class OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
     final Uri url = Uri.parse(
         "https://nominatim.openstreetmap.org/search?q=$location&format=json&limit=1");
     try {
-      final response = await http.get(url);
+      final response = await http.get(
+        url,
+        headers: {
+          'User-Agent':
+              'real_estate/1.0 (hadialhamed.py@gmail.com)', // required by Nominatim
+        },
+      );
       debugPrint("got location coordinates response... ${response.statusCode}");
 
-      final data = json.decode(response.body);
-      debugPrint("$data");
-
       if (response.statusCode == 200) {
-        final double lat = double.parse(data[0]['lat']);
-        final double lon = double.parse(data[0]['lon']);
-        print("$lat $lon");
-        if (mounted) {
-          setState(() {
-            destination = LatLng(lat, lon);
-            _mapController.move(destination!, 15);
-          });
+        final data = json.decode(response.body);
+        debugPrint("$data");
+        if (data.isNotEmpty) {
+          final double lat = double.parse(data[0]['lat']);
+          final double lon = double.parse(data[0]['lon']);
+          print("$lat $lon");
+
+          myMapController.updateMarkers(
+            oldLocation: myMapController.destination,
+            newLocation: LatLng(lat, lon),
+            icon: Icons.location_pin,
+            color: Colors.red,
+            key: 'destination',
+          );
+          myMapController.setDestination = LatLng(lat, lon);
+          _mapController.move(myMapController.destination!, 15);
+        } else {
+          errorMessage("Location not found , try another place");
         }
-        //fetch route
       } else {
         errorMessage("Location not found , try another place");
       }
@@ -208,18 +203,20 @@ class OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
   }
 
   Future<void> _initializeLocation() async {
-    if (!(await _checkRequestPermissions())) return;
+    if (!(await _checkRequestPermissions())) {
+      myMapController.changeIsMapLoading(false);
+
+      return;
+    }
     location.onLocationChanged.listen((LocationData locationData) {
       if (locationData.latitude != null && locationData.longitude != null) {
         //update later and use GetxController
-        if (mounted) {
-          setState(() {
-            currentLocation =
-                LatLng(locationData.latitude!, locationData.longitude!);
-            isLoading = false;
-            _fetchRouteFromTo(currentLocation, initialCenter);
-          });
-        }
+
+        myMapController.currentLocation =
+            LatLng(locationData.latitude!, locationData.longitude!);
+        myMapController.changeIsMapLoading(false);
+        _fetchRouteFromTo(
+            myMapController.currentLocation, myMapController.initialCenter);
       }
     });
   }
@@ -242,8 +239,8 @@ class OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
   }
 
   Future<void> _getCurrentUserLocation() async {
-    if (currentLocation != null) {
-      _mapController.move(currentLocation!, 15);
+    if (myMapController.currentLocation != null) {
+      _mapController.move(myMapController.currentLocation!, 15);
     } else {
       Get.showSnackbar(
         MySnackbar(
@@ -261,27 +258,49 @@ class OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
       appBar: AppBar(title: const Text('Maps')),
       body: Stack(
         children: [
-          isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : FlutterMap(
-                  mapController: _mapController,
-                  options: MapOptions(
-                    initialCenter: initialCenter ??
-                        currentLocation ??
-                        const LatLng(36.291944444444, 33.513055555556),
-                    initialZoom: 15,
-                    minZoom: 0,
-                    maxZoom: 100,
-                    onTap: (tapPosition, point) {
-                      print("point : $point");
-                      if (mounted && isNewProperty) {
-                        setState(() {
-                          newPropertyMarker = point;
-                        });
-                      }
-                    },
-                  ),
-                  children: [
+          GetBuilder<MyMapController>(
+            init: myMapController,
+            id: "isMapLoading",
+            builder: (controller) => myMapController.isMapLoading
+                ? const Center(child: CircularProgressIndicator())
+                : FlutterMap(
+                    mapController: _mapController,
+                    options: MapOptions(
+                      initialCenter: myMapController.initialCenter ??
+                          myMapController.currentLocation ??
+                          const LatLng(36.291944444444, 33.513055555556),
+                      initialZoom: 15,
+                      minZoom: 0,
+                      maxZoom: 100,
+                      onTap: (tapPosition, point) {
+                        print("point : $point");
+                        if (isNewProperty) {
+                          myMapController.updateMarkers(
+                            oldLocation: myMapController.newPropertyLocation!,
+                            newLocation: point,
+                            key: 'newPropertyLocation',
+                          );
+                          myMapController.setNewPropretyLocation = point;
+                        } else if (myMapController.isFirstLocationSelected) {
+                          myMapController.updateMarkers(
+                            oldLocation: myMapController.firstLocation,
+                            newLocation: point,
+                            icon: Icons.edit_location_alt_outlined,
+                            key: 'location1',
+                          );
+                          myMapController.setFirstLocation = point;
+                        } else if (myMapController.isSecondLocationSelected) {
+                          myMapController.updateMarkers(
+                            oldLocation: myMapController.secondLocation,
+                            newLocation: point,
+                            icon: Icons.edit_location_alt,
+                            key: 'location2',
+                          );
+                          myMapController.setSecondLocation = point;
+                        }
+                      },
+                    ),
+                    children: [
                       TileLayer(
                         urlTemplate:
                             'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -296,22 +315,32 @@ class OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
                           markerDirection: MarkerDirection.heading,
                         ),
                       ),
-                      MarkerLayer(
-                        markers: markers,
+                      GetBuilder<MyMapController>(
+                        init: myMapController,
+                        id: "markers",
+                        builder: (controller) => MarkerLayer(
+                          markers: myMapController.markers,
+                        ),
                       ),
-                      PolylineLayer(
-                        polylines: [
-                          if (route.isNotEmpty)
-                            Polyline(
-                              points: route,
-                              strokeWidth: 7,
-                              borderColor:
-                                  const Color.fromARGB(255, 172, 121, 117),
-                              color: Colors.red,
-                            ),
-                        ],
+                      GetBuilder<MyMapController>(
+                        init: myMapController,
+                        id: "route",
+                        builder: (controller) => PolylineLayer(
+                          polylines: [
+                            if (myMapController.route.isNotEmpty)
+                              Polyline(
+                                points: myMapController.route,
+                                strokeWidth: 7,
+                                borderColor:
+                                    const Color.fromARGB(255, 172, 121, 117),
+                                color: Colors.red,
+                              ),
+                          ],
+                        ),
                       ),
-                    ]),
+                    ],
+                  ),
+          ),
           Positioned(
             top: 0,
             left: 0,
@@ -349,7 +378,8 @@ class OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
                       final location = locationController.text.trim();
                       if (location.isEmpty) return;
                       await _fetchCoordinatesPoint(location);
-                      _fetchRoute();
+                      _fetchRouteFromTo(myMapController.currentLocation,
+                          myMapController.destination);
                     },
                     icon: const Icon(Icons.search),
                   ),
@@ -359,50 +389,118 @@ class OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
           ),
         ],
       ),
-      floatingActionButton: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (isNewProperty)
-            FloatingActionButton(
-              onPressed: () {
-                if (newPropertyMarker == null) {
-                  errorMessage(
-                      'Place a marker on the map representing the property location');
-                  return;
-                }
-                Get.back(result: newPropertyMarker);
-              },
-              // backgroundColor: Colors.blue,
-              child: const Icon(
-                Icons.check,
-                color: Colors.green,
-                size: 40,
-              ),
-            ),
-          const SizedBox(height: 16),
+      floatingActionButton: getFloatingActionButtons(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      bottomNavigationBar:
+          isNewProperty || myMapController.initialCenter != null
+              ? null
+              : MyBottomNavigationBar(bottomController: bottomController),
+    );
+  }
+
+  Column getFloatingActionButtons() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (isNewProperty)
           FloatingActionButton(
             onPressed: () {
-              _fetchRouteFromTo(currentLocation, initialCenter);
+              if (myMapController.newPropertyLocation == null) {
+                errorMessage(
+                    'Place a marker on the map representing the property location');
+                return;
+              }
+              Get.back(result: myMapController.newPropertyLocation);
             },
-            // backgroundColor: Colors.blue,
+            child: const Icon(
+              Icons.check,
+              color: Colors.green,
+              size: 40,
+            ),
+          ),
+        const SizedBox(height: 16),
+        GetBuilder<MyMapController>(
+          init: myMapController,
+          id: 'firstLocationFAB',
+          builder: (controller) => FloatingActionButton(
+            backgroundColor:
+                myMapController.isFirstLocationSelected ? Colors.green : null,
+            elevation: myMapController.isFirstLocationSelected ? 4 : null,
+            onPressed: () {
+              if (myMapController.isSecondLocationSelected) {
+                myMapController.changeSecondLocationSelected(null);
+              }
+              myMapController.changeFirstLocationSelected(null);
+            },
+            child: const Icon(Icons.edit_location_alt_outlined),
+          ),
+        ),
+        const SizedBox(height: 16),
+        GetBuilder<MyMapController>(
+          init: myMapController,
+          id: "secondLocationFAB",
+          builder: (controller) => FloatingActionButton(
+            backgroundColor:
+                myMapController.isSecondLocationSelected ? Colors.green : null,
+            elevation: myMapController.isSecondLocationSelected ? 4 : null,
+            onPressed: () {
+              if (myMapController.isFirstLocationSelected) {
+                myMapController.changeFirstLocationSelected(null);
+              }
+              myMapController.changeSecondLocationSelected(null);
+            },
+            child: const Icon(Icons.edit_location_alt),
+          ),
+        ),
+        const SizedBox(height: 16),
+        GetBuilder<MyMapController>(
+          init: myMapController,
+          id: "fetchRouteFAB",
+          builder: (controller) => FloatingActionButton(
+            onPressed: () {
+              bool isFirstNull = myMapController.firstLocation == null;
+              bool isSecondNull = myMapController.secondLocation == null;
+              myMapController.changeIsFetchingRoute(true);
+              if (!isFirstNull && !isSecondNull) {
+                _fetchRouteFromTo(myMapController.firstLocation,
+                        myMapController.secondLocation)
+                    .then(
+                  (e) => myMapController.changeIsFetchingRoute(false),
+                );
+              } else if ((isFirstNull ^ isSecondNull) &&
+                  myMapController.currentLocation != null) {
+                _fetchRouteFromTo(
+                  myMapController.currentLocation,
+                  isFirstNull
+                      ? myMapController.secondLocation
+                      : myMapController.firstLocation,
+                ).then(
+                  (e) => myMapController.changeIsFetchingRoute(false),
+                );
+              } else if (myMapController.currentLocation != null &&
+                  myMapController.destination != null) {
+                _fetchRouteFromTo(
+                  myMapController.currentLocation,
+                  myMapController.destination,
+                ).then(
+                  (e) => myMapController.changeIsFetchingRoute(false),
+                );
+              }
+            },
             child: const Icon(
               Icons.route,
             ),
           ),
-          const SizedBox(height: 16),
-          FloatingActionButton(
-            onPressed: _getCurrentUserLocation,
-            // backgroundColor: Colors.blue,
-            child: const Icon(
-              Icons.my_location,
-            ),
+        ),
+        const SizedBox(height: 16),
+        FloatingActionButton(
+          onPressed: _getCurrentUserLocation,
+          // backgroundColor: Colors.blue,
+          child: const Icon(
+            Icons.my_location,
           ),
-        ],
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      bottomNavigationBar: isNewProperty || initialCenter != null
-          ? null
-          : MyBottomNavigationBar(bottomController: bottomController),
+        ),
+      ],
     );
   }
 }
