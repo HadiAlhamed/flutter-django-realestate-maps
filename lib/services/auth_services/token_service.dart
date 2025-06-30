@@ -11,8 +11,8 @@ class TokenService {
     await _storage.write(key: 'access_token', value: accessToken);
     await _storage.write(key: 'refresh_token', value: refreshToken);
     // if (kDebugMode) {
-      await Api.box.write("access_token", accessToken);
-      await Api.box.write("refresh_token", refreshToken);
+    await Api.box.write("access_token", accessToken);
+    await Api.box.write("refresh_token", refreshToken);
     // }
   }
 
@@ -30,5 +30,8 @@ class TokenService {
 
   static Future<void> clearTokens() async {
     await _storage.deleteAll();
+
+    await Api.box.remove('access_token');
+    await Api.box.remove('refresh_token');
   }
 }
