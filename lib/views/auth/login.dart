@@ -198,9 +198,8 @@ class Login extends StatelessWidget {
         const Duration(
           seconds: 10,
         ),
-        (){
+        () {
           loginController.changeIsLoading(false);
-
         },
       );
       bool result = await AuthApis.login(

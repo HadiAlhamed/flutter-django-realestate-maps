@@ -47,7 +47,7 @@ class _MyPropertiesPageState extends State<MyPropertiesPage> {
                           property: propertyController.myProperties[index],
                           onTap: () {
                             Get.toNamed("/addPropertyPage", arguments: {
-                              'isAdd' : false,
+                              'isAdd': false,
                             });
                           },
                         ),

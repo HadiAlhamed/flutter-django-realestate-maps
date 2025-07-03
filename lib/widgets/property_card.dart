@@ -38,12 +38,13 @@ class PropertyCard extends StatelessWidget {
         print("current scale : ${scaleController.cardAnimationScale[index]}");
       },
       onTapUp: (_) {
-                print("on tap up...");
+        print("on tap up...");
 
-        scaleController.changeCardScale(index , property.id! , 1.0);
+        scaleController.changeCardScale(index, property.id!, 1.0);
         onTap?.call();
       },
-      onTapCancel: () => scaleController.changeCardScale(index , property.id!, 1.0 ),
+      onTapCancel: () =>
+          scaleController.changeCardScale(index, property.id!, 1.0),
       child: Card(
         // color: Colors.white,
         shape: RoundedRectangleBorder(

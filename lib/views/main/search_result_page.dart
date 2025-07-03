@@ -87,9 +87,9 @@ class _SearchResultPageState extends State<SearchResultPage> {
                     .length, // For example, 10 items for each tab
                 itemBuilder: (context, index) {
                   return GetBuilder<PropertyController>(
-                    init : propertyController,
-                    id : "propertyCard$index",
-                    builder:(controller)=> AnimatedScale(
+                    init: propertyController,
+                    id: "propertyCard$index",
+                    builder: (controller) => AnimatedScale(
                       scale: propertyController.cardAnimationScale[index],
                       duration: const Duration(milliseconds: 150),
                       child: PropertyCard(
@@ -99,7 +99,8 @@ class _SearchResultPageState extends State<SearchResultPage> {
                           area: filteredProperties[index].area,
                           city: filteredProperties[index].city,
                           isForRent: filteredProperties[index].isForRent,
-                          numberOfRooms: filteredProperties[index].numberOfRooms,
+                          numberOfRooms:
+                              filteredProperties[index].numberOfRooms,
                           price: filteredProperties[index].price,
                           propertyType: filteredProperties[index].propertyType,
                           address: filteredProperties[index].address,

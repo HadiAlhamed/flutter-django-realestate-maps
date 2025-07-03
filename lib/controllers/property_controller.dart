@@ -11,12 +11,11 @@ class PropertyController extends GetxController {
   List<Property> myProperties = [];
   bool isLoading = false;
   List<double> cardAnimationScale = List.generate(100005, (index) => 1.0);
-  void changeCardScale(int index , int builderId, double newScale) {
+  void changeCardScale(int index, int builderId, double newScale) {
     cardAnimationScale[index] = newScale;
-    update(
-      [
-        'propertyCard$index',
-        if(myProperties.length > index)"property${myProperties[builderId].id!}"
+    update([
+      'propertyCard$index',
+      if (myProperties.length > index) "property${myProperties[builderId].id!}"
     ]);
   }
 

@@ -49,7 +49,6 @@ class MyInputField extends StatelessWidget {
         // style: Theme.of(context).textTheme.bodyMedium!.copyWith(),
         decoration: InputDecoration(
           filled: true,
-          
           suffixIcon: suffixWidget,
           hintText: hint,
           prefixIcon: prefixWidget ??

@@ -10,7 +10,7 @@ const TextStyle h1TitleStyleWhite = TextStyle(
   fontFamily: "Inter",
   fontSize: 25,
   fontWeight: FontWeight.w900,
-  color : secondryColor,
+  color: secondryColor,
 );
 const TextStyle h2TitleStylePrimary = TextStyle(
   fontFamily: "Inter",
@@ -91,7 +91,6 @@ const TextStyle buttonTextStylePrimary = TextStyle(
   color: primaryColor,
 );
 final ThemeData myLightTheme = ThemeData(
-
   appBarTheme: AppBarTheme(
     titleTextStyle: h2TitleStyleBlack.copyWith(
       fontSize: 20,
@@ -100,8 +99,7 @@ final ThemeData myLightTheme = ThemeData(
   listTileTheme: const ListTileThemeData(
     titleTextStyle: h4TitleStyleBlack,
   ),
-  
-  textTheme:  const TextTheme(
+  textTheme: const TextTheme(
     titleSmall: h4TitleStyleBlack,
     titleMedium: h4TitleStyleBlack,
     titleLarge: h2TitleStyleBlack,
@@ -112,14 +110,12 @@ final ThemeData myLightTheme = ThemeData(
   colorScheme: ColorScheme.fromSeed(
     seedColor: primaryColor,
     brightness: Brightness.light,
-    
   ),
   useMaterial3: true,
 );
 
 final ThemeData myDarkTheme = ThemeData(
   textTheme: const TextTheme(
-
     titleSmall: h4TitleStyleWhite,
     titleMedium: h4TitleStyleWhite,
     titleLarge: h2TitleStyleWhite,
@@ -127,7 +123,6 @@ final ThemeData myDarkTheme = ThemeData(
     bodyMedium: h4TitleStyleWhite,
     bodyLarge: h2TitleStyleWhite,
   ),
- 
   appBarTheme: AppBarTheme(
     titleTextStyle: h2TitleStyleWhite.copyWith(
       fontSize: 20,

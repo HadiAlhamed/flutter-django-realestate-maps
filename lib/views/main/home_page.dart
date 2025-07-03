@@ -231,14 +231,14 @@ class _HomePageState extends State<HomePage>
                       scale: 0.8,
                       child: FadeInAnimation(
                         child: GetBuilder<PropertyController>(
-                          init : propertyController,
-                          id : "propertyCard$index",
+                          init: propertyController,
+                          id: "propertyCard$index",
                           builder: (controller) => AnimatedScale(
                             scale: controller.cardAnimationScale[index],
                             duration: const Duration(milliseconds: 150),
                             child: PropertyCard(
                               property: wantedList[index],
-                              scaleController: propertyController, 
+                              scaleController: propertyController,
                               index: index,
                             ),
                           ),

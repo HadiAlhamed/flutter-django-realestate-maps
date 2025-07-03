@@ -56,9 +56,8 @@ class AccountPage extends StatelessWidget {
           getSellerModeSwitch(screenHeight, context)
         ],
       ),
-       floatingActionButton: const MyFloatingActionButton(),
+      floatingActionButton: const MyFloatingActionButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      
       bottomNavigationBar: GetBuilder<BottomNavigationBarController>(
         init: bottomController,
         builder: (controller) {

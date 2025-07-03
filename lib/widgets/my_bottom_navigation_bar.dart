@@ -54,7 +54,7 @@ class MyBottomNavigationBar extends StatelessWidget {
       Get.offNamed("/chatsPage");
     } else if (index == 2) {
       Get.offNamed('/openStreetMap', arguments: {
-        'isNewProperty' : false,
+        'isNewProperty': false,
       });
     } else if (index == 3) {
       Get.offNamed('/favoritesPage');

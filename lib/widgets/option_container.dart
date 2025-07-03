@@ -5,7 +5,11 @@ class OptionContainer extends StatelessWidget {
   final void Function()? onTap;
   final String label;
   final bool colorCondition;
-  const OptionContainer({super.key, required this.onTap, required this.label, required this.colorCondition});
+  const OptionContainer(
+      {super.key,
+      required this.onTap,
+      required this.label,
+      required this.colorCondition});
 
   @override
   Widget build(BuildContext context) {

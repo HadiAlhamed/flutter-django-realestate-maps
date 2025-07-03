@@ -168,10 +168,14 @@ class ProfilePage extends StatelessWidget {
                 ),
               ),
               GetBuilder<ProfileController>(
-                id : "updateProfile",
-                init : profileController,
-                builder : (controller)=> MyButton(
-                  title: profileController.isUpdateLoading ? null : isNew ? 'Submit' : 'Update',
+                id: "updateProfile",
+                init: profileController,
+                builder: (controller) => MyButton(
+                  title: profileController.isUpdateLoading
+                      ? null
+                      : isNew
+                          ? 'Submit'
+                          : 'Update',
                   onPressed: () async {
                     if (isNew) {
                       if (profilePhoto == null) {
@@ -297,7 +301,7 @@ class ProfilePage extends StatelessWidget {
                     }
                   },
                 ),
-              ) 
+              )
             ],
           ),
         ),

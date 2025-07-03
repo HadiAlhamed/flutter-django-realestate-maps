@@ -18,7 +18,7 @@ class Property {
 
   Property({
     this.id,
-    this.owner, 
+    this.owner,
     required this.propertyType,
     required this.city,
     required this.numberOfRooms,
@@ -34,15 +34,15 @@ class Property {
   factory Property.fromJson(Map<String, dynamic> json) {
     return Property(
       id: json['id'] as int,
-      owner : json['owner'] as int,
+      owner: json['owner'] as int,
       area: double.parse(json['area'] as String),
       city: json['city'] as String,
       isForRent: json['is_for_rent'] as bool,
       numberOfRooms: json['number_of_rooms'] as int,
       price: double.parse(json['price'] as String),
       propertyType: json['ptype'] as String,
-      latitude: double.tryParse(json['latitude'] ),
-      longitude: double.tryParse(json['longitude'] ), 
+      latitude: double.tryParse(json['latitude']),
+      longitude: double.tryParse(json['longitude']),
       mainPhotoUrl: json['main_photo'],
       address: json['address'],
     );
@@ -56,7 +56,7 @@ class Property {
       'area': area.toString(),
       'price': price.toString(),
       'is_for_rent': isForRent,
-      'latitude' : latitude!.toStringAsFixed(5), 
+      'latitude': latitude!.toStringAsFixed(5),
       'longitude': longitude!.toStringAsFixed(5),
     };
   }

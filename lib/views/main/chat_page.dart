@@ -102,7 +102,6 @@ class ChatPage extends StatelessWidget {
                       child: ScaleAnimation(
                         scale: 0.9,
                         child: FadeInAnimation(
-                          
                           child: ChatBubble(
                               screenWidth: screenWidth,
                               isMe: index % 2 == 0,
@@ -116,8 +115,7 @@ class ChatPage extends StatelessWidget {
             ),
           ),
           MessageInputBar(
-            screenHeight: screenHeight,
-            onSend: (String value) {}),
+              screenHeight: screenHeight, onSend: (String value) {}),
         ],
       ),
     );

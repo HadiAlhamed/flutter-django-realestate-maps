@@ -25,11 +25,9 @@ class ChatsPage extends StatelessWidget {
           itemBuilder: (context, index) {
             return AnimationConfiguration.staggeredList(
               position: index,
-                            duration: const Duration(milliseconds: 375),
-
+              duration: const Duration(milliseconds: 375),
               child: SlideAnimation(
-                                  horizontalOffset: 50.0,
-  
+                horizontalOffset: 50.0,
                 verticalOffset: 50.0,
                 child: ScaleAnimation(
                   scale: 0.8,
@@ -49,9 +47,8 @@ class ChatsPage extends StatelessWidget {
           },
         ),
       ),
-       floatingActionButton: const MyFloatingActionButton(),
+      floatingActionButton: const MyFloatingActionButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      
       bottomNavigationBar:
           MyBottomNavigationBar(bottomController: bottomController),
     );

@@ -57,7 +57,7 @@ class PropertyDetails {
   }) {
     return PropertyDetails(
       id: id ?? this.id,
-      owner : owner ?? owner,
+      owner: owner ?? owner,
       propertyType: propertyType ?? this.propertyType,
       city: city ?? this.city,
       numberOfRooms: numberOfRooms ?? this.numberOfRooms,
@@ -76,7 +76,7 @@ class PropertyDetails {
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       'id': id,
-      'owner' : owner,
+      'owner': owner,
       'ptype': propertyType,
       'city': city,
       'number_of_rooms': numberOfRooms,
@@ -99,15 +99,14 @@ class PropertyDetails {
       propertyType: propertyType,
       city: city,
       numberOfRooms: numberOfRooms,
-      area:   area,
-      price:   price,
-      isForRent:   isForRent,
-      latitude:   latitude,
-      longitude:   longitude,
-      mainPhotoUrl:   images.isNotEmpty ? images[0]!.imageUrl : null,
+      area: area,
+      price: price,
+      isForRent: isForRent,
+      latitude: latitude,
+      longitude: longitude,
+      mainPhotoUrl: images.isNotEmpty ? images[0]!.imageUrl : null,
     );
   }
-
 
   factory PropertyDetails.fromJson(Map<String, dynamic> map) {
     return PropertyDetails(
@@ -123,7 +122,7 @@ class PropertyDetails {
       isForRent: map['is_for_rent'] as bool,
       details: map['details'] != null ? map['details'] as String : null,
       latitude: double.tryParse(map['latitude'] as String),
-      longitude: double.tryParse(map['longitude'] as String), 
+      longitude: double.tryParse(map['longitude'] as String),
       facilities: List<Facility?>.from(
         (map['facilities'] as List).map<Facility?>(
           (x) => Facility.fromJson(x as Map<String, dynamic>),
@@ -165,7 +164,6 @@ class PropertyDetails {
   @override
   int get hashCode {
     return id.hashCode ^
-      
         propertyType.hashCode ^
         city.hashCode ^
         numberOfRooms.hashCode ^

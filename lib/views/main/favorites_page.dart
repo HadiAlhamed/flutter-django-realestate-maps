@@ -22,8 +22,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
 
   final PropertyDetailsController pdController =
       Get.find<PropertyDetailsController>();
-      final PropertyController propertyController =
-      Get.find<PropertyController>();
+  final PropertyController propertyController = Get.find<PropertyController>();
   late final List<Property> favoritesProperties;
 
   @override
@@ -36,7 +35,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
   @override
   void dispose() {
     // TODO: implement dispose
-    
+
     pdController.onClose();
     super.dispose();
   }
@@ -46,58 +45,63 @@ class _FavoritesPageState extends State<FavoritesPage> {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.only(top: 20, left: 10, right: 10),
-        child:favoritesProperties.isEmpty ? const Center(child: Text("You have no favorites yet",),) : AnimationLimiter(
-          child: GridView.builder(
-            padding: const EdgeInsets.only(top: 20),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2, // Two items per row
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-              childAspectRatio: 0.8, // Height to width ratio
-            ),
-            itemCount:
-                favoritesProperties.length, // For example, 10 items for each tab
-            itemBuilder: (context, index) {
-              return AnimationConfiguration.staggeredGrid(
-                position: index,
-                duration: const Duration(milliseconds: 375),
-                columnCount: 2,
-                child: SlideAnimation(
-                  verticalOffset: 50.0,
-                  horizontalOffset: 50.0,
-                  child: ScaleAnimation(
-                    scale: 0.6,
-                    child: FadeInAnimation(
-                      curve: Curves.bounceOut,
-                      child: GetBuilder(
-                        init: pdController,
-                        id: "isFavorite${favoritesProperties[index].id}",
-                        builder: (controller) {
-                          return AnimatedScale(
-                            scale: pdController.cardAnimationScale[index],
-                            duration: const Duration(milliseconds: 150),
-                            child: PropertyCard(
-                              index: index,
-                              scaleController: pdController,
-                              favorite:
-                                  pdController.isFavorite[favoritesProperties[index].id!],
-                              property: favoritesProperties[index],
-                              pdController: pdController,
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
+        child: favoritesProperties.isEmpty
+            ? const Center(
+                child: Text(
+                  "You have no favorites yet",
                 ),
-              );
-            },
-          ),
-        ),
+              )
+            : AnimationLimiter(
+                child: GridView.builder(
+                  padding: const EdgeInsets.only(top: 20),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2, // Two items per row
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                    childAspectRatio: 0.8, // Height to width ratio
+                  ),
+                  itemCount: favoritesProperties
+                      .length, // For example, 10 items for each tab
+                  itemBuilder: (context, index) {
+                    return AnimationConfiguration.staggeredGrid(
+                      position: index,
+                      duration: const Duration(milliseconds: 375),
+                      columnCount: 2,
+                      child: SlideAnimation(
+                        verticalOffset: 50.0,
+                        horizontalOffset: 50.0,
+                        child: ScaleAnimation(
+                          scale: 0.6,
+                          child: FadeInAnimation(
+                            curve: Curves.bounceOut,
+                            child: GetBuilder(
+                              init: pdController,
+                              id: "isFavorite${favoritesProperties[index].id}",
+                              builder: (controller) {
+                                return AnimatedScale(
+                                  scale: pdController.cardAnimationScale[index],
+                                  duration: const Duration(milliseconds: 150),
+                                  child: PropertyCard(
+                                    index: index,
+                                    scaleController: pdController,
+                                    favorite: pdController.isFavorite[
+                                        favoritesProperties[index].id!],
+                                    property: favoritesProperties[index],
+                                    pdController: pdController,
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
       ),
-       floatingActionButton: const MyFloatingActionButton(),
+      floatingActionButton: const MyFloatingActionButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      
       bottomNavigationBar: GetBuilder<BottomNavigationBarController>(
         init: bottomController,
         builder: (controller) {

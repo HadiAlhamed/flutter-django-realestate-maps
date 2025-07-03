@@ -59,8 +59,7 @@ class _FilterSearchPageState extends State<FilterSearchPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    if(filterController.isInitialLoading)
-    {
+    if (filterController.isInitialLoading) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         filterController.init();
       });

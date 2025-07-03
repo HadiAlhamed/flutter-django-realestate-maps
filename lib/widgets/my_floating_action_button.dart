@@ -11,13 +11,18 @@ class MyFloatingActionButton extends StatelessWidget {
         id: "sellerMode",
         builder: (controller) {
           return FloatingActionButton(
-            backgroundColor: !controller.isSeller? Colors.grey:null,
-            onPressed: !controller.isSeller? null : () {
-              Get.offNamed('/addPropertyPage', arguments: {
-                "isAdd": true,
-              });
-            },
-            child:  Icon(Icons.add , color: !controller.isSeller? Colors.grey[300]:null ,),
+            backgroundColor: !controller.isSeller ? Colors.grey : null,
+            onPressed: !controller.isSeller
+                ? null
+                : () {
+                    Get.offNamed('/addPropertyPage', arguments: {
+                      "isAdd": true,
+                    });
+                  },
+            child: Icon(
+              Icons.add,
+              color: !controller.isSeller ? Colors.grey[300] : null,
+            ),
           );
         });
   }

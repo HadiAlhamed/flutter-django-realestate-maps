@@ -4,7 +4,8 @@ import 'package:real_estate/textstyles/text_colors.dart';
 class MessageInputBar extends StatefulWidget {
   final Function(String) onSend;
   final double screenHeight;
-  const MessageInputBar({super.key, required this.onSend, required this.screenHeight});
+  const MessageInputBar(
+      {super.key, required this.onSend, required this.screenHeight});
 
   @override
   State<MessageInputBar> createState() => _MessageInputBarState();
@@ -25,22 +26,20 @@ class _MessageInputBarState extends State<MessageInputBar> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
-                crossAxisAlignment:
+        crossAxisAlignment:
             CrossAxisAlignment.end, // Aligns send button to bottom
 
         children: [
           Expanded(
-            
             child: ConstrainedBox(
               constraints: BoxConstraints(
                 maxHeight: widget.screenHeight * 0.22,
               ),
               child: TextField(
-                
                 maxLines: null,
                 controller: _controller,
                 decoration: InputDecoration(
-                   contentPadding: const EdgeInsets.symmetric(
+                  contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 12,
                   ),
@@ -53,7 +52,7 @@ class _MessageInputBarState extends State<MessageInputBar> {
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.send , color : primaryColorInactive),
+            icon: const Icon(Icons.send, color: primaryColorInactive),
             onPressed: () {
               if (_controller.text.trim().isNotEmpty) {
                 widget.onSend(_controller.text);

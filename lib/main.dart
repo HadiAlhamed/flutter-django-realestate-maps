@@ -56,11 +56,13 @@ class MyApp extends StatelessWidget {
         theme: myLightTheme,
         darkTheme: myDarkTheme,
         themeMode: themeController.themeMode.value,
-        initialRoute: Api.box.read('rememberMe') == null || Api.box.read('rememberMe') == false ? '/login' : '/home',
+        initialRoute: Api.box.read('rememberMe') == null ||
+                Api.box.read('rememberMe') == false
+            ? '/login'
+            : '/home',
         // initialRoute : '/openStreetMap',
         initialBinding: MyBindings(),
         getPages: [
-          
           GetPage(
             name: '/login',
             page: () => Login(),
@@ -73,7 +75,6 @@ class MyApp extends StatelessWidget {
             transition: Transition.fade,
             transitionDuration: const Duration(milliseconds: 300),
           ),
-          
           GetPage(
             name: '/filterSearchPage',
             page: () => const FilterSearchPage(),
@@ -94,7 +95,7 @@ class MyApp extends StatelessWidget {
           ),
           GetPage(
             name: '/chatPage',
-            page: () =>   ChatPage(),
+            page: () => ChatPage(),
             transition: Transition.fade,
             transitionDuration: const Duration(milliseconds: 300),
           ),
@@ -136,14 +137,13 @@ class MyApp extends StatelessWidget {
           ),
           GetPage(
             name: '/chatsPage',
-            page: () =>  ChatsPage(),
+            page: () => ChatsPage(),
             transition: Transition.fade,
             transitionDuration: const Duration(milliseconds: 300),
           ),
           GetPage(
             name: '/addPropertyPage',
             page: () => const AddPropertyPage(),
-            
             transition: Transition.fade,
             transitionDuration: const Duration(milliseconds: 300),
           ),

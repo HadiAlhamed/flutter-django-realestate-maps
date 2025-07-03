@@ -13,7 +13,8 @@ class ChatTile extends StatelessWidget {
       required this.name,
       required this.lastMessage,
       required this.lastMessageTime,
-      required this.newMessages, required this.screenWidth});
+      required this.newMessages,
+      required this.screenWidth});
 
   @override
   Widget build(BuildContext context) {
@@ -33,13 +34,13 @@ class ChatTile extends StatelessWidget {
         trailing: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-             Text(lastMessageTime),
+            Text(lastMessageTime),
             CircleAvatar(
               radius: screenWidth * 0.03,
               backgroundColor: Theme.of(context).brightness == Brightness.dark
                   ? primaryColor
                   : primaryColorInactive,
-              child:  Text(newMessages.toString()),
+              child: Text(newMessages.toString()),
             ),
           ],
         ),

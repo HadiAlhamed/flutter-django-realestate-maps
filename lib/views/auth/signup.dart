@@ -220,7 +220,7 @@ class Signup extends StatelessWidget {
             Api.box.write('email', emailController.text.trim()),
             Api.box.write('password', passwordController.text)
           ]);
-          
+
           //go to code page
           Get.toNamed('/verifyCodePage');
         } else {

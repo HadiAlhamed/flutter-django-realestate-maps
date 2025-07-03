@@ -30,11 +30,11 @@ class ChatBubble extends StatelessWidget {
               : Theme.of(context).brightness == Brightness.dark
                   ? Colors.blueGrey
                   : Colors.grey[300],
-            borderRadius: BorderRadius.only(
-              topLeft: const Radius.circular(12),
-              topRight: const Radius.circular(12),
-              bottomLeft: isMe ? const Radius.circular(12) : Radius.zero,
-              bottomRight: isMe ? Radius.zero : const Radius.circular(12),
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(12),
+            topRight: const Radius.circular(12),
+            bottomLeft: isMe ? const Radius.circular(12) : Radius.zero,
+            bottomRight: isMe ? Radius.zero : const Radius.circular(12),
           ),
         ),
         child: Text(message),
