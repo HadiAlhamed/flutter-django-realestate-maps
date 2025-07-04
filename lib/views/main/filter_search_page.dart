@@ -96,6 +96,45 @@ class _FilterSearchPageState extends State<FilterSearchPage> {
                     const SizedBox(
                       height: 20,
                     ),
+                    const Text("Active Status"),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Row(
+                      children: [
+                        GetBuilder<FilterController>(
+                          init: filterController,
+                          id: "isActive",
+                          builder: (controller) => Expanded(
+                            flex: 1,
+                            child: OptionContainer(
+                              label: "Available",
+                              colorCondition: filterController.isActive,
+                              onTap: () {
+                                filterController.flipIsActive();
+                              },
+                            ),
+                          ),
+                        ),
+                        GetBuilder<FilterController>(
+                          init: filterController,
+                          id: "isNotActive",
+                          builder: (controller) => Expanded(
+                            flex: 1,
+                            child: OptionContainer(
+                              label: "Not Available	",
+                              colorCondition: filterController.isNotActive,
+                              onTap: () {
+                                filterController.flipIsNotActive();
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
                     const Text("Property Type"),
                     const SizedBox(height: 20),
                     propertyTypeOptions(),
@@ -160,6 +199,47 @@ class _FilterSearchPageState extends State<FilterSearchPage> {
                       ),
                     ),
                     const SizedBox(height: 20),
+                    const Text("Baths Range"),
+                    const SizedBox(height: 20),
+                    GetBuilder<FilterController>(
+                      init: filterController,
+                      id: "bathsRange",
+                      builder: (controller) => RangeSlider(
+                        values: filterController.bathsRange,
+                        onChanged: (range) {
+                          filterController.changeBathsRange(range);
+                        },
+                        min: 0,
+                        max: 10,
+                        divisions: 10, // <-- Add this
+                        labels: RangeLabels(
+                          filterController.bathsRange.start.toStringAsFixed(0),
+                          filterController.bathsRange.end.toStringAsFixed(0),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text("rating Range"),
+                    const SizedBox(height: 20),
+                    GetBuilder<FilterController>(
+                      init: filterController,
+                      id: "ratingRange",
+                      builder: (controller) => RangeSlider(
+                        values: filterController.ratingRange,
+                        onChanged: (range) {
+                          filterController.changeRatingRange(range);
+                        },
+                        min: 0,
+                        max: 5.0,
+                        divisions: 10, // <-- Add this
+                        labels: RangeLabels(
+                          filterController.ratingRange.start.toStringAsFixed(1),
+                          filterController.ratingRange.end.toStringAsFixed(1),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
                     //cities
                     MultiSelectDialogField(
                       items: cities
