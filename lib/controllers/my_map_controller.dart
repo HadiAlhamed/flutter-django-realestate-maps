@@ -85,6 +85,7 @@ class MyMapController extends GetxController {
     IconData? icon,
     Color? color,
   }) {
+    
     if (oldLocation != null) {
       for (int i = 0; i < markers.length; i++) {
         if (markers[i].point == oldLocation) {
@@ -129,6 +130,7 @@ class MyMapController extends GetxController {
     isFetchingRoute = false;
     firstLocation = null;
     secondLocation = null;
+    update();
     // dispose(); //check later if needed
   }
 }
