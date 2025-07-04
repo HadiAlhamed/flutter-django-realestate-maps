@@ -12,12 +12,19 @@ class FilterOptions {
   bool? flat = true;
   bool? house = true;
   double? minPrice = 0;
-  double? maxPrice = 10000;
+  double? maxPrice = 100000.0;
   double? minArea = 0;
-  double? maxArea = 1000;
+  double? maxArea = 1000.0;
   int? minRooms = 0;
   int? maxRooms = 10;
+
   List<String> selectedCities = <String>[];
+  bool? isActive = true;
+  bool? isNotActive = false;
+  double? minRating = 0.0;
+  double? maxRating = 5.0;
+  int? minBaths = 0;
+  int? maxBaths = 10;
   FilterOptions({
     this.isForRent,
     this.isForSale,

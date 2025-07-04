@@ -7,15 +7,21 @@ class FilterController extends GetxController {
   bool orderByArea = true, orderByPrice = true, orderAsc = true;
   bool villa = true, flat = true, house = true;
   bool isSaveLoading = false;
-  RangeValues priceRange = const RangeValues(0, 10000);
+  RangeValues priceRange = const RangeValues(0, 100000);
   RangeValues areaRange = const RangeValues(0, 1000);
   RangeValues roomsRange = const RangeValues(0, 10);
+  RangeValues bathsRange = const RangeValues(0, 10);
+  RangeValues ratingRange = const RangeValues(0, 5);
+  bool isActive = true;
+  bool isNotActive = false;
   List<String> selectedCities = <String>[];
   bool isInitialLoading = true;
 
   Future<void> init() async {
     isForRent = await Api.box.read('isForRent') as bool? ?? true;
     isForSale = await Api.box.read('isForSale') as bool? ?? true;
+    isActive = await Api.box.read('isActive') as bool? ?? true;
+    isNotActive = await Api.box.read('isNotActive') as bool? ?? false;
     orderByArea = await Api.box.read('orderByArea') as bool? ?? true;
     orderByPrice = await Api.box.read('orderByPrice') as bool? ?? true;
     orderAsc = await Api.box.read('orderAsc') as bool? ?? true;
@@ -36,6 +42,14 @@ class FilterController extends GetxController {
         ? const RangeValues(0, 10)
         : RangeValues(
             await Api.box.read('minRooms'), await Api.box.read('maxRooms'));
+    bathsRange = await Api.box.read('minBaths') == null
+        ? const RangeValues(0, 10)
+        : RangeValues(
+            await Api.box.read('minBaths'), await Api.box.read('maxBaths'));
+    ratingRange = await Api.box.read('minRating') == null
+        ? const RangeValues(0, 5.0)
+        : RangeValues(
+            await Api.box.read('minRating'), await Api.box.read('maxRating'));
     changeIsInitialLoading(false);
   }
 
@@ -61,6 +75,16 @@ class FilterController extends GetxController {
   void changeAreaRange(RangeValues range) {
     areaRange = range;
     update(["areaRange"]);
+  }
+
+  void changeRatingRange(RangeValues range) {
+    ratingRange = range;
+    update(["ratingRange"]);
+  }
+
+  void changeBathsRange(RangeValues range) {
+    bathsRange = range;
+    update(["bathsRange"]);
   }
 
   void changeIsSaveLoading(bool value) {
@@ -93,6 +117,16 @@ class FilterController extends GetxController {
     update(["isForSale"]);
   }
 
+  void flipIsActive() {
+    isActive = !isActive;
+    update(["isActive"]);
+  }
+
+  void flipIsNotActive() {
+    isNotActive = !isNotActive;
+    update(["isNotActive"]);
+  }
+
   void flipOrderByArea() {
     orderByArea = !orderByArea;
     update(["orderByArea"]);
@@ -111,6 +145,8 @@ class FilterController extends GetxController {
   Future<void> save() async {
     await Api.box.write('isForRent', isForRent);
     await Api.box.write('isForSale', isForSale);
+    await Api.box.write('isActive', isActive);
+    await Api.box.write('isNotActive', isNotActive);
     await Api.box.write('orderByArea', orderByArea);
     await Api.box.write('orderByPrice', orderByPrice);
     await Api.box.write('orderAsc', orderAsc);
@@ -124,5 +160,9 @@ class FilterController extends GetxController {
     await Api.box.write('maxArea', areaRange.end);
     await Api.box.write('minRooms', roomsRange.start);
     await Api.box.write('maxRooms', roomsRange.end);
+    await Api.box.write('minBaths', bathsRange.start);
+    await Api.box.write('maxBaths', bathsRange.end);
+    await Api.box.write('minRating', ratingRange.start);
+    await Api.box.write('maxRating', ratingRange.end);
   }
 }
