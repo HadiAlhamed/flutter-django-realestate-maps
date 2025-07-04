@@ -116,9 +116,7 @@ class OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
     _initializeLocation();
   }
 
-  void _decodePolyline(String encodedPolyline,
-      {bool?
-          newProperty}) //decode the polyline into a list of geographic coordinates (lat , long)
+  void _decodePolyline(String encodedPolyline) //decode the polyline into a list of geographic coordinates (lat , long)
   {
     PolylinePoints polylinePoints = PolylinePoints();
     List<PointLatLng> decodedPoints =

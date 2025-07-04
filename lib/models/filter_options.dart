@@ -3,6 +3,7 @@
 import 'package:flutter/foundation.dart';
 
 class FilterOptions {
+  bool? onlyMine = false;
   bool? isForRent = true;
   bool? isForSale = true;
   bool? orderByArea = true;
@@ -20,26 +21,33 @@ class FilterOptions {
 
   List<String> selectedCities = <String>[];
   bool? isActive = true;
-  bool? isNotActive = false;
+  bool? isNotActive = true;
   double? minRating = 0.0;
   double? maxRating = 5.0;
   int? minBaths = 0;
   int? maxBaths = 10;
   FilterOptions({
-    this.isForRent,
-    this.isForSale,
-    this.orderByArea,
-    this.orderByPrice,
-    this.orderAsc,
-    this.villa,
-    this.flat,
-    this.house,
-    this.minPrice,
-    this.maxPrice,
-    this.minArea,
-    this.maxArea,
-    this.minRooms,
-    this.maxRooms,
+    this.onlyMine = false,
+    this.isForRent = true,
+    this.isForSale = true,
+    this.orderByArea = true,
+    this.orderByPrice = true,
+    this.orderAsc = true,
+    this.villa = true,
+    this.flat = true,
+    this.house = true,
+    this.minPrice = 0,
+    this.maxPrice = 100000.0,
+    this.minArea = 0.0,
+    this.maxArea = 1000.0,
+    this.minRooms = 0,
+    this.maxRooms = 10,
+    this.isActive = true,
+    this.isNotActive = true,
+    this.minBaths = 0,
+    this.maxBaths = 10,
+    this.minRating = 0.0,
+    this.maxRating = 5.0,
     required this.selectedCities,
   });
 
@@ -58,9 +66,18 @@ class FilterOptions {
     double? maxArea,
     int? minRooms,
     int? maxRooms,
+    int? minBaths,
+    int? maxBaths,
+    double? minRating,
+    double? maxRating,
+    bool? onlyMine,
+    bool? isActive,
+    bool? isNotActive,
     List<String>? selectedCities,
   }) {
     return FilterOptions(
+      isActive: isActive ?? this.isActive,
+      isNotActive: isNotActive ?? this.isNotActive,
       isForRent: isForRent ?? this.isForRent,
       isForSale: isForSale ?? this.isForSale,
       orderByArea: orderByArea ?? this.orderByArea,
@@ -75,6 +92,10 @@ class FilterOptions {
       maxArea: maxArea ?? this.maxArea,
       minRooms: minRooms ?? this.minRooms,
       maxRooms: maxRooms ?? this.maxRooms,
+      minBaths: minBaths ?? this.minBaths,
+      maxBaths: maxBaths ?? this.maxBaths,
+      minRating: minRating ?? this.minRating,
+      maxRating: maxRating ?? this.maxRating,
       selectedCities: selectedCities ?? this.selectedCities,
     );
   }
@@ -132,15 +153,21 @@ class FilterOptions {
     }
     return <String, dynamic>{
       if ((isForRent! ^ isForSale!)) 'is_for_rent': isForRent,
+      if ((isActive! ^ isNotActive!)) 'is_active': isActive,
       if (ordering != '') 'ordering': ordering,
       if (types != '') 'types': types,
+      if (onlyMine != null) 'mine': onlyMine,
       'min_price': minPrice,
       'max_price': maxPrice,
       'min_area': minArea,
       'max_area': maxArea,
       'min_rooms': minRooms,
       'max_rooms': maxRooms,
-      if (cities != '') 'cities': cities,
+      'min_baths': minBaths,
+      'max_baths': maxBaths,
+      'minRating': minRating,
+      'maxRating': maxRating,
+      if (cities.isNotEmpty) 'cities': cities,
     };
   }
 

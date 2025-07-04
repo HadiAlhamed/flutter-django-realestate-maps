@@ -81,7 +81,7 @@ class PropertyCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       infoIconText(Icons.aspect_ratio_outlined,
-                          property.area.toStringAsFixed(0)),
+                          property.area!.toStringAsFixed(0)),
                       infoIconText(Icons.bed_outlined,
                           property.numberOfRooms.toString()),
                       infoIconText(Icons.bathtub_outlined,

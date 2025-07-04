@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:real_estate/models/facility.dart';
 import 'package:real_estate/models/filter_options.dart';
@@ -64,7 +63,9 @@ class PropertiesApis {
       }
     } catch (e) {
       if (e is DioException) {
-        print("Dio Exception : ${e.response?.data}");
+        print("Dio Exception : ${e.response?.statusCode}");
+
+        print("Dio Exception : ${e.response?.statusMessage}");
       } else {
         print("Network Error : $e");
       }

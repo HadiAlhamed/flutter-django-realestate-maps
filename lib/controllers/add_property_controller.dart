@@ -6,6 +6,7 @@ class AddPropertyController extends GetxController {
   List<bool> facilitiesSelected = List.generate(6, (index) => false);
   List<XFile> imagesPicked = [];
   bool isForRent = true;
+  bool isActive = true;
   String selectedType = '';
   String selectedCity = '';
   LatLng newPropertyCoordinates = LatLng(0, 0);
@@ -30,6 +31,11 @@ class AddPropertyController extends GetxController {
   void changeIsForRent(value) {
     isForRent = value;
     update(['isForRent']);
+  }
+
+  void changeIsActive(value) {
+    isActive = value;
+    update(['isActive']);
   }
 
   void setImagesPicked(List<XFile> images) {

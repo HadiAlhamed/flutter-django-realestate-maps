@@ -4,13 +4,13 @@ class Property {
   final int? id;
   final int? owner;
   bool? isActive = true;
-  final String propertyType;
-  final String city;
-  final int numberOfRooms;
-  final int bathrooms;
-  final double area;
-  final double price;
-  final bool isForRent;
+  final String? propertyType;
+  final String? city;
+  final int? numberOfRooms;
+  final int? bathrooms;
+  final double? area;
+  final double? price;
+  final bool? isForRent;
   final double? latitude;
   final double? longitude;
   final String? mainPhotoUrl;
@@ -18,16 +18,16 @@ class Property {
   final double? rating;
   Property({
     this.isActive,
-    required this.bathrooms,
+    this.bathrooms,
     this.rating,
     this.id,
     this.owner,
-    required this.propertyType,
-    required this.city,
-    required this.numberOfRooms,
-    required this.area,
-    required this.price,
-    required this.isForRent,
+    this.propertyType,
+    this.city,
+    this.numberOfRooms,
+    this.area,
+    this.price,
+    this.isForRent,
     this.latitude,
     this.longitude,
     this.mainPhotoUrl,
@@ -36,37 +36,42 @@ class Property {
 
   factory Property.fromJson(Map<String, dynamic> json) {
     return Property(
-      id: json['id'] as int,
-      owner: json['owner'] as int,
-      area: double.parse(json['area'] as String),
-      city: json['city'] as String,
-      isForRent: json['is_for_rent'] as bool,
-      numberOfRooms: json['number_of_rooms'] as int,
-      price: double.parse(json['price'] as String),
-      propertyType: json['ptype'] as String,
-      latitude: double.tryParse(json['latitude']),
-      longitude: double.tryParse(json['longitude']),
-      mainPhotoUrl: json['main_photo'],
-      address: json['address'],
-      bathrooms: json['bathrooms'],
+      id: json['id'] as int?,
+      owner: json['owner'] as int?,
+      area: double.tryParse(json['area'] ?? ''),
+      city: json['city'] as String?,
+      isForRent: json['is_for_rent'] as bool?,
+      numberOfRooms: json['number_of_rooms'] as int?,
+      price: double.tryParse(json['price'] ?? ''),
+      propertyType: json['ptype'] as String?,
+      latitude: double.tryParse(json['latitude'] ?? ''),
+      longitude: double.tryParse(json['longitude'] ?? ''),
+      mainPhotoUrl: json['main_photo'] as String?,
+      address: json['address'] as String?,
+      bathrooms: json['bathrooms'] as int?,
       isActive: json['is_active'] ?? true,
-      rating: double.tryParse(json['rating']) ?? 0.0,
+      rating: double.tryParse(json['rating'] ?? '') ?? 0.0,
     );
   }
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
-      'ptype': propertyType,
-      'city': city,
-      'number_of_rooms': numberOfRooms,
-      'area': area.toString(),
-      'price': price.toString(),
-      'is_for_rent': isForRent,
-      'latitude': latitude!.toStringAsFixed(5),
-      'longitude': longitude!.toStringAsFixed(5),
-      'is_active': isActive ?? true,
-      'rating': rating ?? 0.0,
-      'bathrooms': bathrooms,
+      if (id != null) 'id': id,
+      if (owner != null) 'owner': owner,
+      if (address != null) 'address': address,
+      if (mainPhotoUrl != null) 'main_photo': mainPhotoUrl,
+      if (propertyType != null && propertyType!.isNotEmpty)
+        'ptype': propertyType,
+      if (city != null && city!.isNotEmpty) 'city': city,
+      if (numberOfRooms != null) 'number_of_rooms': numberOfRooms,
+      if (area != null) 'area': area.toString(),
+      if (price != null) 'price': price.toString(),
+      if (isForRent != null) 'is_for_rent': isForRent,
+      if (latitude != null) 'latitude': latitude!.toStringAsFixed(5),
+      if (longitude != null) 'longitude': longitude!.toStringAsFixed(5),
+      if (isActive != null) 'is_active': isActive,
+      if (rating != null) 'rating': rating,
+      if (bathrooms != null) 'bathrooms': bathrooms,
     };
   }
 

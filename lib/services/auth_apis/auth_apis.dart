@@ -140,6 +140,11 @@ class AuthApis {
     print("Trying to login");
     print("Email : $email \nPassword : $password");
     try {
+      print(
+          "access token before login : ${await TokenService.getAccessToken()}");
+
+      print(
+          "refresh token before login : ${await TokenService.getRefreshToken()}");
       final response = await _dio.post(
         "${Api.baseUrl}/users/login/",
         data: {
@@ -150,9 +155,13 @@ class AuthApis {
       print("got a resonse");
       if (response.statusCode == 200) {
         final data = response.data;
+
+        print("login response data : $data");
         print("!!!!access token : ${data['access']}");
 
         print("!!!!!refresh token : ${data['refresh']}");
+        await Api.box.write("currentUserId", data['user_id']);
+        await Api.box.write("currentUserEmail", data['email']);
         await TokenService.saveTokens(
           accessToken: data['access'],
           refreshToken: data['refresh'],

@@ -11,7 +11,6 @@ import 'package:real_estate/models/paginated_property.dart';
 import 'package:real_estate/models/profile_info.dart';
 import 'package:real_estate/models/property.dart';
 import 'package:real_estate/services/auth_apis/auth_apis.dart';
-import 'package:real_estate/services/auth_services/token_service.dart';
 import 'package:real_estate/services/properties_apis/properties_apis.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 import 'package:real_estate/textstyles/text_styles.dart';

@@ -3,10 +3,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:real_estate/controllers/add_property_controller.dart';
 import 'package:real_estate/controllers/bottom_navigation_bar_controller.dart';
 import 'package:real_estate/controllers/drop_down_controller.dart';
+import 'package:real_estate/controllers/my_properties_controller.dart';
 import 'package:real_estate/controllers/property_controller.dart';
 import 'package:real_estate/models/facility.dart';
 import 'package:real_estate/models/property.dart';
@@ -47,12 +47,14 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
 
   final AddPropertyController addProController =
       Get.find<AddPropertyController>();
-
+  final MyPropertiesController myPController =
+      Get.find<MyPropertiesController>();
   final ImagePicker imagePicker = ImagePicker();
 
   final List<String> propertyType = ['House', 'Flat', 'Villa'];
   final args = Get.arguments;
   late bool isAdd;
+  late int? propertyId;
   final List<String> cities = [
     "Afrin",
     "Aleppo",
@@ -96,6 +98,7 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
     // TODO: implement initState
     super.initState();
     isAdd = args['isAdd'];
+    propertyId = args['propertyId'];
   }
 
   @override
@@ -239,6 +242,40 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
                     ),
                   ],
                 ),
+                Row(
+                  children: [
+                    const Text("Available"),
+                    const SizedBox(width: 4),
+                    GetBuilder<AddPropertyController>(
+                      init: addProController,
+                      id: "isActive",
+                      builder: (controller) => Radio<bool>(
+                        value: true,
+                        groupValue: addProController.isActive,
+                        onChanged: (value) {
+                          if (value != null) {
+                            addProController.changeIsActive(value);
+                          }
+                        },
+                      ),
+                    ),
+                    const Text("Not Available"),
+                    const SizedBox(width: 4),
+                    GetBuilder<AddPropertyController>(
+                      init: addProController,
+                      id: "isActive",
+                      builder: (controller) => Radio<bool>(
+                        value: false,
+                        groupValue: addProController.isActive,
+                        onChanged: (value) {
+                          if (value != null) {
+                            addProController.changeIsActive(value);
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
                 if (isAdd) getFacilitiesBox(screenHeight),
                 const SizedBox(
                   height: 20,
@@ -271,15 +308,18 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
   void handleUpdateProperty() async {
     if (formKey.currentState!.validate()) {
       addProController.changeIsAddLoading(true);
+      print("hello from handle upate property....");
       final Property? propertyResult = await PropertiesApis.updateProperty(
         property: Property(
+          id: propertyId!,
           propertyType: addProController.selectedType.toLowerCase(),
           city: addProController.selectedCity,
-          area: double.parse(areaController.text.trim()),
-          price: double.parse(priceController.text.trim()),
-          numberOfRooms: int.parse(roomController.text.trim()),
+          area: double.tryParse(areaController.text.trim()),
+          price: double.tryParse(priceController.text.trim()),
+          numberOfRooms: int.tryParse(roomController.text.trim()),
           isForRent: addProController.isForRent,
-          bathrooms: int.parse(bathController.text.trim()),
+          bathrooms: int.tryParse(bathController.text.trim()),
+          isActive: addProController.isActive,
         ),
       );
       addProController.changeIsAddLoading(false);
@@ -295,9 +335,13 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
         ),
       );
       if (flag) {
-        propertyController.addMyProperty(propertyResult);
+        propertyController.addProperty(propertyResult);
+        myPController.add(propertyResult);
         addProController.clear();
-        Get.offNamed('/myPropertiesPage');
+        Get.offNamedUntil(
+          '/myPropertiesPage',
+          ModalRoute.withName('/accountPage'),
+        );
       }
     }
   }
@@ -316,6 +360,7 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
           latitude: addProController.newPropertyCoordinates.latitude,
           longitude: addProController.newPropertyCoordinates.longitude,
           bathrooms: int.parse(bathController.text.trim()),
+          isActive: addProController.isActive,
         ),
       );
       addProController.changeIsAddLoading(false);
@@ -332,6 +377,7 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
       );
       if (flag) {
         propertyController.addProperty(propertyResult);
+        myPController.add(propertyResult);
         //add added images if any were added ,
         //add facilities added , if there were any.
         await Future.wait([

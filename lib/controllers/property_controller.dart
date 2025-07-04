@@ -8,14 +8,18 @@ class PropertyController extends GetxController {
   List<Property> houses = [];
   List<Property> flats = [];
   List<Property> villas = [];
-  List<Property> myProperties = [];
   bool isLoading = false;
+  Map<int, List<PropertyImage>> propertyImages = {};
+  Map<int, List<Facility>> propertyFacilities = {};
+  List<Property> get getAll => properties;
+  List<Property> get getHouses => houses;
+  List<Property> get getVillas => villas;
+  List<Property> get getFlats => flats;
   List<double> cardAnimationScale = List.generate(100005, (index) => 1.0);
   void changeCardScale(int index, int builderId, double newScale) {
     cardAnimationScale[index] = newScale;
     update([
       'propertyCard$index',
-      if (myProperties.length > index) "property${myProperties[builderId].id!}"
     ]);
   }
 
@@ -24,34 +28,33 @@ class PropertyController extends GetxController {
     update(['all', 'villa', 'house', 'flat']);
   }
 
-  Map<int, List<PropertyImage>> propertyImages = {};
-  Map<int, List<Facility>> propertyFacilities = {};
-  List<Property> get getAll => properties;
-  List<Property> get getHouses => houses;
-  List<Property> get getVillas => villas;
-  List<Property> get getFlats => flats;
-  void addMyProperty(Property property) {
-    for (int i = 0; i < myProperties.length; i++) {
-      if (myProperties[i].id! == property.id!) {
-        myProperties[i] = property;
-        break;
-      }
-    }
-    update(['property${property.id!}']);
-  }
-
   void addProperty(Property property) {
-    properties.add(property);
-    if (property.propertyType.toLowerCase() == 'house') {
-      houses.add(property);
+    int index = properties.indexWhere((p) {
+      return p.id! == property.id!;
+    });
+    index == -1 ? properties.add(property) : properties[index] = property;
+    if (property.propertyType!.toLowerCase() == 'house') {
+      index = houses.indexWhere((p) {
+        return p.id! == property.id!;
+      });
+
+      index == -1 ? houses.add(property) : houses[index] = property;
 
       update(['all', 'house']);
-    } else if (property.propertyType.toLowerCase() == 'flat') {
-      flats.add(property);
+    } else if (property.propertyType!.toLowerCase() == 'flat') {
+      index = flats.indexWhere((p) {
+        return p.id! == property.id!;
+      });
+
+      index == -1 ? flats.add(property) : flats[index] = property;
       update(['all', 'flat']);
     } else {
       //villa
-      villas.add(property);
+      index = villas.indexWhere((p) {
+        return p.id! == property.id!;
+      });
+
+      index == -1 ? villas.add(property) : villas[index] = property;
       update(['all', 'villa']);
     }
   }

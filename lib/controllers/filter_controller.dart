@@ -13,7 +13,7 @@ class FilterController extends GetxController {
   RangeValues bathsRange = const RangeValues(0, 10);
   RangeValues ratingRange = const RangeValues(0, 5);
   bool isActive = true;
-  bool isNotActive = false;
+  bool isNotActive = true;
   List<String> selectedCities = <String>[];
   bool isInitialLoading = true;
 
@@ -21,7 +21,7 @@ class FilterController extends GetxController {
     isForRent = await Api.box.read('isForRent') as bool? ?? true;
     isForSale = await Api.box.read('isForSale') as bool? ?? true;
     isActive = await Api.box.read('isActive') as bool? ?? true;
-    isNotActive = await Api.box.read('isNotActive') as bool? ?? false;
+    isNotActive = await Api.box.read('isNotActive') as bool? ?? true;
     orderByArea = await Api.box.read('orderByArea') as bool? ?? true;
     orderByPrice = await Api.box.read('orderByPrice') as bool? ?? true;
     orderAsc = await Api.box.read('orderAsc') as bool? ?? true;

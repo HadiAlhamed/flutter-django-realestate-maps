@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:real_estate/controllers/account_page_controller.dart';
 import 'package:real_estate/controllers/bottom_navigation_bar_controller.dart';
+import 'package:real_estate/controllers/my_properties_controller.dart';
 import 'package:real_estate/controllers/profile_controller.dart';
+import 'package:real_estate/controllers/property_controller.dart';
 import 'package:real_estate/controllers/property_details_controller.dart';
 import 'package:real_estate/controllers/theme_controller.dart';
 import 'package:real_estate/services/api.dart';
@@ -210,6 +212,8 @@ class AccountPage extends StatelessWidget {
       //remember to clear stuff
       bottomController.clear();
       PropertyDetailsController().clear();
+      PropertyController().clear();
+      MyPropertiesController().clear();
       await Api.box.write('rememberMe', false);
       Get.offAllNamed('/login');
     } else {
