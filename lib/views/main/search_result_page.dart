@@ -95,17 +95,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
                       child: PropertyCard(
                         index: index,
                         scaleController: propertyController,
-                        property: Property(
-                          area: filteredProperties[index].area,
-                          city: filteredProperties[index].city,
-                          isForRent: filteredProperties[index].isForRent,
-                          numberOfRooms:
-                              filteredProperties[index].numberOfRooms,
-                          price: filteredProperties[index].price,
-                          propertyType: filteredProperties[index].propertyType,
-                          address: filteredProperties[index].address,
-                          id: filteredProperties[index].id,
-                        ),
+                        property: filteredProperties[index],
                       ),
                     ),
                   );

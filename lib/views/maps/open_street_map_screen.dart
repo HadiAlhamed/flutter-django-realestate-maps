@@ -39,6 +39,7 @@ class OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
   void dispose() {
     // TODO: implement dispose
     locationController.dispose();
+
     myMapController.clear();
     super.dispose();
   }
@@ -129,6 +130,7 @@ class OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
   }
 
   Future<void> _fetchRouteFromTo(LatLng? from, LatLng? to) async {
+    if (!mounted) return;
     if (from == null || to == null) return;
     debugPrint("trying to fetch route From $from to $to..");
     final Uri url = Uri.parse(
@@ -273,10 +275,10 @@ class OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
                       minZoom: 0,
                       maxZoom: 100,
                       onTap: (tapPosition, point) {
-                        print("point : $point");
+                        print("!!!!!!!!!!!!point !!!!!!!!!!: $point");
                         if (isNewProperty) {
                           myMapController.updateMarkers(
-                            oldLocation: myMapController.newPropertyLocation!,
+                            oldLocation: myMapController.newPropertyLocation,
                             newLocation: point,
                             key: 'newPropertyLocation',
                           );

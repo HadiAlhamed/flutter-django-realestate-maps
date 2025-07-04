@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 import 'package:real_estate/controllers/bottom_navigation_bar_controller.dart';
+import 'package:real_estate/controllers/chat_controller.dart';
 import 'package:real_estate/controllers/profile_controller.dart';
 import 'package:real_estate/controllers/property_controller.dart';
 import 'package:real_estate/controllers/property_details_controller.dart';
@@ -10,6 +11,7 @@ import 'package:real_estate/models/paginated_property.dart';
 import 'package:real_estate/models/profile_info.dart';
 import 'package:real_estate/models/property.dart';
 import 'package:real_estate/services/auth_apis/auth_apis.dart';
+import 'package:real_estate/services/auth_services/token_service.dart';
 import 'package:real_estate/services/properties_apis/properties_apis.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 import 'package:real_estate/textstyles/text_styles.dart';
@@ -34,12 +36,13 @@ class _HomePageState extends State<HomePage>
   final PropertyDetailsController pdController =
       Get.find<PropertyDetailsController>();
   final ThemeController themeController = Get.find<ThemeController>();
+  final ChatController chatController = Get.find<ChatController>();
   late TabController _tabController;
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: tabs.length, vsync: this);
-
+    
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.wait([
         _fetchProperties(),
@@ -61,6 +64,8 @@ class _HomePageState extends State<HomePage>
     }
     profileController.changeCurrentUserInfo(profileInfo);
     profileController.changeIsInitialLoading(false);
+    
+    
   }
 
   Future<void> _fetchProperties() async {

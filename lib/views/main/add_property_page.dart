@@ -275,10 +275,11 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
         property: Property(
           propertyType: addProController.selectedType.toLowerCase(),
           city: addProController.selectedCity,
-          area: double.parse(areaController.text),
-          price: double.parse(priceController.text),
-          numberOfRooms: int.parse(roomController.text),
+          area: double.parse(areaController.text.trim()),
+          price: double.parse(priceController.text.trim()),
+          numberOfRooms: int.parse(roomController.text.trim()),
           isForRent: addProController.isForRent,
+          bathrooms: int.parse(bathController.text.trim()),
         ),
       );
       addProController.changeIsAddLoading(false);
@@ -314,6 +315,7 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
           isForRent: addProController.isForRent,
           latitude: addProController.newPropertyCoordinates.latitude,
           longitude: addProController.newPropertyCoordinates.longitude,
+          bathrooms: int.parse(bathController.text.trim()),
         ),
       );
       addProController.changeIsAddLoading(false);
