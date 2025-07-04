@@ -310,7 +310,7 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
               ),
               detailInfo(
                 Icons.bathtub,
-                "2 bath",
+                "${pdController.propertyDetails!.bathrooms} bath",
               ),
               detailInfo(
                 Icons.aspect_ratio,

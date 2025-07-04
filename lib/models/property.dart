@@ -1,13 +1,13 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
-import 'package:latlong2/latlong.dart';
-
 class Property {
   final int? id;
   final int? owner;
+  bool? isActive = true;
   final String propertyType;
   final String city;
   final int numberOfRooms;
+  final int bathrooms;
   final double area;
   final double price;
   final bool isForRent;
@@ -15,8 +15,11 @@ class Property {
   final double? longitude;
   final String? mainPhotoUrl;
   final String? address;
-
+  final double? rating;
   Property({
+    this.isActive,
+    required this.bathrooms,
+    this.rating,
     this.id,
     this.owner,
     required this.propertyType,
@@ -45,6 +48,9 @@ class Property {
       longitude: double.tryParse(json['longitude']),
       mainPhotoUrl: json['main_photo'],
       address: json['address'],
+      bathrooms: json['bathrooms'],
+      isActive: json['is_active'] ?? true,
+      rating: double.tryParse(json['rating']) ?? 0.0,
     );
   }
 
@@ -58,6 +64,9 @@ class Property {
       'is_for_rent': isForRent,
       'latitude': latitude!.toStringAsFixed(5),
       'longitude': longitude!.toStringAsFixed(5),
+      'is_active': isActive ?? true,
+      'rating': rating ?? 0.0,
+      'bathrooms': bathrooms,
     };
   }
 

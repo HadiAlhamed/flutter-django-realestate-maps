@@ -84,7 +84,8 @@ class PropertyCard extends StatelessWidget {
                           property.area.toStringAsFixed(0)),
                       infoIconText(Icons.bed_outlined,
                           property.numberOfRooms.toString()),
-                      infoIconText(Icons.bathtub_outlined, "1"),
+                      infoIconText(Icons.bathtub_outlined,
+                          property.bathrooms.toString()),
                       if (favorite != null)
                         IconButton(
                           onPressed: () async {

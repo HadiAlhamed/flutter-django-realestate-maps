@@ -13,6 +13,7 @@ class PropertyDetails {
   final String propertyType;
   final String city;
   final int numberOfRooms;
+
   final double area;
   final String? locationText;
   final double price;
@@ -22,9 +23,16 @@ class PropertyDetails {
   final double? longitude;
   final List<Facility?> facilities;
   final List<PropertyImage?> images;
+  final int bathrooms;
+  bool? isActive = true;
+  double? rating = 0.0;
+
   PropertyDetails({
+    this.isActive,
+    this.rating,
     required this.id,
     this.owner,
+    required this.bathrooms,
     required this.propertyType,
     required this.city,
     required this.numberOfRooms,
@@ -54,6 +62,9 @@ class PropertyDetails {
     double? longitude,
     List<Facility?>? facilities,
     List<PropertyImage?>? images,
+    bool? isActive,
+    int? bathrooms,
+    double? rating,
   }) {
     return PropertyDetails(
       id: id ?? this.id,
@@ -70,6 +81,9 @@ class PropertyDetails {
       longitude: longitude ?? this.longitude,
       facilities: facilities ?? this.facilities,
       images: images ?? this.images,
+      isActive: isActive ?? this.isActive,
+      rating: rating ?? this.rating,
+      bathrooms: bathrooms ?? this.bathrooms,
     );
   }
 
@@ -89,6 +103,9 @@ class PropertyDetails {
       'longitude': longitude,
       'facilities': facilities.map((x) => x?.toJson()).toList(),
       'images': images.map((x) => x?.toJson()).toList(),
+      'is_active': isActive ?? true,
+      'bathrooms': bathrooms,
+      'rating': rating ?? 0.0,
     };
   }
 
@@ -105,11 +122,17 @@ class PropertyDetails {
       latitude: latitude,
       longitude: longitude,
       mainPhotoUrl: images.isNotEmpty ? images[0]!.imageUrl : null,
+      bathrooms: bathrooms,
+      isActive: isActive ?? true,
+      rating: rating ?? 0.0,
     );
   }
 
   factory PropertyDetails.fromJson(Map<String, dynamic> map) {
     return PropertyDetails(
+      bathrooms: map['bathrooms'],
+      isActive: map['is_active'] ?? true,
+      rating: double.tryParse(map['rating']) ?? 0.0,
       id: map['id'] as int,
       owner: map['owner'] as int,
       propertyType: map['ptype'] as String,
