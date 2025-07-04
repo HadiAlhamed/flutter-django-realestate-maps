@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:real_estate/controllers/drop_down_controller.dart';
 import 'package:real_estate/controllers/profile_controller.dart';
 import 'package:real_estate/models/profile_info.dart';
+import 'package:real_estate/services/api.dart';
 import 'package:real_estate/services/auth_apis/auth_apis.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 import 'package:real_estate/widgets/my_button.dart';
@@ -33,7 +34,7 @@ class ProfilePage extends StatelessWidget {
     final double screenWidth = MediaQuery.sizeOf(context).width;
     final bool isNew = args?['isNew'] ?? false;
 
-    emailController.text = 'example@gmail.com';
+    emailController.text = Api.box.read("currentUserEmail");
     return Scaffold(
       appBar: AppBar(
         elevation: 4,
@@ -60,8 +61,9 @@ class ProfilePage extends StatelessWidget {
                         ? FileImage(
                             File(profileController.profilePhoto!.path),
                           )
-                        : const AssetImage(
-                            'assets/images/Aqari_logo_primary_towers.png'),
+                        : NetworkImage(
+                            profileController.currentUserInfo!.profilePhoto,
+                          ),
                     child: Align(
                       alignment: Alignment.bottomRight,
                       child: IconButton(
