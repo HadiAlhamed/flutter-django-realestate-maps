@@ -179,6 +179,32 @@ class AuthApis {
     }
   }
 
+  static Future<bool> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    print("trying to change current password....");
+    try {
+      final response = await _dio.post(
+        "${Api.baseUrl}/users/change-password/",
+        data: {
+          'current_password': currentPassword,
+          'new_password': newPassword,
+        },
+      );
+      if (response.statusCode == 200) {
+        return true;
+      }
+    } catch (e) {
+      if (e is DioException) {
+        print("Dio Exception :: changePassword : ${e.response?.data}");
+      } else {
+        print("Network Error :: changePassword : $e");
+      }
+    }
+    return false;
+  }
+
   static Future<bool> refreshToken() async {
     final refreshToken = await TokenService.getRefreshToken();
     print("refresh token : $refreshToken");

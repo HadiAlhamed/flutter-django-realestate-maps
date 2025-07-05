@@ -161,25 +161,41 @@ class AccountPage extends StatelessWidget {
           onTap: () {},
         ),
         const SizedBox(height: 10),
-        ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-          leading: const Icon(Icons.house),
-          title: const Text(
-            "My Properties",
-          ),
-          trailing: const Icon(Icons.keyboard_arrow_right, size: 32),
-          onTap: () {
-            Get.toNamed("/myPropertiesPage");
-          },
+        GetBuilder(
+          init: accountController,
+          id: 'sellerMode',
+          builder: (controller) => accountController.isSeller
+              ? ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                  leading: const Icon(Icons.house),
+                  title: const Text(
+                    "My Properties",
+                  ),
+                  trailing: const Icon(Icons.keyboard_arrow_right, size: 32),
+                  onTap: () {
+                    Get.toNamed("/myPropertiesPage");
+                  },
+                )
+              : const SizedBox.shrink(),
         ),
         const SizedBox(height: 10),
         ListTile(
           contentPadding: const EdgeInsets.symmetric(horizontal: 10),
           leading: const Icon(Icons.person_2_outlined),
-          title: const Text("Profile"),
+          title: const Text("My Profile"),
           trailing: const Icon(Icons.keyboard_arrow_right, size: 32),
           onTap: () {
             Get.toNamed('/profilePage');
+          },
+        ),
+        const SizedBox(height: 10),
+        ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+          leading: const Icon(Icons.password),
+          title: const Text("Change Password"),
+          trailing: const Icon(Icons.keyboard_arrow_right, size: 32),
+          onTap: () {
+            Get.toNamed('/changePasswordPage');
           },
         ),
         const SizedBox(height: 10),

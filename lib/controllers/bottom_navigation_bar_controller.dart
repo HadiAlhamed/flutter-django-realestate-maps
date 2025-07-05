@@ -16,5 +16,6 @@ class BottomNavigationBarController extends GetxController {
 
   void clear() {
     selectedIndex = 0;
+    update([]);
   }
 }

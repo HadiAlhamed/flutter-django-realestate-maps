@@ -7,6 +7,7 @@ import 'package:real_estate/services/auth_apis/auth_apis.dart';
 import 'package:real_estate/services/auth_services/token_service.dart';
 import 'package:real_estate/services/properties_apis/properties_apis.dart';
 import 'package:real_estate/textstyles/text_styles.dart';
+import 'package:real_estate/views/auth/change_password_page.dart';
 
 import 'package:real_estate/views/auth/forget_password_page.dart';
 import 'package:real_estate/views/auth/login.dart';
@@ -156,6 +157,12 @@ class MyApp extends StatelessWidget {
           GetPage(
             name: '/openStreetMap',
             page: () => const OpenStreetMapScreen(),
+            transition: Transition.fade,
+            transitionDuration: const Duration(milliseconds: 300),
+          ),
+          GetPage(
+            name: '/changePasswordPage',
+            page: () => const ChangePasswordPage(),
             transition: Transition.fade,
             transitionDuration: const Duration(milliseconds: 300),
           ),
