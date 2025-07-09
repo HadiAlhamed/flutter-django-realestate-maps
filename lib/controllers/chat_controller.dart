@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:real_estate/models/conversation.dart';
 import 'package:real_estate/models/message.dart';
+import 'package:real_estate/services/api.dart';
 import 'package:real_estate/services/auth_services/token_service.dart';
 import 'package:real_estate/services/chat_services/chat_web_socket_service.dart';
 
@@ -16,13 +18,49 @@ class ChatController extends GetxController {
       {}; //user id , is he typing or not, if not show last message
   Map<int, RxBool> isOtherUserOnline = {}; //user id , online or now
   Map<int, RxString> lastSeen = {}; //user id , his last seen
+  Map<int, RxString> lastMessageFor = {};
+  Map<int, RxString> lastMessageTime = {};
+  List<Conversation> chats = [];
+  int currentConversationId = 0;
+  int anyConversationId = 0;
+  set anyConvId(int conversationId) => anyConversationId = conversationId;
+  int get anyConvId => anyConversationId;
+  set currentConvId(int conversationId) =>
+      currentConversationId = conversationId;
+  int get currentConvId => currentConversationId;
   //add last Seen
+  bool isConnected = false;
+  bool fetchedAll = false;
+
+  void add(Conversation conversation) {
+    chats.add(conversation);
+    getUnreadCountFor(conversation.id).value = conversation.unreadCount;
+    getIsTypingFor(conversation.id).value = false;
+    getIsOtherUserOnlineFor(conversation.id).value =
+        conversation.otherUserIsOnline ?? false;
+    handleLastSeen(
+        {'last_seen': conversation.otherUserLastSeen}, conversation.id);
+
+    if (!isConnected) {
+      isConnected = true;
+      anyConvId = conversation.id;
+      connectToChat(
+          conversationId: conversation.id,
+          currentUserId: Api.box.read('currentUserId'));
+    }
+  }
+
+  void changeIsConnected(bool value) {
+    isConnected = value;
+  }
+
   Future<void> connectToChat({
     required int conversationId,
     required int currentUserId,
   }) async {
-    if (_activeSockets.containsKey(conversationId)) return;
-
+    if (_activeSockets.containsKey(conversationId))
+      return; //check if this could be a bug
+    print("chatController :: connectToChat : conversationId $conversationId");
     String? accessToken = await TokenService.getAccessToken();
     if (accessToken == null) {
       print(
@@ -44,16 +82,24 @@ class ChatController extends GetxController {
         if (type == null) {
           //incoming chat
           Message message = Message.fromJson(data);
-
-          _getMessagesFor(conversationId).add(message);
-          _getUnreadCountFor(conversationId).value += 1;
+          if (message.fileUrl == null) {
+            getLastMessageFor(conversationId).value = message.content!;
+          } else {
+            getLastMessageFor(conversationId).value = "File";
+          }
+          getLastMessageTimeFor(conversationId).value =
+              handleLastMessageTime(message.createdAt);
+          getMessagesFor(conversationId).add(message);
+          if (currentConversationId != conversationId) {
+            getUnreadCountFor(conversationId).value += 1;
+          }
         } else if (type == "typing_status") {
           if (data['user_id'] != currentUserId) {
-            _getIsTypingFor(conversationId).value = data['is_typing'];
+            getIsTypingFor(conversationId).value = data['is_typing'];
           }
         } else if (type == 'user_status_update') {
           if (data['user_id'] != currentUserId) {
-            _getIsOtherUserOnlineFor(conversationId).value = data['is_online'];
+            getIsOtherUserOnlineFor(conversationId).value = data['is_online'];
             if (data['last_seen'] != null) {
               handleLastSeen(data, conversationId);
             }
@@ -85,46 +131,61 @@ class ChatController extends GetxController {
   }
 
   void sendTextMessage(String content, int conversationId) {
-    _activeSockets[conversationId]!.sendMessage({
-      'type': 'chat_message',
-      'content': content,
-      'file_url': null,
-      'message_type': 'text',
-    });
+    print("trying to send text message for conversation $conversationId");
+    _activeSockets[conversationId]!.sendMessage(content, "text");
+    print("end!!");
   }
 
-  void sendTypingStatus(bool isTyping, int conversationId) {
-    _activeSockets[conversationId]!.sendMessage({
-      'type': 'typing',
-      'is_typing': isTyping,
-    });
-  }
+  // void sendTypingStatus(bool isTyping, int conversationId) {
+  //   _activeSockets[conversationId]!.sendMessage({
+  //     'type': 'typing',
+  //     'is_typing': isTyping,
+  //   });
+  // }
 
-  void markAsRead(List<String> messageIds, int conversationId) {
-    _activeSockets[conversationId]!.sendMessage({
-      "type": "mark_as_read",
-      "message_ids": messageIds,
-    });
-  }
+  // void markAsRead(List<String> messageIds, int conversationId) {
+  //   _activeSockets[conversationId]!.sendMessage({
+  //     "type": "mark_as_read",
+  //     "message_ids": messageIds,
+  //   });
+  // }
 
-  RxList<Message> _getMessagesFor(int conversationId) {
+  RxList<Message> getMessagesFor(int conversationId) {
     return messages.putIfAbsent(conversationId, () => RxList<Message>());
   }
 
-  RxInt _getUnreadCountFor(int conversationId) {
+  RxInt getUnreadCountFor(int conversationId) {
     return unreadCount.putIfAbsent(conversationId, () => RxInt(0));
   }
 
-  RxBool _getIsTypingFor(int conversationId) {
+  RxBool getIsTypingFor(int conversationId) {
     return isTyping.putIfAbsent(conversationId, () => RxBool(false));
   }
 
-  RxBool _getIsOtherUserOnlineFor(int conversationId) {
+  RxBool getIsOtherUserOnlineFor(int conversationId) {
     return isOtherUserOnline.putIfAbsent(conversationId, () => RxBool(false));
   }
 
-  void clear() {
+  void disconnect({int? exceptId, int? onlyThis}) {
+    if (onlyThis != null) {
+      if (onlyThis == anyConvId) return; //this is the only active conv
+      _activeSockets[onlyThis]?.close();
+      _activeSockets.remove(onlyThis);
+      return;
+    }
+    print("chat controller :: disconnect except : ${exceptId.toString()}");
+    List<int> activeSocketsKeys = _activeSockets.keys.toList();
+    for (int key in activeSocketsKeys) {
+      if (exceptId != null && key == exceptId) continue;
+
+      _activeSockets[key]?.close();
+      _activeSockets.remove(key);
+    }
+  }
+
+  void clear({bool? leaveConvIds}) {
     for (int key in _activeSockets.keys) {
+      print("closing sockets for conversation : $key");
       _activeSockets[key]!.close();
     }
     _activeSockets.clear();
@@ -134,6 +195,13 @@ class ChatController extends GetxController {
     isTyping.clear();
     isOtherUserOnline.clear();
     lastSeen.clear();
+    isConnected = false;
+    fetchedAll = false;
+    leaveConvIds ??= false;
+    if (!leaveConvIds) {
+      currentConversationId = 0;
+      anyConversationId = 0;
+    }
   }
 
   @override
@@ -152,15 +220,28 @@ class ChatController extends GetxController {
     super.onClose();
   }
 
+  String handleLastMessageTime(DateTime lastMessageTime) {
+    DateTime now = DateTime.now();
+    String wantedDate = "";
+    wantedDate = "at ${DateFormat('hh:mm a').format(lastMessageTime)}";
+    if (lastMessageTime.day == now.day) {
+    } else if (lastMessageTime.day == now.subtract(Duration(days: 1)).day) {
+      wantedDate = "yesterday $wantedDate";
+    } else {
+      wantedDate = DateFormat('dd/MM/yy').format(lastMessageTime);
+    }
+    return wantedDate;
+  }
+
   void handleLastSeen(Map<String, dynamic> data, int conversationId) {
     DateTime lastSeenDate = data['last_seen'];
     DateTime now = DateTime.now();
     String wantedDate = "";
-    final Duration sinceLastSeen = now.difference(lastSeenDate);
     wantedDate = "at ${DateFormat('hh:mm a').format(lastSeenDate)}";
-    if (lastSeenDate.day == now.subtract(Duration(days: 1)).day) {
+    if (lastSeenDate.day == now.day) {
+    } else if (lastSeenDate.day == now.subtract(Duration(days: 1)).day) {
       wantedDate = "yesterday at $wantedDate";
-    } else if (sinceLastSeen.inDays > 1) {
+    } else {
       wantedDate = "at ${DateFormat('hh:mm a dd-MM-yy').format(lastSeenDate)}";
     }
     _getLastSeenFor(conversationId).value = "last seen $wantedDate";
@@ -169,5 +250,13 @@ class ChatController extends GetxController {
   RxString _getLastSeenFor(int conversationId) {
     return lastSeen.putIfAbsent(
         conversationId, () => RxString("last seen recently"));
+  }
+
+  RxString getLastMessageTimeFor(int conversationId) {
+    return lastMessageTime.putIfAbsent(conversationId, () => RxString(""));
+  }
+
+  RxString getLastMessageFor(int conversationId) {
+    return lastMessageFor.putIfAbsent(conversationId, () => RxString(""));
   }
 }

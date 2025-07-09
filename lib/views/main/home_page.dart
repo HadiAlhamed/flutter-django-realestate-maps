@@ -7,10 +7,12 @@ import 'package:real_estate/controllers/profile_controller.dart';
 import 'package:real_estate/controllers/property_controller.dart';
 import 'package:real_estate/controllers/property_details_controller.dart';
 import 'package:real_estate/controllers/theme_controller.dart';
+import 'package:real_estate/models/paginated_conversation.dart';
 import 'package:real_estate/models/paginated_property.dart';
 import 'package:real_estate/models/profile_info.dart';
 import 'package:real_estate/models/property.dart';
 import 'package:real_estate/services/auth_apis/auth_apis.dart';
+import 'package:real_estate/services/chat_apis/chat_apis.dart';
 import 'package:real_estate/services/properties_apis/properties_apis.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 import 'package:real_estate/textstyles/text_styles.dart';
@@ -34,6 +36,7 @@ class _HomePageState extends State<HomePage>
   final ProfileController profileController = Get.find<ProfileController>();
   final PropertyDetailsController pdController =
       Get.find<PropertyDetailsController>();
+
   final ThemeController themeController = Get.find<ThemeController>();
   final ChatController chatController = Get.find<ChatController>();
   late TabController _tabController;
@@ -41,14 +44,23 @@ class _HomePageState extends State<HomePage>
   void initState() {
     super.initState();
     _tabController = TabController(length: tabs.length, vsync: this);
-    
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.wait([
+        if (!chatController.isConnected) _fetchFirstConversation(),
         _fetchProperties(),
         if (profileController.isInitialLoading) _fetchUserInfo(),
         if (pdController.isFavoriteSet.isEmpty) _fetchFavorites(),
       ]);
     });
+  }
+
+  Future<void> _fetchFirstConversation() async {
+    chatController.chats.clear();
+    PaginatedConversation pConversation = await ChatApis.getConversations();
+    if (pConversation.conversations.isNotEmpty) {
+      chatController.add(pConversation.conversations[0]);
+    }
   }
 
   Future<void> _fetchUserInfo() async {
@@ -63,8 +75,6 @@ class _HomePageState extends State<HomePage>
     }
     profileController.changeCurrentUserInfo(profileInfo);
     profileController.changeIsInitialLoading(false);
-    
-    
   }
 
   Future<void> _fetchProperties() async {

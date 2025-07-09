@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:real_estate/controllers/chat_controller.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 
 class MessageInputBar extends StatefulWidget {
-  final Function(String) onSend;
   final double screenHeight;
-  const MessageInputBar(
-      {super.key, required this.onSend, required this.screenHeight});
+
+  const MessageInputBar({super.key, required this.screenHeight});
 
   @override
   State<MessageInputBar> createState() => _MessageInputBarState();
@@ -13,7 +14,7 @@ class MessageInputBar extends StatefulWidget {
 
 class _MessageInputBarState extends State<MessageInputBar> {
   final TextEditingController _controller = TextEditingController();
-
+  final ChatController chatController = Get.find<ChatController>();
   @override
   void dispose() {
     // TODO: implement dispose
@@ -55,7 +56,10 @@ class _MessageInputBarState extends State<MessageInputBar> {
             icon: const Icon(Icons.send, color: primaryColorInactive),
             onPressed: () {
               if (_controller.text.trim().isNotEmpty) {
-                widget.onSend(_controller.text);
+                chatController.sendTextMessage(
+                  _controller.text.trim(),
+                  chatController.currentConvId,
+                );
                 _controller.clear();
               }
             },
@@ -63,5 +67,10 @@ class _MessageInputBarState extends State<MessageInputBar> {
         ],
       ),
     );
+  }
+
+  bool isRTL(String text) {
+    final rtlRegex = RegExp(r'^[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]');
+    return rtlRegex.hasMatch(text.trim());
   }
 }

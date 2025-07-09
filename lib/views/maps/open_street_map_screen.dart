@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -11,7 +10,6 @@ import 'package:location/location.dart';
 import 'package:real_estate/controllers/bottom_navigation_bar_controller.dart';
 import 'package:real_estate/controllers/my_map_controller.dart';
 import 'package:real_estate/controllers/property_controller.dart';
-import 'package:real_estate/models/property.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 import 'package:real_estate/widgets/my_bottom_navigation_bar.dart';
 import 'package:real_estate/widgets/my_snackbar.dart';

@@ -1,7 +1,4 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'dart:convert';
-
-import 'package:flutter/foundation.dart';
 
 import 'package:real_estate/models/conversation.dart';
 
@@ -25,9 +22,9 @@ class PaginatedConversation {
 
   factory PaginatedConversation.fromJson(Map<String, dynamic> json) {
     return PaginatedConversation(
-      conversations: json['results'].map((conversation) {
+      conversations: (json['results'] as List).map((conversation) {
         return Conversation.fromJson(conversation);
-      }),
+      }).toList(),
       nextUrl: json['next'],
     );
   }

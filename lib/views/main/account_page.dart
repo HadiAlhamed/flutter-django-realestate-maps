@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:real_estate/controllers/account_page_controller.dart';
 import 'package:real_estate/controllers/bottom_navigation_bar_controller.dart';
+import 'package:real_estate/controllers/chat_controller.dart';
 import 'package:real_estate/controllers/my_properties_controller.dart';
 import 'package:real_estate/controllers/profile_controller.dart';
 import 'package:real_estate/controllers/property_controller.dart';
@@ -9,6 +10,7 @@ import 'package:real_estate/controllers/property_details_controller.dart';
 import 'package:real_estate/controllers/theme_controller.dart';
 import 'package:real_estate/services/api.dart';
 import 'package:real_estate/services/auth_apis/auth_apis.dart';
+import 'package:real_estate/services/chat_apis/chat_apis.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 import 'package:real_estate/textstyles/text_styles.dart';
 import 'package:real_estate/widgets/my_bottom_navigation_bar.dart';
@@ -224,6 +226,7 @@ class AccountPage extends StatelessWidget {
 
   void handleLogout() async {
     final result = await AuthApis.logout();
+
     if (result) {
       //remember to clear stuff
       bottomController.clear();
@@ -231,6 +234,8 @@ class AccountPage extends StatelessWidget {
       PropertyController().clear();
       MyPropertiesController().clear();
       await Api.box.write('rememberMe', false);
+      ChatController().clear();
+
       Get.offAllNamed('/login');
     } else {
       Get.showSnackbar(

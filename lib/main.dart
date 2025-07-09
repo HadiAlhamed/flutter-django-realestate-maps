@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:real_estate/bindings/my_bindings.dart';
+import 'package:real_estate/controllers/chat_controller.dart';
 import 'package:real_estate/controllers/theme_controller.dart';
 import 'package:real_estate/services/api.dart';
 import 'package:real_estate/services/app_lifecycle/app_lifecycle_handler.dart';
@@ -31,6 +32,8 @@ import 'package:real_estate/views/maps/open_street_map_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  Get.put(ChatController());
+
   final appLifecycleHandler = AppLifecycleHandler();
   appLifecycleHandler.init();
   await Future.wait([

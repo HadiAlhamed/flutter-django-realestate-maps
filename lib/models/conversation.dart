@@ -1,30 +1,30 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'dart:convert';
 
 class Conversation {
   final int id;
   final int otherUserId;
   final String otherUserFirstName;
   final String otherUserLastName;
-  final String otherUserPhotoUrl;
-  final bool otherUserIsOnline;
-  final DateTime otherUserLastSeen;
+  String? otherUserPhotoUrl;
+  bool? otherUserIsOnline;
+  DateTime? otherUserLastSeen;
   String? lastMessage;
   final int unreadCount;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  DateTime? createdAt;
+  DateTime? updatedAt;
+
   Conversation({
     required this.id,
     required this.otherUserId,
     required this.otherUserFirstName,
     required this.otherUserLastName,
-    required this.otherUserPhotoUrl,
-    required this.otherUserIsOnline,
-    required this.otherUserLastSeen,
+    this.otherUserPhotoUrl,
+    this.otherUserIsOnline,
+    this.otherUserLastSeen,
     this.lastMessage,
     required this.unreadCount,
-    required this.createdAt,
-    required this.updatedAt,
+    this.createdAt,
+    this.updatedAt,
   });
 
   Conversation copyWith({
@@ -55,6 +55,28 @@ class Conversation {
     );
   }
 
+  factory Conversation.fromJson(Map<String, dynamic> map) {
+    final lastMessageMap = map['last_message'] as Map<String, dynamic>?;
+
+    return Conversation(
+      id: map['id'] as int,
+      otherUserId: map['other_user_id'] as int,
+      otherUserFirstName: map['other_user_first_name'] as String,
+      otherUserLastName: map['other_user_last_name'] as String,
+      otherUserPhotoUrl: map['other_user_photo'] as String?,
+      otherUserIsOnline: map['other_user_is_online'] as bool?,
+      otherUserLastSeen: map['other_user_last_seen'] != null
+          ? DateTime.parse(map['other_user_last_seen'])
+          : null,
+      lastMessage: lastMessageMap?['content'] as String?,
+      unreadCount: map['unread_count'] ?? 0,
+      createdAt:
+          map['created_at'] != null ? DateTime.parse(map['created_at']) : null,
+      updatedAt:
+          map['updated_at'] != null ? DateTime.parse(map['updated_at']) : null,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       'id': id,
@@ -63,30 +85,12 @@ class Conversation {
       'other_user_last_name': otherUserLastName,
       'other_user_photo': otherUserPhotoUrl,
       'other_user_is_online': otherUserIsOnline,
-      'other_user_last_seen': otherUserLastSeen.millisecondsSinceEpoch,
-      'last_message': lastMessage,
+      'other_user_last_seen': otherUserLastSeen?.toIso8601String(),
+      'last_message': lastMessage != null ? {'content': lastMessage} : null,
       'unread_count': unreadCount,
-      'created_at': createdAt.millisecondsSinceEpoch,
-      'updated_at': updatedAt.millisecondsSinceEpoch,
+      'created_at': createdAt?.toIso8601String(),
+      'updated_at': updatedAt?.toIso8601String(),
     };
-  }
-
-  factory Conversation.fromJson(Map<String, dynamic> map) {
-    return Conversation(
-      id: map['id'] as int,
-      otherUserId: map['other_user_id'] as int,
-      otherUserFirstName: map['other_user_first_name'] as String,
-      otherUserLastName: map['other_user_last_name'] as String,
-      otherUserPhotoUrl: map['other_user_photo'] as String,
-      otherUserIsOnline: map['other_user_is_online'] as bool,
-      otherUserLastSeen: DateTime.fromMillisecondsSinceEpoch(
-          map['other_user_last_seen'] as int),
-      lastMessage:
-          map['last_message'] != null ? map['last_message'] as String : null,
-      unreadCount: map['unread_count'] as int,
-      createdAt: DateTime.fromMillisecondsSinceEpoch(map['created_at'] as int),
-      updatedAt: DateTime.fromMillisecondsSinceEpoch(map['updated_at'] as int),
-    );
   }
 
   @override
@@ -95,10 +99,11 @@ class Conversation {
   }
 
   @override
-  bool operator ==(covariant Conversation other) {
+  bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other.id == id &&
+    return other is Conversation &&
+        other.id == id &&
         other.otherUserId == otherUserId &&
         other.otherUserFirstName == otherUserFirstName &&
         other.otherUserLastName == otherUserLastName &&

@@ -31,7 +31,11 @@ class TokenService {
   static Future<void> clearTokens() async {
     await _storage.deleteAll();
 
-    await Api.box.remove('access_token');
-    await Api.box.remove('refresh_token');
+    if (Api.box.read('access_token') != null) {
+      await Api.box.remove('access_token');
+    }
+    if (Api.box.read('refresh_token') != null) {
+      await Api.box.remove('refresh_token');
+    }
   }
 }

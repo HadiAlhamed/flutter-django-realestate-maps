@@ -6,7 +6,7 @@ import 'package:real_estate/services/auth_services/token_service.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-class ChatWebSocetService {
+class ChatWebSocketService {
   WebSocketChannel? _channel;
   final StreamController<Map<String, dynamic>> _messageStreamController =
       StreamController.broadcast();
@@ -19,13 +19,13 @@ class ChatWebSocetService {
     required int conversationId,
   }) {
     final url =
-        'ws://localhost:8001/ws/chat/$conversationId/?token=$accessToken';
+        'ws://10.0.2.2:9998/ws/chat/$conversationId/?token=$accessToken';
     _channel = IOWebSocketChannel.connect(Uri.parse(url));
-
     _channel!.stream.listen(
       (data) {
-        final message = json.decode(data);
+        final message = jsonDecode(data);
         _messageStreamController.add(message);
+        print("Received from WebSocket: $data");
       },
       onError: (error) async {
         print("WebSocket error: $error");
@@ -54,8 +54,22 @@ class ChatWebSocetService {
     );
   }
 
-  void sendMessage(Map<String, dynamic> message) {
-    _channel?.sink.add(json.encode(message));
+  void sendMessage(String content, String messageType) {
+    if (_channel != null) {
+      print("WebSocket is connected");
+    } else {
+      print("WebSocket is null (not connected)");
+    }
+    final jsonMessage = jsonEncode({
+      "type": "chat_message",
+      "content": content,
+      "file_url": null,
+      "message_type": messageType
+    });
+    print("📤 FINAL message sent to WebSocket:\n$jsonMessage");
+
+    print("🧪 Type of jsonMessage: ${jsonMessage.runtimeType}");
+    _channel?.sink.add(jsonMessage);
   }
 
   void close() {
