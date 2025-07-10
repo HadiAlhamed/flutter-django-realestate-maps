@@ -18,14 +18,23 @@ class ChatWebSocketService {
     required String accessToken,
     required int conversationId,
   }) {
+    if (_channel != null) {
+      print("🔗 Already connected. Skipping connect().");
+      return;
+    }
     final url =
         'ws://10.0.2.2:9998/ws/chat/$conversationId/?token=$accessToken';
+    print("websocket connection url : $url");
     _channel = IOWebSocketChannel.connect(Uri.parse(url));
     _channel!.stream.listen(
       (data) {
-        final message = jsonDecode(data);
-        _messageStreamController.add(message);
-        print("Received from WebSocket: $data");
+        try {
+          final message = jsonDecode(data);
+          _messageStreamController.add(message);
+          print("Received from WebSocket: $data");
+        } catch (e) {
+          print("Unexpected Error : webSocket listening : $e");
+        }
       },
       onError: (error) async {
         print("WebSocket error: $error");
@@ -48,8 +57,22 @@ class ChatWebSocketService {
           }
         }
       },
-      onDone: () {
+      onDone: () async {
         print("WebSocket closed.");
+        final ioChannel = _channel as IOWebSocketChannel?;
+        final closeCode = ioChannel?.closeCode;
+        final closeReason = ioChannel?.closeReason;
+
+        print("🛑 Close code: $closeCode");
+        print("📄 Close reason: $closeReason");
+        _channel?.sink.close();
+        _channel = null;
+        // _messageStreamController.close();
+
+        connect(
+          accessToken: (await TokenService.getAccessToken())!,
+          conversationId: conversationId,
+        );
       },
     );
   }
@@ -62,17 +85,30 @@ class ChatWebSocketService {
     }
     final jsonMessage = jsonEncode({
       "type": "chat_message",
-      "content": content,
       "file_url": null,
+      "content": content,
       "message_type": messageType
     });
     print("📤 FINAL message sent to WebSocket:\n$jsonMessage");
 
     print("🧪 Type of jsonMessage: ${jsonMessage.runtimeType}");
+
     _channel?.sink.add(jsonMessage);
+
+    if (_channel != null) {
+      print("WebSocket is connected");
+    } else {
+      print("WebSocket is null (not connected)");
+    }
+  }
+
+  void dispose() {
+    _messageStreamController.close();
+    _channel?.sink.close();
   }
 
   void close() {
     _channel?.sink.close();
+    // _messageStreamController.close();
   }
 }

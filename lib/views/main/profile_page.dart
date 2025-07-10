@@ -34,7 +34,9 @@ class ProfilePage extends StatelessWidget {
     final double screenWidth = MediaQuery.sizeOf(context).width;
     final bool isNew = args?['isNew'] ?? false;
 
-    emailController.text = Api.box.read("currentUserEmail");
+    if (Api.box.read("currentUserEmail") != null) {
+      emailController.text = Api.box.read("currentUserEmail");
+    }
     return Scaffold(
       appBar: AppBar(
         elevation: 4,
@@ -61,9 +63,11 @@ class ProfilePage extends StatelessWidget {
                         ? FileImage(
                             File(profileController.profilePhoto!.path),
                           )
-                        : NetworkImage(
-                            profileController.currentUserInfo!.profilePhoto,
-                          ),
+                        : profileController.currentUserInfo != null
+                            ? NetworkImage(
+                                profileController.currentUserInfo!.profilePhoto,
+                              )
+                            : AssetImage('assets/images/person.jpg'),
                     child: Align(
                       alignment: Alignment.bottomRight,
                       child: IconButton(

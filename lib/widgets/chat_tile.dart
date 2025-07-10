@@ -29,14 +29,17 @@ class ChatTile extends StatelessWidget {
       elevation: 4,
       margin: const EdgeInsets.only(bottom: 4),
       child: ListTile(
-        onTap: () {
+        onTap: () async {
           chatController.currentConvId = conversationId;
-          Get.toNamed(
+          await Get.toNamed(
             '/chatPage',
             arguments: {
               'index': index,
             },
           );
+
+          chatController.disconnect(onlyThis: chatController.currentConvId);
+          chatController.currentConvId = 0;
         },
         title: Text(name),
         subtitle: Text(lastMessage),

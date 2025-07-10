@@ -56,7 +56,7 @@ class _HomePageState extends State<HomePage>
   }
 
   Future<void> _fetchFirstConversation() async {
-    chatController.chats.clear();
+    chatController.clear();
     PaginatedConversation pConversation = await ChatApis.getConversations();
     if (pConversation.conversations.isNotEmpty) {
       chatController.add(pConversation.conversations[0]);

@@ -31,6 +31,10 @@ class ChatController extends GetxController {
   //add last Seen
   bool isConnected = false;
   bool fetchedAll = false;
+  RxBool loadingChats = RxBool(false);
+  void changeLoadingChats(bool value) {
+    loadingChats.value = value;
+  }
 
   void add(Conversation conversation) {
     chats.add(conversation);
@@ -38,16 +42,14 @@ class ChatController extends GetxController {
     getIsTypingFor(conversation.id).value = false;
     getIsOtherUserOnlineFor(conversation.id).value =
         conversation.otherUserIsOnline ?? false;
-    handleLastSeen(
-        {'last_seen': conversation.otherUserLastSeen}, conversation.id);
+    handleLastSeen({'last_seen': conversation.otherUserLastSeen.toString()},
+        conversation.id);
 
-    if (!isConnected) {
-      isConnected = true;
-      anyConvId = conversation.id;
-      connectToChat(
-          conversationId: conversation.id,
-          currentUserId: Api.box.read('currentUserId'));
-    }
+    isConnected = true;
+    anyConvId = conversation.id;
+    connectToChat(
+        conversationId: conversation.id,
+        currentUserId: Api.box.read('currentUserId'));
   }
 
   void changeIsConnected(bool value) {
@@ -59,8 +61,8 @@ class ChatController extends GetxController {
     required int currentUserId,
   }) async {
     if (_activeSockets.containsKey(conversationId))
-      return; //check if this could be a bug
-    print("chatController :: connectToChat : conversationId $conversationId");
+      // return; //check if this could be a bug
+      print("chatController :: connectToChat : conversationId $conversationId");
     String? accessToken = await TokenService.getAccessToken();
     if (accessToken == null) {
       print(
@@ -73,14 +75,21 @@ class ChatController extends GetxController {
       conversationId: conversationId,
     );
     _activeSockets[conversationId] = socketService;
-    _messageStreams[conversationId] = socketService.messagesStream;
     //change what need to be changed
+    if (_messageStreams.containsKey(conversationId)) {
+      print("Already listening to stream for $conversationId");
+      return;
+    }
+    _messageStreams[conversationId] = socketService.messagesStream;
+
     _messageStreams[conversationId]!.listen(
       (data) {
         print("new data from chat stream : $data");
         final String? type = data['type'];
+        print("type : $type");
         if (type == null) {
           //incoming chat
+
           Message message = Message.fromJson(data);
           if (message.fileUrl == null) {
             getLastMessageFor(conversationId).value = message.content!;
@@ -167,10 +176,13 @@ class ChatController extends GetxController {
   }
 
   void disconnect({int? exceptId, int? onlyThis}) {
+    print("anyConvId $anyConversationId");
+    print("onlyThis : $onlyThis");
     if (onlyThis != null) {
       if (onlyThis == anyConvId) return; //this is the only active conv
       _activeSockets[onlyThis]?.close();
       _activeSockets.remove(onlyThis);
+
       return;
     }
     print("chat controller :: disconnect except : ${exceptId.toString()}");
@@ -184,6 +196,7 @@ class ChatController extends GetxController {
   }
 
   void clear({bool? leaveConvIds}) {
+    print("clearing chat Controller");
     for (int key in _activeSockets.keys) {
       print("closing sockets for conversation : $key");
       _activeSockets[key]!.close();
@@ -198,6 +211,8 @@ class ChatController extends GetxController {
     isConnected = false;
     fetchedAll = false;
     leaveConvIds ??= false;
+    chats.clear();
+
     if (!leaveConvIds) {
       currentConversationId = 0;
       anyConversationId = 0;
@@ -223,7 +238,7 @@ class ChatController extends GetxController {
   String handleLastMessageTime(DateTime lastMessageTime) {
     DateTime now = DateTime.now();
     String wantedDate = "";
-    wantedDate = "at ${DateFormat('hh:mm a').format(lastMessageTime)}";
+    wantedDate = DateFormat('hh:mm a').format(lastMessageTime);
     if (lastMessageTime.day == now.day) {
     } else if (lastMessageTime.day == now.subtract(Duration(days: 1)).day) {
       wantedDate = "yesterday $wantedDate";
@@ -234,7 +249,7 @@ class ChatController extends GetxController {
   }
 
   void handleLastSeen(Map<String, dynamic> data, int conversationId) {
-    DateTime lastSeenDate = data['last_seen'];
+    DateTime lastSeenDate = DateTime.parse(data['last_seen']);
     DateTime now = DateTime.now();
     String wantedDate = "";
     wantedDate = "at ${DateFormat('hh:mm a').format(lastSeenDate)}";

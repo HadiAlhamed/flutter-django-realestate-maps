@@ -34,6 +34,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
   Future<void> _fetchConversations() async {
     if (chatController.fetchedAll) return;
+    chatController.changeLoadingChats(true);
     chatController.chats.clear();
     //make use of the pagination concept , current implementation is wrong
     PaginatedConversation pConversation = await ChatApis.getConversations();
@@ -43,11 +44,13 @@ class _ChatsPageState extends State<ChatsPage> {
       }
     } while (pConversation.nextUrl != null);
     chatController.fetchedAll = true;
+
+    chatController.changeLoadingChats(false);
   }
 
   @override
   dispose() {
-    chatController.disconnect(exceptId: chatController.chats[0].id);
+    chatController.disconnect(exceptId: chatController.anyConvId);
     super.dispose();
   }
 
@@ -61,44 +64,57 @@ class _ChatsPageState extends State<ChatsPage> {
         title: const Text("Chats"),
       ),
       body: AnimationLimiter(
-        child: ListView.builder(
-          itemCount: chatController.chats.length,
-          itemBuilder: (context, index) {
-            return AnimationConfiguration.staggeredList(
-              position: index,
-              duration: const Duration(milliseconds: 375),
-              child: SlideAnimation(
-                horizontalOffset: 50.0,
-                verticalOffset: 50.0,
-                child: ScaleAnimation(
-                  scale: 0.8,
-                  child: FadeInAnimation(
-                    curve: Easing.legacyAccelerate,
-                    child: Obx(
-                      () {
-                        return ChatTile(
-                          key: ValueKey(chatController.chats[index].id),
-                          conversationId: chatController.chats[index].id,
-                          index: index,
-                          name:
-                              "${chatController.chats[index].otherUserFirstName} ${chatController.chats[index].otherUserLastName}",
-                          lastMessage:
-                              chatController.chats[index].lastMessage ?? "",
-                          lastMessageTime: handleLastMessageTime(
-                              chatController.chats[index].updatedAt!),
-                          newMessages: chatController
-                              .unreadCount[chatController.chats[index].id]!
-                              .value,
-                          screenWidth: screenWidth,
-                        );
-                      },
+        child: Obx(() {
+          if (chatController.loadingChats.value) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          if (chatController.chats.isEmpty) {
+            return const Center(
+              child: Text("You have no chats yet."),
+            );
+          }
+
+          return ListView.builder(
+            itemCount: chatController.chats.length,
+            itemBuilder: (context, index) {
+              return AnimationConfiguration.staggeredList(
+                position: index,
+                duration: const Duration(milliseconds: 375),
+                child: SlideAnimation(
+                  horizontalOffset: 50.0,
+                  verticalOffset: 50.0,
+                  child: ScaleAnimation(
+                    scale: 0.8,
+                    child: FadeInAnimation(
+                      curve: Easing.legacyAccelerate,
+                      child: Obx(
+                        () {
+                          return ChatTile(
+                            key: ValueKey(chatController.chats[index].id),
+                            conversationId: chatController.chats[index].id,
+                            index: index,
+                            name:
+                                "${chatController.chats[index].otherUserFirstName} ${chatController.chats[index].otherUserLastName}",
+                            lastMessage:
+                                chatController.chats[index].lastMessage ?? "",
+                            lastMessageTime: handleLastMessageTime(
+                                chatController.chats[index].updatedAt!),
+                            newMessages: chatController
+                                .unreadCount[chatController.chats[index].id]!
+                                .value,
+                            screenWidth: screenWidth,
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),
-              ),
-            );
-          },
-        ),
+              );
+            },
+          );
+        }),
       ),
       floatingActionButton: const MyFloatingActionButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,

@@ -139,6 +139,7 @@ class AuthApis {
     // TODO: Add login implementation using Dio
     print("Trying to login");
     print("Email : $email \nPassword : $password");
+
     try {
       print(
           "access token before login : ${await TokenService.getAccessToken()}");

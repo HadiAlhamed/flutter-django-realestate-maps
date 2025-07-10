@@ -24,9 +24,14 @@ class Message {
   });
 
   factory Message.fromJson(Map<String, dynamic> json) {
+    print("message id type : ${json['id'].runtimeType}");
+    print("sender id type : ${json['sender_id'].runtimeType}");
+
     return Message(
-      id: json['id'] as int,
-      senderId: json['sender_id'] as int,
+      id: json['id'] is String ? int.parse(json['id']) : json['id'] as int,
+      senderId: json['sender_id'] is String
+          ? int.parse(json['sender_id'])
+          : json['sender_id'] as int,
       senderFirstName: json['sender_first_name'] as String,
       senderLastName: json['sender_last_name'] as String,
       senderPhoto: json['sender_photo'] as String?,

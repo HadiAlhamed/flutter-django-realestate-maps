@@ -230,12 +230,20 @@ class AccountPage extends StatelessWidget {
     if (result) {
       //remember to clear stuff
       bottomController.clear();
-      PropertyDetailsController().clear();
-      PropertyController().clear();
-      MyPropertiesController().clear();
-      await Api.box.write('rememberMe', false);
-      ChatController().clear();
 
+      await Api.box.write('rememberMe', false);
+
+      final ChatController chatController = Get.find<ChatController>();
+
+      final PropertyDetailsController pdController =
+          Get.find<PropertyDetailsController>();
+      final PropertyController pController = Get.find<PropertyController>();
+      final MyPropertiesController myPController =
+          Get.find<MyPropertiesController>();
+      chatController.clear();
+      pdController.clear();
+      pController.clear();
+      myPController.clear();
       Get.offAllNamed('/login');
     } else {
       Get.showSnackbar(

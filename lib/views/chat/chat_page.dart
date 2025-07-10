@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 import 'package:real_estate/controllers/chat_controller.dart';
+import 'package:real_estate/models/message.dart';
 import 'package:real_estate/services/api.dart';
 import 'package:real_estate/services/chat_apis/chat_apis.dart';
 import 'package:real_estate/widgets/chat_bubble.dart';
@@ -16,6 +17,7 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   final ChatController chatController = Get.find<ChatController>();
+  final ScrollController _scrollController = ScrollController();
 
   final Map<String, dynamic> args = Get.arguments as Map<String, dynamic>;
 
@@ -26,12 +28,18 @@ class _ChatPageState extends State<ChatPage> {
     // TODO: implement initState
     super.initState();
     index = args['index'];
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchMessages();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _fetchMessages(); // fetch messages after UI is ready
+      _scrollToBottom(); // scroll to bottom after fetching
+    });
+    ever(chatController.getMessagesFor(chatController.currentConvId), (_) {
+      print("Messages updated, scrolling down...");
+      _scrollToBottom();
     });
   }
 
   Future<void> _fetchMessages() async {
+    print("currentUserId from chatPage : ${Api.box.read('currentUserId')}");
     chatController.connectToChat(
       conversationId: chatController.currentConvId,
       currentUserId: Api.box.read('currentUserId'),
@@ -43,8 +51,6 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   dispose() {
-    chatController.disconnect(onlyThis: chatController.currentConvId);
-    chatController.currentConvId = 0;
     super.dispose();
   }
 
@@ -53,6 +59,8 @@ class _ChatPageState extends State<ChatPage> {
     final double screenWidth = MediaQuery.sizeOf(context).width;
 
     final double screenHeight = MediaQuery.sizeOf(context).height;
+    // Scroll to bottom
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -104,6 +112,7 @@ class _ChatPageState extends State<ChatPage> {
             child: AnimationLimiter(
               child: Obx(() {
                 return ListView.builder(
+                  controller: _scrollController,
                   itemCount: chatController
                       .getMessagesFor(chatController.currentConvId)
                       .length,
@@ -135,5 +144,22 @@ class _ChatPageState extends State<ChatPage> {
         ],
       ),
     );
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      print("ScrollController has clients? ${_scrollController.hasClients}");
+      if (_scrollController.hasClients) {
+        final maxScroll = _scrollController.position.maxScrollExtent;
+        print("Scrolling to maxScrollExtent: $maxScroll");
+        _scrollController.animateTo(
+          maxScroll,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      } else {
+        print("No clients attached to scrollController");
+      }
+    });
   }
 }
