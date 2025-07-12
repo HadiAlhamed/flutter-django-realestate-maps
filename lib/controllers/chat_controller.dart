@@ -242,6 +242,7 @@ class ChatController extends GetxController {
   }
 
   String handleLastMessageTime(DateTime lastMessageTime) {
+    lastMessageTime = lastMessageTime.toLocal();
     DateTime now = DateTime.now();
     String wantedDate = "";
     wantedDate = DateFormat('hh:mm a').format(lastMessageTime);
@@ -255,7 +256,8 @@ class ChatController extends GetxController {
   }
 
   void handleLastSeen(Map<String, dynamic> data, int conversationId) {
-    DateTime lastSeenDate = DateTime.parse(data['last_seen']);
+    DateTime lastSeenDate = DateTime.parse(data['last_seen']).toLocal();
+
     DateTime now = DateTime.now();
     String wantedDate = "";
     wantedDate = "at ${DateFormat('hh:mm a').format(lastSeenDate)}";

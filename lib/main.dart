@@ -33,7 +33,6 @@ import 'package:real_estate/views/maps/open_street_map_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Get.put(ChatController());
-
   final appLifecycleHandler = AppLifecycleHandler();
   appLifecycleHandler.init();
   await Future.wait([

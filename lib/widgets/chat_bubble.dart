@@ -50,7 +50,7 @@ class ChatBubble extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(
-                  DateFormat("hh:mm a").format(message.createdAt),
+                  DateFormat("hh:mm a").format(message.createdAt.toLocal()),
                   textAlign: TextAlign.right,
                 ),
                 if (isMe)
