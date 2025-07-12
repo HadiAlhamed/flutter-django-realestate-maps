@@ -10,7 +10,6 @@ import 'package:real_estate/controllers/property_details_controller.dart';
 import 'package:real_estate/controllers/theme_controller.dart';
 import 'package:real_estate/services/api.dart';
 import 'package:real_estate/services/auth_apis/auth_apis.dart';
-import 'package:real_estate/services/chat_apis/chat_apis.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 import 'package:real_estate/textstyles/text_styles.dart';
 import 'package:real_estate/widgets/my_bottom_navigation_bar.dart';

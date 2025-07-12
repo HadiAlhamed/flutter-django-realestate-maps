@@ -61,8 +61,8 @@ class ChatController extends GetxController {
     required int currentUserId,
   }) async {
     if (_activeSockets.containsKey(conversationId))
-      // return; //check if this could be a bug
-      print("chatController :: connectToChat : conversationId $conversationId");
+      return; //check if this could be a bug
+    print("chatController :: connectToChat : conversationId $conversationId");
     String? accessToken = await TokenService.getAccessToken();
     if (accessToken == null) {
       print(

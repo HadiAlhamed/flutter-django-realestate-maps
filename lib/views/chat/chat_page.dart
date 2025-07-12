@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 import 'package:real_estate/controllers/chat_controller.dart';
-import 'package:real_estate/models/message.dart';
 import 'package:real_estate/services/api.dart';
 import 'package:real_estate/services/chat_apis/chat_apis.dart';
 import 'package:real_estate/widgets/chat_bubble.dart';

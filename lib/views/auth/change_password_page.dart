@@ -9,7 +9,6 @@ import 'package:real_estate/controllers/property_details_controller.dart';
 import 'package:real_estate/services/api.dart';
 import 'package:real_estate/services/auth_apis/auth_apis.dart';
 import 'package:real_estate/services/auth_services/token_service.dart';
-import 'package:real_estate/services/chat_apis/chat_apis.dart';
 import 'package:real_estate/widgets/my_button.dart';
 import 'package:real_estate/widgets/my_input_field.dart';
 import 'package:real_estate/widgets/my_snackbar.dart';
@@ -141,13 +140,22 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
               if (result) {
                 TokenService.clearTokens();
                 changePController.clear();
-                BottomNavigationBarController().clear();
-                PropertyDetailsController().clear();
-                PropertyController().clear();
-                MyPropertiesController().clear();
+
                 await Api.box.write('rememberMe', false);
 
-                ChatController().clear();
+                final ChatController chatController =
+                    Get.find<ChatController>();
+
+                final PropertyDetailsController pdController =
+                    Get.find<PropertyDetailsController>();
+                final PropertyController pController =
+                    Get.find<PropertyController>();
+                final MyPropertiesController myPController =
+                    Get.find<MyPropertiesController>();
+                chatController.clear();
+                pdController.clear();
+                pController.clear();
+                myPController.clear();
                 Get.offAllNamed('/login');
               } else {
                 Get.showSnackbar(
