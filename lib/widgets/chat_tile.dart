@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:real_estate/controllers/chat_controller.dart';
+import 'package:real_estate/services/api.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 
 class ChatTile extends StatelessWidget {
@@ -31,18 +32,20 @@ class ChatTile extends StatelessWidget {
       child: ListTile(
         onTap: () async {
           chatController.currentConvId = conversationId;
+
           await Get.toNamed(
             '/chatPage',
             arguments: {
               'index': index,
             },
           );
-
-          chatController.disconnect(onlyThis: chatController.currentConvId);
-          chatController.currentConvId = 0;
         },
         title: Text(name),
-        subtitle: Text(lastMessage),
+        subtitle: Text(
+          lastMessage,
+          overflow: TextOverflow.ellipsis, // Shows ... at the end
+          maxLines: 2, // Ensures text stays in a single lines
+        ),
         leading: CircleAvatar(
           radius: screenWidth * 0.07,
           backgroundImage: const AssetImage('assets/images/person.jpg'),

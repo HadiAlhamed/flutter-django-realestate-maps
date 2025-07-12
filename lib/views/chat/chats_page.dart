@@ -99,8 +99,10 @@ class _ChatsPageState extends State<ChatsPage> {
                                 "${chatController.chats[index].otherUserFirstName} ${chatController.chats[index].otherUserLastName}",
                             lastMessage:
                                 chatController.chats[index].lastMessage ?? "",
-                            lastMessageTime: handleLastMessageTime(
-                                chatController.chats[index].updatedAt!),
+                            lastMessageTime: chatController
+                                .lastMessageTime[
+                                    chatController.chats[index].id]!
+                                .value,
                             newMessages: chatController
                                 .unreadCount[chatController.chats[index].id]!
                                 .value,

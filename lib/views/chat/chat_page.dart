@@ -26,6 +26,11 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    if (chatController.currentConvId != chatController.anyConvId) {
+      chatController.connectToChat(
+          conversationId: chatController.currentConvId,
+          currentUserId: Api.box.read('currentUserId'));
+    }
     index = args['index'];
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _fetchMessages(); // fetch messages after UI is ready
@@ -39,10 +44,7 @@ class _ChatPageState extends State<ChatPage> {
 
   Future<void> _fetchMessages() async {
     print("currentUserId from chatPage : ${Api.box.read('currentUserId')}");
-    chatController.connectToChat(
-      conversationId: chatController.currentConvId,
-      currentUserId: Api.box.read('currentUserId'),
-    );
+
     chatController.getMessagesFor(chatController.currentConvId).clear();
     chatController.getMessagesFor(chatController.currentConvId).value =
         await ChatApis.getMessagesFor(chatController.currentConvId);
@@ -50,6 +52,8 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   dispose() {
+    chatController.disconnect(onlyThis: chatController.currentConvId);
+    chatController.currentConvId = -1;
     super.dispose();
   }
 

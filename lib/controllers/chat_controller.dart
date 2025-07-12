@@ -21,8 +21,8 @@ class ChatController extends GetxController {
   Map<int, RxString> lastMessageFor = {};
   Map<int, RxString> lastMessageTime = {};
   List<Conversation> chats = [];
-  int currentConversationId = 0;
-  int anyConversationId = 0;
+  int currentConversationId = -1;
+  int anyConversationId = -1;
   set anyConvId(int conversationId) => anyConversationId = conversationId;
   int get anyConvId => anyConversationId;
   set currentConvId(int conversationId) =>
@@ -44,12 +44,15 @@ class ChatController extends GetxController {
         conversation.otherUserIsOnline ?? false;
     handleLastSeen({'last_seen': conversation.otherUserLastSeen.toString()},
         conversation.id);
-
+    getLastMessageTimeFor(conversation.id).value =
+        handleLastMessageTime(conversation.updatedAt!);
+    if (anyConversationId == -1) anyConversationId = conversation.id;
+    if (!isConnected) {
+      connectToChat(
+          conversationId: conversation.id,
+          currentUserId: Api.box.read('currentUserId'));
+    }
     isConnected = true;
-    anyConvId = conversation.id;
-    connectToChat(
-        conversationId: conversation.id,
-        currentUserId: Api.box.read('currentUserId'));
   }
 
   void changeIsConnected(bool value) {
@@ -178,6 +181,8 @@ class ChatController extends GetxController {
   void disconnect({int? exceptId, int? onlyThis}) {
     print("anyConvId $anyConversationId");
     print("onlyThis : $onlyThis");
+    print("except : $exceptId");
+
     if (onlyThis != null) {
       if (onlyThis == anyConvId) return; //this is the only active conv
       _activeSockets[onlyThis]?.close();
@@ -193,6 +198,7 @@ class ChatController extends GetxController {
       _activeSockets[key]?.close();
       _activeSockets.remove(key);
     }
+    print("Done disconnecting from chat Controller");
   }
 
   void clear({bool? leaveConvIds}) {

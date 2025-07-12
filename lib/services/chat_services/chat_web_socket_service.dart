@@ -13,6 +13,8 @@ class ChatWebSocketService {
 
   Stream<Map<String, dynamic>> get messagesStream =>
       _messageStreamController.stream;
+  StreamSubscription? _webSocketSubscription;
+  Completer<void>? _connectionCompleter;
 
   void connect({
     required String accessToken,
@@ -22,12 +24,18 @@ class ChatWebSocketService {
       print("🔗 Already connected. Skipping connect().");
       return;
     }
+
+    _connectionCompleter = Completer<void>();
+
     final url =
         'ws://10.0.2.2:9998/ws/chat/$conversationId/?token=$accessToken';
     print("websocket connection url : $url");
     _channel = IOWebSocketChannel.connect(Uri.parse(url));
-    _channel!.stream.listen(
+    _webSocketSubscription = _channel!.stream.listen(
       (data) {
+        if (!_connectionCompleter!.isCompleted) {
+          _connectionCompleter!.complete(); // ✅ mark as "ready"
+        }
         try {
           final message = jsonDecode(data);
           _messageStreamController.add(message);
@@ -68,16 +76,18 @@ class ChatWebSocketService {
         _channel?.sink.close();
         _channel = null;
         // _messageStreamController.close();
-
+        //i need better solutation than this
+        _webSocketSubscription!.cancel();
         connect(
           accessToken: (await TokenService.getAccessToken())!,
           conversationId: conversationId,
         );
       },
+      // cancelOnError: true,
     );
   }
 
-  void sendMessage(String content, String messageType) {
+  Future<void> sendMessage(String content, String messageType) async {
     if (_channel != null) {
       print("WebSocket is connected");
     } else {
@@ -103,6 +113,7 @@ class ChatWebSocketService {
   }
 
   void dispose() {
+    _webSocketSubscription?.cancel();
     _messageStreamController.close();
     _channel?.sink.close();
   }
