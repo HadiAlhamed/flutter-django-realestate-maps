@@ -9,7 +9,7 @@ class Conversation {
   bool? otherUserIsOnline;
   DateTime? otherUserLastSeen;
   String? lastMessage;
-  final int unreadCount;
+  int unreadCount;
   DateTime? createdAt;
   DateTime? updatedAt;
 

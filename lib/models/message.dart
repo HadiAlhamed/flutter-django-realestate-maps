@@ -24,6 +24,7 @@ class Message {
   });
 
   factory Message.fromJson(Map<String, dynamic> json) {
+    // print("runtime type of message id : ${json['id'].runtimeType}");
     return Message(
       id: json['id'] is String ? int.parse(json['id']) : json['id'] as int,
       senderId: json['sender_id'] is String

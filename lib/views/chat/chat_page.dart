@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 import 'package:real_estate/controllers/chat_controller.dart';
+import 'package:real_estate/models/message.dart';
 import 'package:real_estate/services/api.dart';
 import 'package:real_estate/services/chat_apis/chat_apis.dart';
 import 'package:real_estate/widgets/chat_bubble.dart';
@@ -48,10 +49,27 @@ class _ChatPageState extends State<ChatPage> {
     chatController.getMessagesFor(chatController.currentConvId).clear();
     chatController.getMessagesFor(chatController.currentConvId).value =
         await ChatApis.getMessagesFor(chatController.currentConvId);
+    //send a realtime markas read for other
+    List<Message> list =
+        chatController.getMessagesFor(chatController.currentConvId);
+    List<String> messageIds = [];
+    for (int i = list.length - 1; i >= 0 && messageIds.length < 15; i--) {
+      print("list $i : ${list[i]}");
+
+      if (list[i].senderId != Api.box.read("currentUserId")) {
+        messageIds.add(list[i].id.toString());
+      }
+    }
+    print("init chat page!!!!!!!!!!!");
+    print(messageIds);
+    if (messageIds.isNotEmpty) {
+      chatController.markAsRead(messageIds, chatController.currentConvId);
+    }
   }
 
   @override
   dispose() {
+    chatController.sendTypingStatus(false, chatController.currentConvId);
     chatController.disconnect(onlyThis: chatController.currentConvId);
     chatController.currentConvId = -1;
     super.dispose();

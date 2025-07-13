@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:real_estate/services/api.dart';
 import 'package:real_estate/services/auth_apis/auth_apis.dart';
 import 'package:real_estate/services/auth_services/token_service.dart';
 import 'package:web_socket_channel/io.dart';
@@ -14,32 +15,26 @@ class ChatWebSocketService {
   Stream<Map<String, dynamic>> get messagesStream =>
       _messageStreamController.stream;
   StreamSubscription? _webSocketSubscription;
-  Completer<void>? _connectionCompleter;
 
-  void connect({
+  Future<void> connect({
     required String accessToken,
     required int conversationId,
-  }) {
+  }) async {
     if (_channel != null) {
-      print("🔗 Already connected. Skipping connect().");
-      return;
+      print("🔁 Already connected, closing old socket before reconnecting.");
+      await _webSocketSubscription?.cancel();
+      _channel?.sink.close(); // Cleanly close the channel
+      _channel = null;
     }
-
-    _connectionCompleter = Completer<void>();
-
-    final url =
-        'ws://10.0.2.2:9998/ws/chat/$conversationId/?token=$accessToken';
+    final url = '${Api.wsUrl}/ws/chat/$conversationId/?token=$accessToken';
     print("websocket connection url : $url");
     _channel = IOWebSocketChannel.connect(Uri.parse(url));
     _webSocketSubscription = _channel!.stream.listen(
       (data) {
-        if (!_connectionCompleter!.isCompleted) {
-          _connectionCompleter!.complete(); // ✅ mark as "ready"
-        }
         try {
           final message = jsonDecode(data);
           _messageStreamController.add(message);
-          print("Received from WebSocket: $data");
+          print("!!!!!!!!Received from WebSocket: $data ##########");
         } catch (e) {
           print("Unexpected Error : webSocket listening : $e");
         }
@@ -73,21 +68,14 @@ class ChatWebSocketService {
 
         print("🛑 Close code: $closeCode");
         print("📄 Close reason: $closeReason");
-        _channel?.sink.close();
-        _channel = null;
-        // _messageStreamController.close();
-        //i need better solutation than this
+
         _webSocketSubscription!.cancel();
-        connect(
-          accessToken: (await TokenService.getAccessToken())!,
-          conversationId: conversationId,
-        );
       },
-      // cancelOnError: true,
+      cancelOnError: true,
     );
   }
 
-  Future<void> sendMessage(String content, String messageType) async {
+  Future<void> sendTextMessage(String content, String messageType) async {
     if (_channel != null) {
       print("WebSocket is connected");
     } else {
@@ -110,6 +98,47 @@ class ChatWebSocketService {
     } else {
       print("WebSocket is null (not connected)");
     }
+  }
+
+  Future<void> markAsRead(List<String> messageIds) async {
+    if (_channel != null) {
+      print("WebSocket is connected");
+    } else {
+      print("WebSocket is null (not connected)");
+    }
+    final jsonMessage = jsonEncode(
+      {
+        "type": "mark_as_read",
+        "message_ids": messageIds,
+      },
+    );
+    print("📤 markAsRead message sent to WebSocket:\n$jsonMessage");
+
+    print("🧪 Type of jsonMessage: ${jsonMessage.runtimeType}");
+
+    _channel?.sink.add(jsonMessage);
+
+    if (_channel != null) {
+      print("WebSocket is connected");
+    } else {
+      print("WebSocket is null (not connected)");
+    }
+  }
+
+  Future<void> sendIsTyping(bool isTyping) async {
+    if (_channel != null) {
+      print("WebSocket is connected");
+    } else {
+      print("WebSocket is null (not connected)");
+    }
+    final jsonMessage = jsonEncode(
+      {"type": "typing", 'is_typing': isTyping},
+    );
+    print("📤 sendIsTyping message sent to WebSocket:\n$jsonMessage");
+
+    print("🧪 Type of jsonMessage: ${jsonMessage.runtimeType}");
+
+    _channel?.sink.add(jsonMessage);
   }
 
   void dispose() {

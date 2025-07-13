@@ -20,7 +20,7 @@ class ChatController extends GetxController {
   Map<int, RxString> lastSeen = {}; //user id , his last seen
   Map<int, RxString> lastMessageFor = {};
   Map<int, RxString> lastMessageTime = {};
-  List<Conversation> chats = [];
+  RxList<Conversation> chats = <Conversation>[].obs;
   int currentConversationId = -1;
   int anyConversationId = -1;
   set anyConvId(int conversationId) => anyConversationId = conversationId;
@@ -37,6 +37,8 @@ class ChatController extends GetxController {
   }
 
   void add(Conversation conversation) {
+    print("adding conversation : $conversation\n");
+
     chats.add(conversation);
     getUnreadCountFor(conversation.id).value = conversation.unreadCount;
     getIsTypingFor(conversation.id).value = false;
@@ -44,6 +46,7 @@ class ChatController extends GetxController {
         conversation.otherUserIsOnline ?? false;
     handleLastSeen({'last_seen': conversation.otherUserLastSeen.toString()},
         conversation.id);
+    getLastMessageFor(conversation.id).value = conversation.lastMessage ?? "";
     getLastMessageTimeFor(conversation.id).value =
         handleLastMessageTime(conversation.updatedAt!);
     if (anyConversationId == -1) anyConversationId = conversation.id;
@@ -92,19 +95,8 @@ class ChatController extends GetxController {
         print("type : $type");
         if (type == null) {
           //incoming chat
-
-          Message message = Message.fromJson(data);
-          if (message.fileUrl == null) {
-            getLastMessageFor(conversationId).value = message.content!;
-          } else {
-            getLastMessageFor(conversationId).value = "File";
-          }
-          getLastMessageTimeFor(conversationId).value =
-              handleLastMessageTime(message.createdAt);
-          getMessagesFor(conversationId).add(message);
-          if (currentConversationId != conversationId) {
-            getUnreadCountFor(conversationId).value += 1;
-          }
+          //conversation of this message should be on top
+          handleIncomingMessage(data, conversationId);
         } else if (type == "typing_status") {
           if (data['user_id'] != currentUserId) {
             getIsTypingFor(conversationId).value = data['is_typing'];
@@ -117,9 +109,45 @@ class ChatController extends GetxController {
             }
           }
         } else if (type == 'messages_read_confirmation') {
-          if (data['reader_user_id'] == currentUserId) {
-            _markMessagesAsRead(data['message_ids'], conversationId);
+          if (data['reader_user_id'] != currentUserId) {
+            // print(data['message_ids']);
+            print(data['message_ids'].runtimeType);
+
+            List<String> messageIds = (data['message_ids'] as List)
+                .map((id) => id.toString())
+                .toList();
+            print("messageIds : $messageIds");
+            _markMessagesAsRead(messageIds, conversationId);
           }
+        } else if (type == 'conversation_list_update') {
+          print("chat controller : conversation list update message:");
+          Message lastMessageData = Message.fromJson(data['last_message_data']);
+          bool isNew = data['is_new_conversation'];
+
+          Conversation conversation = Conversation(
+            id: data['conversation_id'] is String
+                ? int.parse(data['conversation_id'])
+                : data['conversation_id'],
+            otherUserId: data['other_participant_details']['id'] is String
+                ? int.parse(data['other_participant_details']['id'])
+                : data['other_participant_details']['id'],
+            otherUserFirstName: data['other_participant_details']['first_name'],
+            otherUserLastName: data['other_participant_details']['last_name'],
+            unreadCount: data['unread_count_for_this_conversation'],
+            lastMessage: lastMessageData.content ?? "File",
+            createdAt: DateTime.parse(data['created_at']).toLocal(),
+            updatedAt: DateTime.parse(data['updated_at']).toLocal(),
+            otherUserIsOnline: data['other_participant_details']['is_online'],
+            otherUserLastSeen:
+                DateTime.parse(data['other_participant_details']['last_seen']),
+            otherUserPhotoUrl: data['other_participant_details']['photo_url'],
+          );
+          print("HI");
+          handleConversationListUpdate(
+            conversation: conversation,
+            isNew: isNew,
+            lastMessageData: lastMessageData,
+          );
         }
       },
       onError: (error) {
@@ -132,9 +160,50 @@ class ChatController extends GetxController {
     print("chatController :: connectToChat :: success!!");
   }
 
-  void _markMessagesAsRead(List ids, int conversationId) {
+  void handleIncomingMessage(Map<String, dynamic> data, int conversationId) {
+    Message message = Message.fromJson(data);
+    if (message.senderId != Api.box.read('currentUserId') &&
+        currentConversationId == conversationId) {
+      markAsRead([message.id.toString()], conversationId);
+    }
+    getMessagesFor(conversationId).add(message);
+  }
+
+  void handleConversationListUpdate({
+    required Conversation conversation,
+    required Message lastMessageData,
+    required bool isNew,
+  }) {
+    //maybe everything from here and down can be handled when getting
+    //conversation_list_update type of message
+    int index = chats.indexWhere((conv) {
+      return conversation.id == conv.id;
+    });
+    if (index != -1) {
+      // Update the conversation at the found index
+      // Optionally move it to the top of the list
+      final moved = chats.removeAt(index);
+      chats.insert(0, moved);
+    } else {
+      chats.insert(0, conversation);
+    }
+
+    if (lastMessageData.fileUrl == null) {
+      getLastMessageFor(conversation.id).value = lastMessageData.content!;
+    } else {
+      getLastMessageFor(conversation.id).value = "File";
+    }
+    getLastMessageTimeFor(conversation.id).value =
+        handleLastMessageTime(lastMessageData.createdAt);
+
+    //update unread count :
+    getUnreadCountFor(conversation.id).value = conversation.unreadCount;
+  }
+
+  void _markMessagesAsRead(List<String> ids, int conversationId) {
+    print("Hi from _markMessagesAsRead");
     messages[conversationId]!.value = messages[conversationId]!.map((msg) {
-      if (ids.contains(msg.id)) {
+      if (ids.contains((msg.id).toString())) {
         msg.isRead = true;
       }
       return msg;
@@ -144,22 +213,20 @@ class ChatController extends GetxController {
 
   void sendTextMessage(String content, int conversationId) {
     print("trying to send text message for conversation $conversationId");
-    _activeSockets[conversationId]!.sendMessage(content, "text");
+    _activeSockets[conversationId]!.sendTextMessage(content, "text");
     print("end!!");
   }
 
-  // void sendTypingStatus(bool isTyping, int conversationId) {
-  //   _activeSockets[conversationId]!.sendMessage({
-  //     'type': 'typing',
-  //     'is_typing': isTyping,
-  //   });
-  // }
+  void sendTypingStatus(bool isTyping, int conversationId) {
+    _activeSockets[conversationId]!.sendIsTyping(isTyping);
+  }
 
-  // void markAsRead(List<String> messageIds, int conversationId) {
-  //   _activeSockets[conversationId]!.sendMessage({
-  //     "type": "mark_as_read",
-  //     "message_ids": messageIds,
-  //   });
+  Future<void> markAsRead(List<String> messageIds, int conversationId) async {
+    _activeSockets[conversationId]!.markAsRead(messageIds);
+  }
+
+  // Future<void> sendIsTyping(List<String> messageIds, int conversationId) async {
+  //   _activeSockets[conversationId]!.markAsRead(messageIds);
   // }
 
   RxList<Message> getMessagesFor(int conversationId) {
@@ -205,7 +272,7 @@ class ChatController extends GetxController {
     print("clearing chat Controller");
     for (int key in _activeSockets.keys) {
       print("closing sockets for conversation : $key");
-      _activeSockets[key]!.close();
+      _activeSockets[key]!.dispose();
     }
     _activeSockets.clear();
     _messageStreams.clear();
@@ -220,8 +287,8 @@ class ChatController extends GetxController {
     chats.clear();
 
     if (!leaveConvIds) {
-      currentConversationId = 0;
-      anyConversationId = 0;
+      currentConversationId = -1;
+      anyConversationId = -1;
     }
   }
 

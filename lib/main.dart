@@ -41,6 +41,7 @@ void main() async {
     TokenService.clearTokens(),
     ThemeController().init(),
     ChatApis.init(),
+    Api.init(),
   ]);
   runApp(MyApp());
 }

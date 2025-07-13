@@ -15,6 +15,7 @@ class MessageInputBar extends StatefulWidget {
 class _MessageInputBarState extends State<MessageInputBar> {
   final TextEditingController _controller = TextEditingController();
   final ChatController chatController = Get.find<ChatController>();
+  bool isTyping = false;
   @override
   void dispose() {
     // TODO: implement dispose
@@ -37,6 +38,21 @@ class _MessageInputBarState extends State<MessageInputBar> {
                 maxHeight: widget.screenHeight * 0.22,
               ),
               child: TextField(
+                onChanged: (value) {
+                  if (value.trim().isNotEmpty) {
+                    if (!isTyping) {
+                      isTyping = true;
+                      chatController.sendTypingStatus(
+                          isTyping, chatController.currentConvId);
+                    }
+                  } else {
+                    if (isTyping) {
+                      isTyping = false;
+                      chatController.sendTypingStatus(
+                          isTyping, chatController.currentConvId);
+                    }
+                  }
+                },
                 maxLines: null,
                 controller: _controller,
                 decoration: InputDecoration(
@@ -60,6 +76,9 @@ class _MessageInputBarState extends State<MessageInputBar> {
                   _controller.text.trim(),
                   chatController.currentConvId,
                 );
+                isTyping = false;
+                chatController.sendTypingStatus(
+                    isTyping, chatController.currentConvId);
                 _controller.clear();
               }
             },

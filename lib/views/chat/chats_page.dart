@@ -44,7 +44,7 @@ class _ChatsPageState extends State<ChatsPage> {
       }
     } while (pConversation.nextUrl != null);
     chatController.fetchedAll = true;
-
+    await Future.delayed(const Duration(milliseconds: 500));
     chatController.changeLoadingChats(false);
   }
 
@@ -97,12 +97,22 @@ class _ChatsPageState extends State<ChatsPage> {
                             index: index,
                             name:
                                 "${chatController.chats[index].otherUserFirstName} ${chatController.chats[index].otherUserLastName}",
-                            lastMessage:
-                                chatController.chats[index].lastMessage ?? "",
-                            lastMessageTime: chatController
-                                .lastMessageTime[
-                                    chatController.chats[index].id]!
-                                .value,
+                            lastMessage: chatController.lastMessageFor[
+                                        chatController.chats[index].id] ==
+                                    null
+                                ? ""
+                                : chatController
+                                    .lastMessageFor[
+                                        chatController.chats[index].id]!
+                                    .value,
+                            lastMessageTime: chatController.lastMessageTime[
+                                        chatController.chats[index].id] ==
+                                    null
+                                ? ""
+                                : chatController
+                                    .lastMessageTime[
+                                        chatController.chats[index].id]!
+                                    .value,
                             newMessages: chatController
                                 .unreadCount[chatController.chats[index].id]!
                                 .value,
