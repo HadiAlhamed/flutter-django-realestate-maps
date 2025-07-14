@@ -54,8 +54,6 @@ class _ChatPageState extends State<ChatPage> {
         chatController.getMessagesFor(chatController.currentConvId);
     List<String> messageIds = [];
     for (int i = list.length - 1; i >= 0 && messageIds.length < 15; i--) {
-      print("list $i : ${list[i]}");
-
       if (list[i].senderId != Api.box.read("currentUserId")) {
         messageIds.add(list[i].id.toString());
       }

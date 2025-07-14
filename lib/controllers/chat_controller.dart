@@ -66,8 +66,6 @@ class ChatController extends GetxController {
     required int conversationId,
     required int currentUserId,
   }) async {
-    if (_activeSockets.containsKey(conversationId))
-      return; //check if this could be a bug
     print("chatController :: connectToChat : conversationId $conversationId");
     String? accessToken = await TokenService.getAccessToken();
     if (accessToken == null) {
@@ -82,15 +80,12 @@ class ChatController extends GetxController {
     );
     _activeSockets[conversationId] = socketService;
     //change what need to be changed
-    if (_messageStreams.containsKey(conversationId)) {
-      print("Already listening to stream for $conversationId");
-      return;
-    }
     _messageStreams[conversationId] = socketService.messagesStream;
 
     _messageStreams[conversationId]!.listen(
       (data) {
-        print("new data from chat stream : $data");
+        print(
+            "new data from chat stream for conversation : $conversationId : $data");
         final String? type = data['type'];
         print("type : $type");
         if (type == null) {
@@ -246,26 +241,24 @@ class ChatController extends GetxController {
   }
 
   void disconnect({int? exceptId, int? onlyThis}) {
-    print("anyConvId $anyConversationId");
-    print("onlyThis : $onlyThis");
-    print("except : $exceptId");
+    print("disconnect called");
 
     if (onlyThis != null) {
-      if (onlyThis == anyConvId) return; //this is the only active conv
-      _activeSockets[onlyThis]?.close();
-      _activeSockets.remove(onlyThis);
+      if (onlyThis == anyConvId) return;
 
+      _activeSockets[onlyThis]?.dispose(); // ✅ proper clean-up
+      _activeSockets.remove(onlyThis);
+      _messageStreams.remove(onlyThis); // ✅ remove stream reference
       return;
     }
-    print("chat controller :: disconnect except : ${exceptId.toString()}");
-    List<int> activeSocketsKeys = _activeSockets.keys.toList();
-    for (int key in activeSocketsKeys) {
+
+    for (int key in _activeSockets.keys.toList()) {
       if (exceptId != null && key == exceptId) continue;
 
-      _activeSockets[key]?.close();
+      _activeSockets[key]?.dispose();
       _activeSockets.remove(key);
+      _messageStreams.remove(key); // ✅ remove stream reference
     }
-    print("Done disconnecting from chat Controller");
   }
 
   void clear({bool? leaveConvIds}) {
@@ -294,17 +287,7 @@ class ChatController extends GetxController {
 
   @override
   void onClose() {
-    for (int key in _activeSockets.keys) {
-      _activeSockets[key]!.close();
-    }
-
-    _activeSockets.clear();
-    _messageStreams.clear();
-    messages.clear();
-    unreadCount.clear();
-    isTyping.clear();
-    isOtherUserOnline.clear();
-    lastSeen.clear();
+    clear();
     super.onClose();
   }
 

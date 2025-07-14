@@ -9,70 +9,102 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 class ChatWebSocketService {
   WebSocketChannel? _channel;
-  final StreamController<Map<String, dynamic>> _messageStreamController =
-      StreamController.broadcast();
+  StreamController<Map<String, dynamic>> _messageStreamController =
+      StreamController();
 
   Stream<Map<String, dynamic>> get messagesStream =>
       _messageStreamController.stream;
   StreamSubscription? _webSocketSubscription;
-
+  bool _isConnectingOrConnected = false;
   Future<void> connect({
     required String accessToken,
     required int conversationId,
   }) async {
-    if (_channel != null) {
-      print("🔁 Already connected, closing old socket before reconnecting.");
-      await _webSocketSubscription?.cancel();
-      _channel?.sink.close(); // Cleanly close the channel
-      _channel = null;
+    if (_isConnectingOrConnected) {
+      print(
+          "⚠️ Already connecting or connected. Skipping redundant connect call.");
+      return;
     }
-    final url = '${Api.wsUrl}/ws/chat/$conversationId/?token=$accessToken';
-    print("websocket connection url : $url");
-    _channel = IOWebSocketChannel.connect(Uri.parse(url));
-    _webSocketSubscription = _channel!.stream.listen(
-      (data) {
-        try {
-          final message = jsonDecode(data);
-          _messageStreamController.add(message);
-          print("!!!!!!!!Received from WebSocket: $data ##########");
-        } catch (e) {
-          print("Unexpected Error : webSocket listening : $e");
-        }
-      },
-      onError: (error) async {
-        print("WebSocket error: $error");
 
-        if (error.toString().contains("401") ||
-            error.toString().contains("HandshakeException")) {
-          print("⚠️ Possibly unauthorized. Attempting token refresh...");
+    _isConnectingOrConnected = true;
 
-          bool refreshed = await AuthApis.refreshToken();
+    try {
+      // Clean up previous connection if any
+      await _webSocketSubscription?.cancel();
+      await _channel?.sink.close();
+      _channel = null;
 
-          if (refreshed) {
-            connect(
-              // Reconnect with new token
-              accessToken: (await TokenService.getAccessToken())!,
-              conversationId: conversationId,
-            );
-          } else {
-            print("🚫 Token refresh failed. Log user out.");
-            // Call logout or show session expired UI
+      // Recreate stream controller only if needed
+      if (_messageStreamController.isClosed) {
+        _messageStreamController = StreamController();
+      }
+
+      final url = '${Api.wsUrl}/ws/chat/$conversationId/?token=$accessToken';
+      print("🌐 Connecting to WebSocket: $url");
+
+      _channel = IOWebSocketChannel.connect(Uri.parse(url));
+
+      _webSocketSubscription = _channel!.stream.listen(
+        (data) {
+          try {
+            final message = jsonDecode(data);
+            print("!!!Recieved data from websocket $message");
+            _messageStreamController.add(message);
+          } catch (e) {
+            print("❌ Error decoding WebSocket data: $e");
           }
-        }
-      },
-      onDone: () async {
-        print("WebSocket closed.");
-        final ioChannel = _channel as IOWebSocketChannel?;
-        final closeCode = ioChannel?.closeCode;
-        final closeReason = ioChannel?.closeReason;
+        },
+        onError: (error) async {
+          print("⚠️ WebSocket error: $error");
 
-        print("🛑 Close code: $closeCode");
-        print("📄 Close reason: $closeReason");
+          if (error.toString().contains("401") ||
+              error.toString().contains("HandshakeException")) {
+            print("🔄 Attempting token refresh...");
+            bool refreshed = await AuthApis.refreshToken();
+            if (refreshed) {
+              await connect(
+                accessToken: (await TokenService.getAccessToken())!,
+                conversationId: conversationId,
+              );
+            }
+          } else {
+            _scheduleReconnect(conversationId);
+          }
+        },
+        onDone: () async {
+          print("🔌 WebSocket closed unexpectedly.");
+          final ioChannel = _channel as IOWebSocketChannel?;
+          print("🛑 Close code: ${ioChannel?.closeCode}");
+          print("📄 Close reason: ${ioChannel?.closeReason}");
 
-        _webSocketSubscription!.cancel();
-      },
-      cancelOnError: true,
-    );
+          await _webSocketSubscription?.cancel();
+          _webSocketSubscription = null;
+          _channel = null;
+
+          // _scheduleReconnect(conversationId); // 🔁 Reconnect
+        },
+        cancelOnError: true,
+      );
+    } catch (e) {
+      print("🚨 WebSocket connection failed: $e");
+    } finally {
+      _isConnectingOrConnected = false;
+    }
+  }
+
+  void _scheduleReconnect(int conversationId) {
+    Future.delayed(Duration(seconds: 5), () async {
+      print("🔁 Trying to reconnect...");
+      final newToken = await TokenService.getAccessToken();
+      if (newToken != null) {
+        await connect(
+          accessToken: newToken,
+          conversationId: conversationId,
+        );
+      } else {
+        print("🚫 Can't reconnect — no valid token.");
+      }
+    });
   }
 
   Future<void> sendTextMessage(String content, String messageType) async {
@@ -143,12 +175,23 @@ class ChatWebSocketService {
 
   void dispose() {
     _webSocketSubscription?.cancel();
-    _messageStreamController.close();
+    _webSocketSubscription = null;
+
     _channel?.sink.close();
+    _channel = null;
+
+    if (!_messageStreamController.isClosed) {
+      _messageStreamController.close();
+    }
+
+    _isConnectingOrConnected = false;
   }
 
   void close() {
     _channel?.sink.close();
-    // _messageStreamController.close();
+    _webSocketSubscription?.cancel();
+    _isConnectingOrConnected = false;
+
+    _messageStreamController.close();
   }
 }
