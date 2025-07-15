@@ -36,7 +36,6 @@ class AppLifecycleHandler extends WidgetsBindingObserver {
         break;
       case AppLifecycleState.inactive:
         print("App is inactive");
-        _handleInactive();
         break;
       case AppLifecycleState.hidden:
         print("App is hidden ??");
@@ -49,11 +48,8 @@ class AppLifecycleHandler extends WidgetsBindingObserver {
     if (Get.currentRoute == '/chatsPage' || Get.currentRoute == '/chatPage') {
       await _fetchConversations();
     }
-    chatController.connectToChat(
-      conversationId: chatController.anyConvId,
-      currentUserId: Api.box.read("currentUserId"),
-    );
-    if (chatController.currentConvId != 0) {
+
+    if (chatController.currentConvId != -1) {
       chatController.connectToChat(
         conversationId: chatController.anyConvId,
         currentUserId: Api.box.read("currentUserId"),
@@ -67,10 +63,6 @@ class AppLifecycleHandler extends WidgetsBindingObserver {
   }
 
   void _handleDetached() {
-    chatController.clear();
-  }
-
-  void _handleInactive() {
     chatController.clear();
   }
 
