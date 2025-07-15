@@ -5,8 +5,10 @@ import 'package:real_estate/controllers/chat_controller.dart';
 import 'package:real_estate/models/message.dart';
 import 'package:real_estate/services/api.dart';
 import 'package:real_estate/services/chat_apis/chat_apis.dart';
+import 'package:real_estate/textstyles/text_colors.dart';
 import 'package:real_estate/widgets/chat_bubble.dart';
 import 'package:real_estate/widgets/message_input_bar.dart';
+import 'package:real_estate/widgets/typing_indicator.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -107,17 +109,38 @@ class _ChatPageState extends State<ChatPage> {
 
                   bool onlineStatus = chatController
                       .isOtherUserOnline[chatController.currentConvId]!.value;
-                  return Text(
-                    isOtherTyping
-                        ? "typing ..."
-                        : onlineStatus
-                            ? "Online"
-                            : chatController
-                                .lastSeen[chatController.currentConvId]!.value,
-                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                          color: isOtherTyping ? Colors.green : Colors.grey,
-                        ),
-                  );
+                  return isOtherTyping
+                      ? Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              "typing",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium!
+                                  .copyWith(
+                                    color: primaryColor,
+                                  ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(width: 4),
+                            TypingIndicator(dotColor: primaryColor),
+                          ],
+                        )
+                      : Text(
+                          onlineStatus
+                              ? "Online"
+                              : chatController
+                                  .lastSeen[chatController.currentConvId]!
+                                  .value,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium!
+                              .copyWith(
+                                color:
+                                    onlineStatus ? primaryColor : Colors.grey,
+                              ),
+                        );
                 }),
               ],
             )

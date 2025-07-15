@@ -97,14 +97,19 @@ class _ChatsPageState extends State<ChatsPage> {
                             index: index,
                             name:
                                 "${chatController.chats[index].otherUserFirstName} ${chatController.chats[index].otherUserLastName}",
-                            lastMessage: chatController.lastMessageFor[
-                                        chatController.chats[index].id] ==
-                                    null
-                                ? ""
-                                : chatController
-                                    .lastMessageFor[
-                                        chatController.chats[index].id]!
-                                    .value,
+                            lastMessage: chatController
+                                    .getIsTypingFor(
+                                        chatController.chats[index].id)
+                                    .value
+                                ? "typing ..."
+                                : chatController.lastMessageFor[
+                                            chatController.chats[index].id] ==
+                                        null
+                                    ? ""
+                                    : chatController
+                                        .lastMessageFor[
+                                            chatController.chats[index].id]!
+                                        .value,
                             lastMessageTime: chatController.lastMessageTime[
                                         chatController.chats[index].id] ==
                                     null
