@@ -9,6 +9,7 @@ import 'package:real_estate/textstyles/text_colors.dart';
 import 'package:real_estate/widgets/chat_bubble.dart';
 import 'package:real_estate/widgets/message_input_bar.dart';
 import 'package:real_estate/widgets/typing_indicator.dart';
+import 'package:real_estate/widgets/typing_indicator_message.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -180,6 +181,14 @@ class _ChatPageState extends State<ChatPage> {
               }),
             ),
           ),
+          Obx(() {
+            if (chatController
+                .getIsTypingFor(chatController.currentConvId)
+                .value) {
+              return TypingIndicatorMessage();
+            }
+            return const SizedBox.shrink();
+          }),
           MessageInputBar(
             screenHeight: screenHeight,
           ),

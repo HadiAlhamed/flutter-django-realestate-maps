@@ -53,6 +53,9 @@ dependencies:
     http: ^1.4.0
     location: ^8.0.1
     web_socket_channel: ^3.0.3
+    timezone: ^0.10.1
+    device_info_plus: ^11.5.0
+    flutter_typing_indicator: ^0.0.4
 
 dev_dependencies:
     flutter_test:
