@@ -114,7 +114,9 @@ class OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
     _initializeLocation();
   }
 
-  void _decodePolyline(String encodedPolyline) //decode the polyline into a list of geographic coordinates (lat , long)
+  void _decodePolyline(
+      String
+          encodedPolyline) //decode the polyline into a list of geographic coordinates (lat , long)
   {
     PolylinePoints polylinePoints = PolylinePoints();
     List<PointLatLng> decodedPoints =
@@ -166,7 +168,7 @@ class OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
         url,
         headers: {
           'User-Agent':
-              'real_estate/1.0 (hadialhamed.py@gmail.com)', // required by Nominatim
+              'Aqari/1.0 (hadialhamed.py@gmail.com)', // required by Nominatim
         },
       );
       debugPrint("got location coordinates response... ${response.statusCode}");
@@ -302,6 +304,7 @@ class OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
                       TileLayer(
                         urlTemplate:
                             'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        userAgentPackageName: "com.aqari.app",
                       ),
                       const CurrentLocationLayer(
                         style: LocationMarkerStyle(
