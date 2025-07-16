@@ -8,9 +8,22 @@ class PropertyDetailsController extends GetxController {
   PropertyDetails? propertyDetails;
   List<bool> isFavorite = List.generate(100005, (index) => false);
   Set<Property> isFavoriteSet = {};
+  double newRating = 0.0;
+  bool wantToRate = false;
+
   List<double> cardAnimationScale = List.generate(100005, (index) => 1.0);
   void updateFlutterMap() {
     update(["flutterMap"]);
+  }
+
+  void changeNewRating(double value) {
+    newRating = value;
+    update(['rating']);
+  }
+
+  void changeWantToRate(bool? value) {
+    wantToRate = value ?? !wantToRate;
+    update(['wantToRate', 'rating']);
   }
 
   void changeCardScale(int index, int builderId, double newScale) {

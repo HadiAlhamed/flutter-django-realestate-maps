@@ -10,6 +10,7 @@ import 'package:real_estate/services/properties_apis/properties_apis.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 import 'package:real_estate/widgets/my_button.dart';
 import 'package:real_estate/widgets/my_snackbar.dart';
+import 'package:flutter_rating/flutter_rating.dart';
 
 class PropertyDetailsPage extends StatefulWidget {
   const PropertyDetailsPage({super.key});
@@ -162,6 +163,71 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
                     const Divider(),
                     propertyDetails(),
                     const SizedBox(height: 20),
+                    const Divider(),
+                    Padding(
+                      padding:
+                          const EdgeInsets.only(top: 8.0, left: 8, right: 8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Text("Ratings"),
+                              const SizedBox(width: 4),
+                              GetBuilder<PropertyDetailsController>(
+                                init: pdController,
+                                id: "rating",
+                                builder: (controller) {
+                                  return StarRating(
+                                    allowHalfRating: false,
+                                    color: primaryColor,
+                                    starCount: 5,
+                                    rating: pdController.newRating,
+                                    size: 30,
+                                    borderColor: primaryColorInactive,
+                                    onRatingChanged: pdController.wantToRate
+                                        ? (rating) {
+                                            pdController
+                                                .changeNewRating(rating);
+                                          }
+                                        : null,
+                                  );
+                                },
+                              ),
+                              const SizedBox(width: 4),
+                              GetBuilder<PropertyDetailsController>(
+                                  init: pdController,
+                                  id: "wantToRate",
+                                  builder: (contorller) {
+                                    return GestureDetector(
+                                      onTap: () {
+                                        pdController.changeWantToRate(null);
+                                      },
+                                      child: Text(
+                                        pdController.wantToRate
+                                            ? 'Save'
+                                            : '(Rate it)',
+                                        style: TextStyle(
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    );
+                                  }),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            "(current rate 4.15)",
+                            style: TextStyle(
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Divider(),
+
                     getLocationTitle(),
                     getFlutterMap(),
                     const SizedBox(height: 5), // Extra space to avoid overlap
@@ -251,7 +317,7 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
           children: [
             TileLayer(
               urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-              userAgentPackageName: 'com.example.app',
+              userAgentPackageName: 'com.aqari.app',
             ),
             MarkerLayer(
               markers: [
