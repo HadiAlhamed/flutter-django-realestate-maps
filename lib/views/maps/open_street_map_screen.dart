@@ -415,7 +415,7 @@ class OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
             },
             child: const Icon(
               Icons.check,
-              color: Colors.green,
+              color: primaryColor,
               size: 40,
             ),
           ),

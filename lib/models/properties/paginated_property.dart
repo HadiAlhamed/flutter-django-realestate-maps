@@ -1,4 +1,4 @@
-import 'package:real_estate/models/property.dart';
+import 'package:real_estate/models/properties/property.dart';
 
 class PaginatedProperty {
   final String? nextPageUrl;

@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
-import 'package:real_estate/models/facility.dart';
-import 'package:real_estate/models/property.dart';
-import 'package:real_estate/models/property_image.dart';
+import 'package:real_estate/models/properties/facility.dart';
+import 'package:real_estate/models/properties/property.dart';
+import 'package:real_estate/models/properties/property_image.dart';
 
 class PropertyController extends GetxController {
   List<Property> properties = [];

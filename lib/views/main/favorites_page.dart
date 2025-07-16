@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:real_estate/controllers/bottom_navigation_bar_controller.dart';
 import 'package:real_estate/controllers/property_controller.dart';
 import 'package:real_estate/controllers/property_details_controller.dart';
-import 'package:real_estate/models/property.dart';
+import 'package:real_estate/models/properties/property.dart';
 import 'package:real_estate/widgets/my_bottom_navigation_bar.dart';
 import 'package:real_estate/widgets/my_floating_action_button.dart';
 import 'package:real_estate/widgets/property_card.dart';

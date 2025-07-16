@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:real_estate/models/message.dart';
-import 'package:real_estate/models/paginated_conversation.dart';
+import 'package:real_estate/models/conversations/message.dart';
+
+import 'package:real_estate/models/conversations/paginated_conversation.dart';
 import 'package:real_estate/services/api.dart';
 import 'package:real_estate/services/auth_services/auth_interceptor.dart';
 

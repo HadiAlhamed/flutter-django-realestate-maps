@@ -72,13 +72,13 @@ class _MessageInputBarState extends State<MessageInputBar> {
             icon: const Icon(Icons.send, color: primaryColorInactive),
             onPressed: () {
               if (_controller.text.trim().isNotEmpty) {
+                isTyping = false;
+                chatController.sendTypingStatus(
+                    isTyping, chatController.currentConvId);
                 chatController.sendTextMessage(
                   _controller.text.trim(),
                   chatController.currentConvId,
                 );
-                isTyping = false;
-                chatController.sendTypingStatus(
-                    isTyping, chatController.currentConvId);
                 _controller.clear();
               }
             },

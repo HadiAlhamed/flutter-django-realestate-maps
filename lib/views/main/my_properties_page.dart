@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:real_estate/controllers/my_properties_controller.dart';
 import 'package:real_estate/models/filter_options.dart';
-import 'package:real_estate/models/paginated_property.dart';
+import 'package:real_estate/models/properties/paginated_property.dart';
 import 'package:real_estate/services/properties_apis/properties_apis.dart';
 import 'package:real_estate/widgets/property_card.dart';
 

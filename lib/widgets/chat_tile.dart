@@ -14,6 +14,7 @@ class ChatTile extends StatelessWidget {
   final double screenWidth;
   final ChatController chatController = Get.find<ChatController>();
   final int index;
+  final bool isOnline;
   ChatTile({
     super.key,
     required this.conversationId,
@@ -23,6 +24,7 @@ class ChatTile extends StatelessWidget {
     required this.newMessages,
     required this.screenWidth,
     required this.index,
+    required this.isOnline,
   });
 
   @override
@@ -62,9 +64,22 @@ class ChatTile extends StatelessWidget {
                 overflow: TextOverflow.ellipsis, // Shows ... at the end
                 maxLines: 2, // Ensures text stays in a single lines
               ),
-        leading: CircleAvatar(
-          radius: screenWidth * 0.07,
-          backgroundImage: const AssetImage('assets/images/person.jpg'),
+        leading: Stack(
+          children: [
+            CircleAvatar(
+              radius: screenWidth * 0.07,
+              backgroundImage: const AssetImage('assets/images/person.jpg'),
+            ),
+            if (isOnline)
+              Positioned(
+                bottom: 0,
+                right: 1,
+                child: CircleAvatar(
+                  backgroundColor: primaryColor,
+                  radius: screenWidth * 0.07 * 0.22,
+                ),
+              ),
+          ],
         ),
         trailing: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

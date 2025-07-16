@@ -1,11 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:real_estate/models/facility.dart';
+import 'package:real_estate/models/properties/facility.dart';
 import 'package:real_estate/models/filter_options.dart';
-import 'package:real_estate/models/paginated_property.dart';
-import 'package:real_estate/models/property.dart';
-import 'package:real_estate/models/property_details.dart';
-import 'package:real_estate/models/property_image.dart';
+import 'package:real_estate/models/properties/paginated_property.dart';
+import 'package:real_estate/models/properties/property.dart';
+import 'package:real_estate/models/properties/property_details.dart';
+import 'package:real_estate/models/properties/property_image.dart';
 import 'package:real_estate/services/api.dart';
 import 'package:real_estate/services/auth_services/auth_interceptor.dart';
 

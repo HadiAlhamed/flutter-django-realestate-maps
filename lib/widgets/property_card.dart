@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:real_estate/controllers/property_details_controller.dart';
-import 'package:real_estate/models/property.dart';
+import 'package:real_estate/models/properties/property.dart';
 import 'package:real_estate/services/properties_apis/properties_apis.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 import 'package:real_estate/textstyles/text_styles.dart';

@@ -68,7 +68,7 @@ class ChatWebSocketService {
               );
             }
           } else {
-            _scheduleReconnect(conversationId);
+            scheduleReconnect(conversationId);
           }
         },
         onDone: () async {
@@ -80,8 +80,6 @@ class ChatWebSocketService {
           await _webSocketSubscription?.cancel();
           _webSocketSubscription = null;
           _channel = null;
-
-          // _scheduleReconnect(conversationId); // 🔁 Reconnect
         },
         cancelOnError: true,
       );
@@ -92,7 +90,7 @@ class ChatWebSocketService {
     }
   }
 
-  void _scheduleReconnect(int conversationId) {
+  void scheduleReconnect(int conversationId) {
     Future.delayed(Duration(seconds: 5), () async {
       print("🔁 Trying to reconnect...");
       final newToken = await TokenService.getAccessToken();
@@ -174,6 +172,9 @@ class ChatWebSocketService {
   }
 
   void dispose() {
+    //cancel stream subscription and make it null
+    //close websocket channel and make it null
+    //close stream controller
     _webSocketSubscription?.cancel();
     _webSocketSubscription = null;
 

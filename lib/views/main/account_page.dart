@@ -131,9 +131,11 @@ class AccountPage extends StatelessWidget {
           init: profileController,
           builder: (controller) => CircleAvatar(
             radius: 25,
-            backgroundImage: NetworkImage(
-              profileController.currentUserInfo!.profilePhoto,
-            ),
+            backgroundImage: profileController.currentUserInfo == null
+                ? AssetImage('assets/images/person.jpg')
+                : NetworkImage(
+                    profileController.currentUserInfo!.profilePhoto,
+                  ),
           ),
         ),
         title: GetBuilder<ProfileController>(

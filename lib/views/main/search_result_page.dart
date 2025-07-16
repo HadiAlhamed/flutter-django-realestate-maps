@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 import 'package:real_estate/controllers/filter_controller.dart';
 import 'package:real_estate/controllers/property_controller.dart';
 import 'package:real_estate/models/filter_options.dart';
-import 'package:real_estate/models/paginated_property.dart';
-import 'package:real_estate/models/property.dart';
+import 'package:real_estate/models/properties/paginated_property.dart';
+import 'package:real_estate/models/properties/property.dart';
 import 'package:real_estate/services/properties_apis/properties_apis.dart';
 import 'package:real_estate/widgets/property_card.dart';
 

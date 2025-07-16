@@ -1,7 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:real_estate/models/message.dart';
+import 'package:real_estate/models/conversations/message.dart';
 import 'package:real_estate/services/api.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 
@@ -58,7 +58,7 @@ class ChatBubble extends StatelessWidget {
                     width: 2,
                   ),
                 if (isMe && message.isRead)
-                  Icon(Icons.done_all, color: Colors.green),
+                  Icon(Icons.done_all, color: Colors.white),
                 if (isMe && !message.isRead) Icon(Icons.check),
               ],
             ),

@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
-import 'package:real_estate/models/property.dart';
-import 'package:real_estate/models/property_details.dart';
+import 'package:real_estate/models/properties/property.dart';
+import 'package:real_estate/models/properties/property_details.dart';
 import 'package:real_estate/services/properties_apis/properties_apis.dart';
 
 class PropertyDetailsController extends GetxController {

@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:real_estate/models/property.dart';
+import 'package:real_estate/models/properties/property.dart';
 
 class MyPropertiesController extends GetxController {
   List<Property> myProperties = [];
