@@ -9,6 +9,7 @@ class PropertyDetailsController extends GetxController {
   List<bool> isFavorite = List.generate(100005, (index) => false);
   Set<Property> isFavoriteSet = {};
   double newRating = 0.0;
+  double averageRating = 0.0;
   bool wantToRate = false;
 
   List<double> cardAnimationScale = List.generate(100005, (index) => 1.0);
@@ -19,6 +20,12 @@ class PropertyDetailsController extends GetxController {
   void changeNewRating(double value) {
     newRating = value;
     update(['rating']);
+  }
+
+  void changeAverageRating(double value) {
+    averageRating = value;
+
+    update(['averageRating', 'rating']);
   }
 
   void changeWantToRate(bool? value) {

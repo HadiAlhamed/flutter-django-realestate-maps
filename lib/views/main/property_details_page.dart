@@ -40,6 +40,9 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
   @override
   dispose() {
     pdController.addToFavorites();
+    pdController.changeAverageRating(0);
+    pdController.changeWantToRate(false);
+    pdController.changeNewRating(0);
     super.dispose();
   }
 
@@ -55,6 +58,10 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
       return;
     }
     pdController.propertyDetails = propertyDetails;
+
+    pdController.changeNewRating(propertyDetails.rating ?? 0.0);
+    pdController.changeAverageRating(propertyDetails.rating ?? 0.0);
+
     pdController.changeIsLoading(false);
   }
 
@@ -182,7 +189,9 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
                                     allowHalfRating: false,
                                     color: primaryColor,
                                     starCount: 5,
-                                    rating: pdController.newRating,
+                                    rating: pdController.wantToRate
+                                        ? pdController.newRating
+                                        : pdController.averageRating,
                                     size: 30,
                                     borderColor: primaryColorInactive,
                                     onRatingChanged: pdController.wantToRate
@@ -200,7 +209,36 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
                                   id: "wantToRate",
                                   builder: (contorller) {
                                     return GestureDetector(
-                                      onTap: () {
+                                      onTap: () async {
+                                        if (pdController.wantToRate) {
+                                          //currently he pressed on save
+                                          try {
+                                            final newAvgRating =
+                                                await PropertiesApis.editRating(
+                                              propertyId: pdController
+                                                  .propertyDetails!.id,
+                                              rate: pdController.newRating
+                                                  .toInt(),
+                                            );
+                                            print(
+                                                "new avg rating : $newAvgRating");
+                                            if (newAvgRating != -1) {
+                                              pdController.changeAverageRating(
+                                                  newAvgRating);
+                                            } else {
+                                              Get.showSnackbar(
+                                                MySnackbar(
+                                                    success: false,
+                                                    title: "Rating Property",
+                                                    message:
+                                                        'You cannot rate a property more than once.'),
+                                              );
+                                            }
+                                          } catch (e) {
+                                            print(
+                                                "new avg rating : error : $e");
+                                          }
+                                        }
                                         pdController.changeWantToRate(null);
                                       },
                                       child: Text(
@@ -216,11 +254,17 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
                             ],
                           ),
                           const SizedBox(height: 10),
-                          Text(
-                            "(current rate 4.15)",
-                            style: TextStyle(
-                              color: Colors.grey,
-                            ),
+                          GetBuilder<PropertyDetailsController>(
+                            init: pdController,
+                            id: "averageRating",
+                            builder: (controller) {
+                              return Text(
+                                "(current rate ${pdController.averageRating})",
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                ),
+                              );
+                            },
                           ),
                         ],
                       ),

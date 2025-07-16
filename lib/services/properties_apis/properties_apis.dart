@@ -15,6 +15,28 @@ class PropertiesApis {
     _dio.interceptors.add(AuthInterceptor(_dio));
   }
 
+  static Future<double> editRating(
+      {required int propertyId, required int rate}) async {
+    print("Trying to editRating for $propertyId new rate : $rate");
+    try {
+      final response = await _dio.post(
+        "${Api.baseUrl}/properties/$propertyId/rate/",
+        data: {"property": propertyId, "value": rate},
+      );
+      if (response.statusCode == 201) {
+        final data = response.data;
+        return data['property_rating'] as double;
+      }
+    } catch (e) {
+      if (e is DioException) {
+        print("propertiesApis :: editRating :: ${e.response?.data}");
+      } else {
+        print("propertiesApis :: editRating :: $e");
+      }
+    }
+    return -1;
+  }
+
   static Future<Property?> addProperty({required Property property}) async {
     print("trying to add a property...");
     print(property);
