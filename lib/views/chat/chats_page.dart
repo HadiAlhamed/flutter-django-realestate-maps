@@ -4,8 +4,8 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:real_estate/controllers/bottom_navigation_bar_controller.dart';
 import 'package:real_estate/controllers/chat_controller.dart';
-import 'package:real_estate/models/conversation.dart';
-import 'package:real_estate/models/paginated_conversation.dart';
+import 'package:real_estate/models/conversations/conversation.dart';
+import 'package:real_estate/models/conversations/paginated_conversation.dart';
 import 'package:real_estate/services/chat_apis/chat_apis.dart';
 import 'package:real_estate/widgets/chat_tile.dart';
 import 'package:real_estate/widgets/my_bottom_navigation_bar.dart';
@@ -93,13 +93,17 @@ class _ChatsPageState extends State<ChatsPage> {
                         () {
                           return ChatTile(
                             key: ValueKey(chatController.chats[index].id),
+                            isOnline: chatController
+                                .getIsOtherUserOnlineFor(
+                                    chatController.chats[index].otherUserId)
+                                .value,
                             conversationId: chatController.chats[index].id,
                             index: index,
                             name:
                                 "${chatController.chats[index].otherUserFirstName} ${chatController.chats[index].otherUserLastName}",
                             lastMessage: chatController
                                     .getIsTypingFor(
-                                        chatController.chats[index].id)
+                                        chatController.chats[index].otherUserId)
                                     .value
                                 ? "typing ..."
                                 : chatController.lastMessageFor[

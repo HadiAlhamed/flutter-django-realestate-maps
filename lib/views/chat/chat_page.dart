@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 import 'package:real_estate/controllers/chat_controller.dart';
-import 'package:real_estate/models/message.dart';
+import 'package:real_estate/models/conversations/message.dart';
 import 'package:real_estate/services/api.dart';
 import 'package:real_estate/services/chat_apis/chat_apis.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
@@ -106,10 +106,12 @@ class _ChatPageState extends State<ChatPage> {
                     "${chatController.chats[index].otherUserFirstName} ${chatController.chats[index].otherUserLastName}"),
                 Obx(() {
                   bool isOtherTyping = chatController
-                      .isTyping[chatController.currentConvId]!.value;
+                      .isTyping[chatController.chats[index].otherUserId]!.value;
 
                   bool onlineStatus = chatController
-                      .isOtherUserOnline[chatController.currentConvId]!.value;
+                      .isOtherUserOnline[
+                          chatController.chats[index].otherUserId]!
+                      .value;
                   return isOtherTyping
                       ? Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -132,7 +134,8 @@ class _ChatPageState extends State<ChatPage> {
                           onlineStatus
                               ? "Online"
                               : chatController
-                                  .lastSeen[chatController.currentConvId]!
+                                  .lastSeen[
+                                      chatController.chats[index].otherUserId]!
                                   .value,
                           style: Theme.of(context)
                               .textTheme
@@ -183,7 +186,7 @@ class _ChatPageState extends State<ChatPage> {
           ),
           Obx(() {
             if (chatController
-                .getIsTypingFor(chatController.currentConvId)
+                .getIsTypingFor(chatController.chats[index].otherUserId)
                 .value) {
               return TypingIndicatorMessage();
             }

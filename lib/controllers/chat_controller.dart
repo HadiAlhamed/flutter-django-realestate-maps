@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:real_estate/models/conversation.dart';
-import 'package:real_estate/models/message.dart';
+import 'package:real_estate/models/conversations/conversation.dart';
+import 'package:real_estate/models/conversations/message.dart';
 import 'package:real_estate/services/api.dart';
 import 'package:real_estate/services/auth_services/token_service.dart';
 import 'package:real_estate/services/chat_services/chat_web_socket_service.dart';
@@ -20,6 +20,7 @@ class ChatController extends GetxController {
   Map<int, RxString> lastSeen = {}; //user id , his last seen
   Map<int, RxString> lastMessageFor = {};
   Map<int, RxString> lastMessageTime = {};
+  Map<int, int> lastMessageId = {};
   RxList<Conversation> chats = <Conversation>[].obs;
   int currentConversationId = -1;
   int anyConversationId = -1;
@@ -42,10 +43,10 @@ class ChatController extends GetxController {
     chats.add(conversation);
     getUnreadCountFor(conversation.id).value = conversation.unreadCount;
     getIsTypingFor(conversation.id).value = false;
-    getIsOtherUserOnlineFor(conversation.id).value =
+    getIsOtherUserOnlineFor(conversation.otherUserId).value =
         conversation.otherUserIsOnline ?? false;
     handleLastSeen({'last_seen': conversation.otherUserLastSeen.toString()},
-        conversation.id);
+        conversation.otherUserId);
     getLastMessageFor(conversation.id).value = conversation.lastMessage ?? "";
     getLastMessageTimeFor(conversation.id).value =
         handleLastMessageTime(conversation.updatedAt!);
@@ -93,14 +94,22 @@ class ChatController extends GetxController {
           //conversation of this message should be on top
           handleIncomingMessage(data, conversationId);
         } else if (type == "typing_status") {
-          if (data['user_id'] != currentUserId) {
-            getIsTypingFor(conversationId).value = data['is_typing'];
+          int userId = data['user_id'] is String
+              ? int.parse(data['user_id'])
+              : data['user_id'];
+          if (userId != currentUserId) {
+            getIsTypingFor(userId).value = data['is_typing'];
           }
         } else if (type == 'user_status_update') {
-          if (data['user_id'] != currentUserId) {
-            getIsOtherUserOnlineFor(conversationId).value = data['is_online'];
+          int userId = data['user_id'] is String
+              ? int.parse(data['user_id'])
+              : data['user_id'];
+          if (userId != currentUserId) {
+            getIsOtherUserOnlineFor(userId).value = data['is_online'];
+            //change conversationId to userId
+            //same for isTyping
             if (data['last_seen'] != null) {
-              handleLastSeen(data, conversationId);
+              handleLastSeen(data, userId);
             }
           }
         } else if (type == 'messages_read_confirmation') {
@@ -143,6 +152,11 @@ class ChatController extends GetxController {
             isNew: isNew,
             lastMessageData: lastMessageData,
           );
+        } else if (type == 'typing_status_list_update') {
+          int userId = data['user_id'] is String
+              ? int.parse(data['user_id'])
+              : data['user_id'];
+          getIsTypingFor(userId).value = data['is_typing'] as bool;
         }
       },
       onError: (error) {
@@ -150,6 +164,11 @@ class ChatController extends GetxController {
       },
       onDone: () {
         print("WebSocket closed for conversation $conversationId");
+        print(
+            "we will schdule a reconnect if = anyConversationId ($anyConversationId)");
+        if (conversationId == anyConversationId) {
+          _activeSockets[conversationId]!.scheduleReconnect(conversationId);
+        }
       },
     );
     print("chatController :: connectToChat :: success!!");
@@ -169,20 +188,23 @@ class ChatController extends GetxController {
     required Message lastMessageData,
     required bool isNew,
   }) {
-    //maybe everything from here and down can be handled when getting
-    //conversation_list_update type of message
     int index = chats.indexWhere((conv) {
       return conversation.id == conv.id;
     });
-    if (index != -1) {
-      // Update the conversation at the found index
-      // Optionally move it to the top of the list
-      final moved = chats.removeAt(index);
-      chats.insert(0, moved);
-    } else {
-      chats.insert(0, conversation);
+    if (lastMessageId[conversation.id] == null ||
+        lastMessageId[conversation.id] != lastMessageData.id) {
+      if (index != -1) {
+        lastMessageId[conversation.id] = lastMessageData.id;
+        // Update the conversation at the found index
+        // Optionally move it to the top of the list
+        if (index != 0) {
+          final moved = chats.removeAt(index);
+          chats.insert(0, moved);
+        }
+      } else {
+        chats.insert(0, conversation);
+      }
     }
-
     if (lastMessageData.fileUrl == null) {
       getLastMessageFor(conversation.id).value = lastMessageData.content!;
     } else {
@@ -236,8 +258,8 @@ class ChatController extends GetxController {
     return isTyping.putIfAbsent(conversationId, () => RxBool(false));
   }
 
-  RxBool getIsOtherUserOnlineFor(int conversationId) {
-    return isOtherUserOnline.putIfAbsent(conversationId, () => RxBool(false));
+  RxBool getIsOtherUserOnlineFor(int userId) {
+    return isOtherUserOnline.putIfAbsent(userId, () => RxBool(false));
   }
 
   void disconnect({int? exceptId, int? onlyThis}) {
@@ -263,10 +285,7 @@ class ChatController extends GetxController {
 
   void clear({bool? leaveConvIds}) {
     print("clearing chat Controller");
-    for (int key in _activeSockets.keys) {
-      print("closing sockets for conversation : $key");
-      _activeSockets[key]!.dispose();
-    }
+    disconnect();
     _activeSockets.clear();
     _messageStreams.clear();
     messages.clear();
@@ -305,7 +324,7 @@ class ChatController extends GetxController {
     return wantedDate;
   }
 
-  void handleLastSeen(Map<String, dynamic> data, int conversationId) {
+  void handleLastSeen(Map<String, dynamic> data, int userId) {
     DateTime lastSeenDate = DateTime.parse(data['last_seen']).toLocal();
 
     DateTime now = DateTime.now();
@@ -317,12 +336,11 @@ class ChatController extends GetxController {
     } else {
       wantedDate = "at ${DateFormat('hh:mm a dd-MM-yy').format(lastSeenDate)}";
     }
-    _getLastSeenFor(conversationId).value = "last seen $wantedDate";
+    _getLastSeenFor(userId).value = "last seen $wantedDate";
   }
 
-  RxString _getLastSeenFor(int conversationId) {
-    return lastSeen.putIfAbsent(
-        conversationId, () => RxString("last seen recently"));
+  RxString _getLastSeenFor(int userId) {
+    return lastSeen.putIfAbsent(userId, () => RxString("last seen recently"));
   }
 
   RxString getLastMessageTimeFor(int conversationId) {
