@@ -93,8 +93,12 @@ class _ChatPageState extends State<ChatPage> {
         ),
         title: Row(
           children: [
-            const CircleAvatar(
-              backgroundImage: AssetImage('assets/images/person.jpg'),
+            CircleAvatar(
+              radius: screenWidth * 0.06,
+              backgroundImage: chatController.chats[index].otherUserPhotoUrl !=
+                      null
+                  ? NetworkImage(chatController.chats[index].otherUserPhotoUrl!)
+                  : const AssetImage('assets/images/person.jpg'),
             ),
             const SizedBox(
               width: 10,

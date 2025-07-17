@@ -68,7 +68,10 @@ class ChatTile extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: screenWidth * 0.07,
-              backgroundImage: const AssetImage('assets/images/person.jpg'),
+              backgroundImage: chatController.chats[index].otherUserPhotoUrl !=
+                      null
+                  ? NetworkImage(chatController.chats[index].otherUserPhotoUrl!)
+                  : const AssetImage('assets/images/person.jpg'),
             ),
             if (isOnline)
               Positioned(
