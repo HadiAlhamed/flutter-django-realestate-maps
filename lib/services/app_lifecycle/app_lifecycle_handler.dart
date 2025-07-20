@@ -27,7 +27,7 @@ class AppLifecycleHandler extends WidgetsBindingObserver {
       case AppLifecycleState.paused:
         print("App in Background");
         // Pause operations or release resources
-        _handlePaused();
+        // _handlePaused();
         break;
       case AppLifecycleState.detached:
         print("App Terminated or detached");

@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:real_estate/controllers/chat_controller.dart';
-import 'package:real_estate/services/api.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 import 'package:real_estate/widgets/typing_indicator.dart';
 
 class ChatTile extends StatelessWidget {
   final int conversationId;
   final String name;
-  final String lastMessage;
+  final String? lastMessage;
   final String lastMessageTime;
   final int newMessages;
   final double screenWidth;
   final ChatController chatController = Get.find<ChatController>();
   final int index;
   final bool isOnline;
+
   ChatTile({
     super.key,
     required this.conversationId,
@@ -29,6 +29,7 @@ class ChatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("lastMessage : $lastMessage");
     return Card(
       elevation: 4,
       margin: const EdgeInsets.only(bottom: 4),
@@ -59,11 +60,18 @@ class ChatTile extends StatelessWidget {
                   TypingIndicator(dotColor: primaryColor),
                 ],
               )
-            : Text(
-                lastMessage,
-                overflow: TextOverflow.ellipsis, // Shows ... at the end
-                maxLines: 2, // Ensures text stays in a single lines
-              ),
+            : lastMessage == null || lastMessage == "null"
+                ? Align(
+                    alignment: Alignment.centerLeft,
+                    child: const Icon(
+                      Icons.file_copy,
+                    ),
+                  )
+                : Text(
+                    lastMessage!,
+                    overflow: TextOverflow.ellipsis, // Shows ... at the end
+                    maxLines: 2, // Ensures text stays in a single lines
+                  ),
         leading: Stack(
           children: [
             CircleAvatar(

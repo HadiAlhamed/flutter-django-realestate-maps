@@ -5,17 +5,21 @@ import 'package:real_estate/models/conversations/conversation.dart';
 class PaginatedConversation {
   final List<Conversation> conversations;
   final String? nextUrl;
+  final int totalUnreadCount;
   PaginatedConversation({
     required this.conversations,
     this.nextUrl,
+    required this.totalUnreadCount,
   });
 
   PaginatedConversation copyWith({
     List<Conversation>? conversations,
+    int? totalUnreadCount,
     String? nextUrl,
   }) {
     return PaginatedConversation(
       conversations: conversations ?? this.conversations,
+      totalUnreadCount: totalUnreadCount ?? this.totalUnreadCount,
       nextUrl: nextUrl ?? this.nextUrl,
     );
   }
@@ -26,6 +30,7 @@ class PaginatedConversation {
         return Conversation.fromJson(conversation);
       }).toList(),
       nextUrl: json['next'],
+      totalUnreadCount: json['total_unread_count'],
     );
   }
 

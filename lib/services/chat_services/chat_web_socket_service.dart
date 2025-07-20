@@ -105,18 +105,21 @@ class ChatWebSocketService {
     });
   }
 
-  Future<void> sendTextMessage(String content, String messageType) async {
+  Future<void> sendMessage(
+      String? content, String? fileUrl, String messageType) async {
     if (_channel != null) {
       print("WebSocket is connected");
     } else {
       print("WebSocket is null (not connected)");
     }
-    final jsonMessage = jsonEncode({
+    print("webSocket :: sendMessage :: $messageType");
+    String jsonMessage = jsonEncode({
       "type": "chat_message",
-      "file_url": null,
+      "file_url": fileUrl,
       "content": content,
       "message_type": messageType
     });
+
     print("📤 FINAL message sent to WebSocket:\n$jsonMessage");
 
     print("🧪 Type of jsonMessage: ${jsonMessage.runtimeType}");

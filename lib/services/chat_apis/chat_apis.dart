@@ -1,4 +1,11 @@
+import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 import 'package:real_estate/models/conversations/message.dart';
 
 import 'package:real_estate/models/conversations/paginated_conversation.dart';
@@ -12,6 +19,7 @@ class ChatApis {
   }
 
   static Future<PaginatedConversation> getConversations({String? url}) async {
+    print("getConversations :: trying to get conversations...");
     try {
       final response = await _dio.get(
         url ?? "${Api.baseUrl}/chats/conversations/",
@@ -19,6 +27,7 @@ class ChatApis {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = response.data;
         print("conversations ::$data");
+
         return PaginatedConversation.fromJson(data);
       }
     } catch (e) {
@@ -28,7 +37,11 @@ class ChatApis {
         print("Network Error :: getConversations :: $e");
       }
     }
-    return PaginatedConversation(conversations: [], nextUrl: null);
+    return PaginatedConversation(
+      conversations: [],
+      nextUrl: null,
+      totalUnreadCount: 0,
+    );
   }
 
   //change it for paginatedMessage
@@ -106,5 +119,77 @@ class ChatApis {
       }
     }
     return -1;
+  }
+
+  static Future<String?> uploadFile({required File file}) async {
+    print("uploadFile :: trying to upload an File .... ");
+    print("image extension : ${path.extension(file.path).toLowerCase()}");
+    final mimeType = lookupMimeType(file.path); // e.g. "image/jpeg"
+    print("mime type of file : $mimeType");
+    final String fileName = file.path.split('/').last;
+    try {
+      FormData formData = FormData.fromMap({
+        'file': await MultipartFile.fromFile(
+          file.path,
+          filename: fileName,
+          contentType: MediaType.parse(mimeType!), // ✅ very important
+        ),
+      });
+      final response = await _dio.post(
+        "${Api.baseUrl}/chats/files/upload/",
+        data: formData,
+      );
+      if (response.statusCode == 201) {
+        return response.data['file_url'] as String;
+      } else {
+        print("uploadFile :: Failed to upload File");
+      }
+    } catch (e) {
+      if (e is DioException) {
+        print("uploadFile :: DioException :: ${e.response?.data}");
+      } else {
+        print("uploadFile :: networkError :: $e");
+      }
+    }
+    return null;
+  }
+
+  static Future<XFile?> compressImage(File file) async {
+    final originalExtension = path.extension(file.path); // e.g., .png, .jpg
+
+    final dir = await getTemporaryDirectory();
+    final targetPath = path.join(
+        dir.path, "${DateTime.now().millisecondsSinceEpoch}$originalExtension");
+
+    final result = await FlutterImageCompress.compressAndGetFile(
+      file.absolute.path,
+      targetPath,
+      quality: 70, // Try 60–80 for good balance
+    );
+
+    return result;
+  }
+
+  static Future<void> openRemoteFile(String fileUrl) async {
+    print("openRemoteFile :: Trying to open remote file (pdf file)");
+    try {
+      final dir = await getTemporaryDirectory();
+      final fileName = fileUrl.split('/').last;
+      final filePath =
+          "${dir.path}/${DateTime.now().microsecondsSinceEpoch}/$fileName";
+      final response = await _dio.download(fileUrl, filePath);
+      if (response.statusCode == 200) {
+        await OpenFilex.open(filePath);
+      } else {
+        print("chatApis :: openRemoteFile :: failed to open remote file");
+      }
+    } catch (e) {
+      if (e is DioException) {
+        print(
+            "chatApis :: openRemoteFile :: DioException :: ${e.response?.data}");
+      } else {
+        print("chatApis :: openRemoteFile :: NetworkE Error :: $e");
+      }
+    }
   }
 }

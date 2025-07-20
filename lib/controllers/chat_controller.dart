@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:path/path.dart' as path;
 import 'package:real_estate/models/conversations/conversation.dart';
 import 'package:real_estate/models/conversations/message.dart';
 import 'package:real_estate/services/api.dart';
@@ -24,6 +25,7 @@ class ChatController extends GetxController {
   RxList<Conversation> chats = <Conversation>[].obs;
   int currentConversationId = -1;
   int anyConversationId = -1;
+  RxInt totalUnreadCount = RxInt(-1);
   set anyConvId(int conversationId) => anyConversationId = conversationId;
   int get anyConvId => anyConversationId;
   set currentConvId(int conversationId) =>
@@ -37,17 +39,23 @@ class ChatController extends GetxController {
     loadingChats.value = value;
   }
 
+  void changeTotalUnreadCount(int value) {
+    totalUnreadCount.value = value;
+  }
+
   void add(Conversation conversation) {
     print("adding conversation : $conversation\n");
 
     chats.add(conversation);
+
     getUnreadCountFor(conversation.id).value = conversation.unreadCount;
     getIsTypingFor(conversation.id).value = false;
     getIsOtherUserOnlineFor(conversation.otherUserId).value =
         conversation.otherUserIsOnline ?? false;
     handleLastSeen({'last_seen': conversation.otherUserLastSeen.toString()},
         conversation.otherUserId);
-    getLastMessageFor(conversation.id).value = conversation.lastMessage ?? "";
+    getLastMessageFor(conversation.id).value =
+        conversation.lastMessage ?? "null";
     getLastMessageTimeFor(conversation.id).value =
         handleLastMessageTime(conversation.updatedAt!);
     if (anyConversationId == -1) anyConversationId = conversation.id;
@@ -138,7 +146,7 @@ class ChatController extends GetxController {
             otherUserFirstName: data['other_participant_details']['first_name'],
             otherUserLastName: data['other_participant_details']['last_name'],
             unreadCount: data['unread_count_for_this_conversation'],
-            lastMessage: lastMessageData.content ?? "File",
+            lastMessage: lastMessageData.content,
             createdAt: DateTime.parse(data['created_at']).toLocal(),
             updatedAt: DateTime.parse(data['updated_at']).toLocal(),
             otherUserIsOnline: data['other_participant_details']['is_online'],
@@ -157,6 +165,8 @@ class ChatController extends GetxController {
               ? int.parse(data['user_id'])
               : data['user_id'];
           getIsTypingFor(userId).value = data['is_typing'] as bool;
+        } else if (type == 'total_unread_chat_count') {
+          changeTotalUnreadCount(data['count'] as int);
         }
       },
       onError: (error) {
@@ -208,7 +218,7 @@ class ChatController extends GetxController {
     if (lastMessageData.fileUrl == null) {
       getLastMessageFor(conversation.id).value = lastMessageData.content!;
     } else {
-      getLastMessageFor(conversation.id).value = "File";
+      getLastMessageFor(conversation.id).value = "null";
     }
     getLastMessageTimeFor(conversation.id).value =
         handleLastMessageTime(lastMessageData.createdAt);
@@ -228,9 +238,28 @@ class ChatController extends GetxController {
     unreadCount[conversationId]!.value = 0;
   }
 
-  void sendTextMessage(String content, int conversationId) {
+  void sendMessage(
+      {String? content, String? fileUrl, required int conversationId}) {
     print("trying to send text message for conversation $conversationId");
-    _activeSockets[conversationId]!.sendTextMessage(content, "text");
+    if (content != null) {
+      _activeSockets[conversationId]!.sendMessage(
+        content,
+        fileUrl,
+        "text",
+      );
+    } else if (fileUrl != null) {
+      String messageType =
+          path.extension(fileUrl).toLowerCase() == '.pdf' ? 'pdf' : 'image';
+      _activeSockets[conversationId]!.sendMessage(
+        content,
+        fileUrl,
+        messageType,
+      );
+      //messageType either image or pdf , you have to choose
+    } else {
+      print(
+          "chatController :: sendMessage :: both content and fileUrl are null!!");
+    }
     print("end!!");
   }
 
@@ -241,10 +270,6 @@ class ChatController extends GetxController {
   Future<void> markAsRead(List<String> messageIds, int conversationId) async {
     _activeSockets[conversationId]!.markAsRead(messageIds);
   }
-
-  // Future<void> sendIsTyping(List<String> messageIds, int conversationId) async {
-  //   _activeSockets[conversationId]!.markAsRead(messageIds);
-  // }
 
   RxList<Message> getMessagesFor(int conversationId) {
     return messages.putIfAbsent(conversationId, () => RxList<Message>());
@@ -332,7 +357,7 @@ class ChatController extends GetxController {
     wantedDate = "at ${DateFormat('hh:mm a').format(lastSeenDate)}";
     if (lastSeenDate.day == now.day) {
     } else if (lastSeenDate.day == now.subtract(Duration(days: 1)).day) {
-      wantedDate = "yesterday at $wantedDate";
+      wantedDate = "yesterday $wantedDate";
     } else {
       wantedDate = "at ${DateFormat('hh:mm a dd-MM-yy').format(lastSeenDate)}";
     }
@@ -348,6 +373,6 @@ class ChatController extends GetxController {
   }
 
   RxString getLastMessageFor(int conversationId) {
-    return lastMessageFor.putIfAbsent(conversationId, () => RxString(""));
+    return lastMessageFor.putIfAbsent(conversationId, () => RxString("null"));
   }
 }

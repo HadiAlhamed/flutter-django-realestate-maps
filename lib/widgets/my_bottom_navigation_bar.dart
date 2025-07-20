@@ -1,48 +1,112 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:real_estate/controllers/bottom_navigation_bar_controller.dart';
+import 'package:real_estate/controllers/chat_controller.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 
 class MyBottomNavigationBar extends StatelessWidget {
   final BottomNavigationBarController bottomController;
-
-  const MyBottomNavigationBar({
+  final ChatController chatController = Get.find<ChatController>();
+  MyBottomNavigationBar({
     super.key,
     required this.bottomController,
   });
 
   @override
   Widget build(BuildContext context) {
-    final iconList = [
-      Icons.home,
-      Icons.message_outlined,
-      Icons.share_location_sharp,
-      Icons.favorite,
-      Icons.person,
-    ];
-
-    // Determine gap location and corner radius dynamically
     final bool isGapEnd = bottomController.selectedIndex != 2;
 
     return GetBuilder<BottomNavigationBarController>(
       init: bottomController,
-      builder: (controller) => AnimatedBottomNavigationBar(
-        icons: iconList,
+      builder: (controller) => AnimatedBottomNavigationBar.builder(
+        itemCount: 5,
+        tabBuilder: (index, isActive) {
+          final color = isActive ? primaryColor : greyText;
+          final isChatIcon = index == 1;
+          if (!isChatIcon) {
+            return IconTheme(
+              data: IconThemeData(
+                color: color,
+                size: 28,
+              ),
+              child: Icon(_iconDataFor(index)),
+            );
+          }
+          return Obx(() {
+            final unreadCount = chatController.totalUnreadCount.value;
+            return SizedBox(
+              width: 40, // match the icon size + room for badge
+              height: 40,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Center(
+                    child: IconTheme(
+                      data: IconThemeData(
+                        color: color,
+                        size: 28,
+                      ),
+                      child: Icon(_iconDataFor(index)),
+                    ),
+                  ),
+                  if (unreadCount > 0)
+                    Positioned(
+                      top: 8,
+                      right: 12,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 5, vertical: 2),
+                        decoration: const BoxDecoration(
+                          color: primaryColorInactive,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints:
+                            const BoxConstraints(minWidth: 16, minHeight: 16),
+                        child: Center(
+                          child: Text(
+                            '$unreadCount',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            );
+          });
+        },
         activeIndex: controller.selectedIndex,
         gapLocation: isGapEnd ? GapLocation.end : GapLocation.none,
         notchSmoothness: NotchSmoothness.verySmoothEdge,
         backgroundColor: Theme.of(context).brightness == Brightness.light
             ? Colors.white
             : Colors.black,
-        activeColor: primaryColor,
-        inactiveColor: greyText,
-        iconSize: 28,
         leftCornerRadius: 24,
         rightCornerRadius: 0,
         onTap: (index) => handleBottomNavigation(index),
       ),
     );
+  }
+
+  IconData _iconDataFor(int index) {
+    switch (index) {
+      case 0:
+        return Icons.home;
+      case 1:
+        return Icons.message_outlined;
+      case 2:
+        return Icons.share_location_sharp;
+      case 3:
+        return Icons.favorite;
+      case 4:
+      default:
+        return Icons.person;
+    }
   }
 
   void handleBottomNavigation(int index) {

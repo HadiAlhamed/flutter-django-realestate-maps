@@ -8,6 +8,7 @@ import 'package:real_estate/controllers/drop_down_controller.dart';
 import 'package:real_estate/controllers/filter_controller.dart';
 import 'package:real_estate/controllers/home_page_tab_controller.dart';
 import 'package:real_estate/controllers/login_controller.dart';
+import 'package:real_estate/controllers/message_input_controller.dart';
 import 'package:real_estate/controllers/my_map_controller.dart';
 import 'package:real_estate/controllers/my_properties_controller.dart';
 import 'package:real_estate/controllers/profile_controller.dart';
@@ -38,5 +39,6 @@ class MyBindings extends Bindings {
     Get.put(ChatController());
     Get.put(MyPropertiesController());
     Get.put(ChangePasswordController());
+    Get.put(MessageInputController());
   }
 }

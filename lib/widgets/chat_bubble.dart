@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:real_estate/models/conversations/message.dart';
 import 'package:real_estate/services/api.dart';
+import 'package:real_estate/services/chat_apis/chat_apis.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 
 class ChatBubble extends StatelessWidget {
@@ -40,15 +41,72 @@ class ChatBubble extends StatelessWidget {
           ),
         ),
         child: Column(
-          crossAxisAlignment:
-              (message.content == null || !isRTL(message.content!))
+          crossAxisAlignment: message.content == null
+              ? CrossAxisAlignment.center
+              : (!isRTL(message.content!))
                   ? CrossAxisAlignment.start
                   : CrossAxisAlignment.end,
           children: [
-            Text("${message.fileUrl != null ? "photo" : message.content}"),
+            if (message.messageType == 'text') ...[
+              Text("${message.content}")
+            ] else if (message.messageType == 'image' &&
+                message.fileUrl != null) ...[
+              ClipRRect(
+                borderRadius:
+                    BorderRadius.circular(16), // adjust radius as needed
+                child: Image.network(
+                  message.fileUrl!,
+                  alignment: Alignment.center,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Icon(Icons.broken_image);
+                  },
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return SizedBox(
+                      width: 200,
+                      height: 200,
+                      child: const Center(child: CircularProgressIndicator()),
+                    );
+                  },
+                ),
+              )
+            ] else if (message.messageType == 'pdf') ...[
+              GestureDetector(
+                onTap: () async {
+                  // Open the PDF, e.g., using open_file or a custom viewer screen
+                  // Example with open_file:
+                  // OpenFile.open(message.fileUrl!);
+                  // Or navigate to a PDF viewer page
+                  await ChatApis.openRemoteFile(message.fileUrl!);
+                },
+                child: Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.red),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.picture_as_pdf, size: 40, color: Colors.red),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          _extractFileName(message.fileUrl!),
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontWeight: FontWeight.w500),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              )
+            ],
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                //edit here
                 Text(
                   DateFormat("hh:mm a").format(message.createdAt.toLocal()),
                   textAlign: TextAlign.right,
@@ -66,6 +124,10 @@ class ChatBubble extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _extractFileName(String url) {
+    return url.split('/').last;
   }
 
   bool isRTL(String text) {

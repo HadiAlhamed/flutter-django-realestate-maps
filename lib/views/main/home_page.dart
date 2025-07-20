@@ -61,6 +61,7 @@ class _HomePageState extends State<HomePage>
     if (pConversation.conversations.isNotEmpty) {
       chatController.add(pConversation.conversations[0]);
     }
+    chatController.changeTotalUnreadCount(pConversation.totalUnreadCount);
   }
 
   Future<void> _fetchUserInfo() async {

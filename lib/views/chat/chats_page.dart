@@ -106,14 +106,10 @@ class _ChatsPageState extends State<ChatsPage> {
                                         chatController.chats[index].otherUserId)
                                     .value
                                 ? "typing ..."
-                                : chatController.lastMessageFor[
-                                            chatController.chats[index].id] ==
-                                        null
-                                    ? ""
-                                    : chatController
-                                        .lastMessageFor[
-                                            chatController.chats[index].id]!
-                                        .value,
+                                : chatController
+                                    .lastMessageFor[
+                                        chatController.chats[index].id]
+                                    ?.value,
                             lastMessageTime: chatController.lastMessageTime[
                                         chatController.chats[index].id] ==
                                     null

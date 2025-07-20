@@ -30,7 +30,7 @@ class Api {
     if (isEmulator) {
       return 'ws://10.0.2.2:9998';
     } else {
-      return 'ws://192.168.1.103:9998'; // ← Replace with your actual local IP
+      return 'ws://192.168.1.2:9998'; // ← Replace with your actual local IP
     }
   }
 
@@ -40,7 +40,7 @@ class Api {
     if (isEmulator) {
       return 'http://10.0.2.2:9999';
     } else {
-      return 'http://192.168.1.103:9999'; // ← Replace with your actual local IP
+      return 'http://192.168.1.2:9999'; // ← Replace with your actual local IP
     }
   }
 }
