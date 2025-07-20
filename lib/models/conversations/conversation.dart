@@ -9,6 +9,8 @@ class Conversation {
   bool? otherUserIsOnline;
   DateTime? otherUserLastSeen;
   String? lastMessage;
+  int? lastMessageId;
+
   int unreadCount;
   DateTime? createdAt;
   DateTime? updatedAt;
@@ -22,6 +24,7 @@ class Conversation {
     this.otherUserIsOnline,
     this.otherUserLastSeen,
     this.lastMessage,
+    this.lastMessageId,
     required this.unreadCount,
     this.createdAt,
     this.updatedAt,
@@ -39,6 +42,7 @@ class Conversation {
     int? unreadCount,
     DateTime? createdAt,
     DateTime? updatedAt,
+    int? lastMessageId,
   }) {
     return Conversation(
       id: id ?? this.id,
@@ -52,6 +56,7 @@ class Conversation {
       unreadCount: unreadCount ?? this.unreadCount,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      lastMessageId: lastMessageId ?? this.lastMessageId,
     );
   }
 
@@ -69,6 +74,9 @@ class Conversation {
           ? DateTime.parse(map['other_user_last_seen'])
           : null,
       lastMessage: lastMessageMap?['content'] as String?,
+      lastMessageId: lastMessageMap?['id'] is String
+          ? int.parse(lastMessageMap?['id'])
+          : lastMessageMap?['id'],
       unreadCount: map['unread_count'] ?? 0,
       createdAt:
           map['created_at'] != null ? DateTime.parse(map['created_at']) : null,

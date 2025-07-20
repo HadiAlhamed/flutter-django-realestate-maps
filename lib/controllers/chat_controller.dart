@@ -21,7 +21,7 @@ class ChatController extends GetxController {
   Map<int, RxString> lastSeen = {}; //user id , his last seen
   Map<int, RxString> lastMessageFor = {};
   Map<int, RxString> lastMessageTime = {};
-  Map<int, int> lastMessageId = {};
+
   RxList<Conversation> chats = <Conversation>[].obs;
   int currentConversationId = -1;
   int anyConversationId = -1;
@@ -201,19 +201,13 @@ class ChatController extends GetxController {
     int index = chats.indexWhere((conv) {
       return conversation.id == conv.id;
     });
-    if (lastMessageId[conversation.id] == null ||
-        lastMessageId[conversation.id] != lastMessageData.id) {
-      if (index != -1) {
-        lastMessageId[conversation.id] = lastMessageData.id;
-        // Update the conversation at the found index
-        // Optionally move it to the top of the list
-        if (index != 0) {
-          final moved = chats.removeAt(index);
-          chats.insert(0, moved);
-        }
-      } else {
-        chats.insert(0, conversation);
+    if (index != -1 && lastMessageData.id != chats[index].lastMessageId) {
+      if (index != 0) {
+        final moved = chats.removeAt(index);
+        chats.insert(0, moved);
       }
+    } else if (index == -1) {
+      chats.insert(0, conversation);
     }
     if (lastMessageData.fileUrl == null) {
       getLastMessageFor(conversation.id).value = lastMessageData.content!;
