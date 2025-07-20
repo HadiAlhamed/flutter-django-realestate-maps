@@ -26,18 +26,20 @@ class ChatBubble extends StatelessWidget {
           maxWidth: screenWidth * 0.75,
         ),
         margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-        padding: const EdgeInsets.all(12),
+        padding: message.messageType == 'image'
+            ? const EdgeInsets.all(4)
+            : const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: isMe
               ? primaryColor
               : Theme.of(context).brightness == Brightness.dark
                   ? Colors.blueGrey
-                  : Colors.grey[300],
+                  : Colors.blueGrey[300],
           borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(12),
-            topRight: const Radius.circular(12),
-            bottomLeft: isMe ? const Radius.circular(12) : Radius.zero,
-            bottomRight: isMe ? Radius.zero : const Radius.circular(12),
+            topLeft: const Radius.circular(15),
+            topRight: const Radius.circular(15),
+            bottomLeft: isMe ? const Radius.circular(15) : Radius.zero,
+            bottomRight: isMe ? Radius.zero : const Radius.circular(15),
           ),
         ),
         child: Column(
@@ -51,33 +53,42 @@ class ChatBubble extends StatelessWidget {
               Text("${message.content}")
             ] else if (message.messageType == 'image' &&
                 message.fileUrl != null) ...[
-              ClipRRect(
-                borderRadius:
-                    BorderRadius.circular(16), // adjust radius as needed
-                child: Image.network(
-                  message.fileUrl!,
-                  alignment: Alignment.center,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Icon(Icons.broken_image);
-                  },
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return SizedBox(
-                      width: 200,
-                      height: 200,
-                      child: const Center(child: CircularProgressIndicator()),
-                    );
-                  },
-                ),
+              Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius:
+                        BorderRadius.circular(16), // adjust radius as needed
+                    child: GestureDetector(
+                      onTap: () async {
+                        await ChatApis.openRemoteFile(message.fileUrl!);
+                      },
+                      child: Image.network(
+                        message.fileUrl!,
+                        alignment: Alignment.center,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Icon(Icons.broken_image);
+                        },
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return SizedBox(
+                            child: const Center(
+                                child: CircularProgressIndicator()),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 2,
+                    right: 6,
+                    child: messageTimeAndSeenWidget(isMe),
+                  )
+                ],
               )
             ] else if (message.messageType == 'pdf') ...[
               GestureDetector(
                 onTap: () async {
-                  // Open the PDF, e.g., using open_file or a custom viewer screen
-                  // Example with open_file:
-                  // OpenFile.open(message.fileUrl!);
-                  // Or navigate to a PDF viewer page
                   await ChatApis.openRemoteFile(message.fileUrl!);
                 },
                 child: Container(
@@ -103,26 +114,30 @@ class ChatBubble extends StatelessWidget {
                 ),
               )
             ],
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                //edit here
-                Text(
-                  DateFormat("hh:mm a").format(message.createdAt.toLocal()),
-                  textAlign: TextAlign.right,
-                ),
-                if (isMe)
-                  const SizedBox(
-                    width: 2,
-                  ),
-                if (isMe && message.isRead)
-                  Icon(Icons.done_all, color: Colors.white),
-                if (isMe && !message.isRead) Icon(Icons.check),
-              ],
-            ),
+            if (message.messageType != 'image') messageTimeAndSeenWidget(isMe),
           ],
         ),
       ),
+    );
+  }
+
+  Row messageTimeAndSeenWidget(bool isMe) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        //edit here
+        Text(
+          DateFormat("hh:mm a").format(message.createdAt.toLocal()),
+          textAlign: TextAlign.right,
+          style: TextStyle(color: Colors.white),
+        ),
+        if (isMe)
+          const SizedBox(
+            width: 2,
+          ),
+        if (isMe && message.isRead) Icon(Icons.done_all, color: Colors.white),
+        if (isMe && !message.isRead) Icon(Icons.check),
+      ],
     );
   }
 

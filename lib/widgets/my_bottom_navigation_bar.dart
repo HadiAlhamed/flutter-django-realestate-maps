@@ -58,17 +58,17 @@ class MyBottomNavigationBar extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 5, vertical: 2),
                         decoration: const BoxDecoration(
-                          color: primaryColorInactive,
+                          color: primaryColor,
                           shape: BoxShape.circle,
                         ),
                         constraints:
                             const BoxConstraints(minWidth: 16, minHeight: 16),
                         child: Center(
                           child: Text(
-                            '$unreadCount',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
+                            '${unreadCount > 99 ? '99+' : unreadCount}',
+                            style: TextStyle(
+                              color: Colors.grey[300]!,
+                              fontSize: 14,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
