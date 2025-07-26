@@ -9,9 +9,9 @@ import 'package:real_estate/controllers/properties_controllers/property_details_
 import 'package:real_estate/services/api.dart';
 import 'package:real_estate/services/auth_apis/auth_apis.dart';
 import 'package:real_estate/services/auth_services/token_service.dart';
-import 'package:real_estate/widgets/my_button.dart';
-import 'package:real_estate/widgets/my_input_field.dart';
-import 'package:real_estate/widgets/my_snackbar.dart';
+import 'package:real_estate/widgets/general_widgets/my_button.dart';
+import 'package:real_estate/widgets/general_widgets/my_input_field.dart';
+import 'package:real_estate/widgets/general_widgets/my_snackbar.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});

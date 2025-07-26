@@ -16,9 +16,9 @@ import 'package:real_estate/services/chat_apis/chat_apis.dart';
 import 'package:real_estate/services/properties_apis/properties_apis.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 import 'package:real_estate/textstyles/text_styles.dart';
-import 'package:real_estate/widgets/my_bottom_navigation_bar.dart';
-import 'package:real_estate/widgets/my_floating_action_button.dart';
-import 'package:real_estate/widgets/property_card.dart';
+import 'package:real_estate/widgets/general_widgets/my_bottom_navigation_bar.dart';
+import 'package:real_estate/widgets/general_widgets/my_floating_action_button.dart';
+import 'package:real_estate/widgets/property_widgets/property_card.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

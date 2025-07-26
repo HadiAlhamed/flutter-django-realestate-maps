@@ -6,10 +6,10 @@ import 'package:real_estate/models/conversations/message.dart';
 import 'package:real_estate/services/api.dart';
 import 'package:real_estate/services/chat_apis/chat_apis.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
-import 'package:real_estate/widgets/chat_bubble.dart';
-import 'package:real_estate/widgets/message_input_bar.dart';
-import 'package:real_estate/widgets/typing_indicator.dart';
-import 'package:real_estate/widgets/typing_indicator_message.dart';
+import 'package:real_estate/widgets/chat_widgets/chat_bubble.dart';
+import 'package:real_estate/widgets/chat_widgets/message_input_bar.dart';
+import 'package:real_estate/widgets/chat_widgets/typing_indicator.dart';
+import 'package:real_estate/widgets/chat_widgets/typing_indicator_message.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});

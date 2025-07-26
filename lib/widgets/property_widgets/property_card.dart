@@ -5,7 +5,7 @@ import 'package:real_estate/models/properties/property.dart';
 import 'package:real_estate/services/properties_apis/properties_apis.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 import 'package:real_estate/textstyles/text_styles.dart';
-import 'package:real_estate/widgets/my_snackbar.dart';
+import 'package:real_estate/widgets/general_widgets/my_snackbar.dart';
 
 class PropertyCard extends StatelessWidget {
   final bool? favorite;

@@ -4,7 +4,7 @@ import 'package:real_estate/controllers/properties_controllers/my_properties_con
 import 'package:real_estate/models/filter_options.dart';
 import 'package:real_estate/models/properties/paginated_property.dart';
 import 'package:real_estate/services/properties_apis/properties_apis.dart';
-import 'package:real_estate/widgets/property_card.dart';
+import 'package:real_estate/widgets/property_widgets/property_card.dart';
 
 class MyPropertiesPage extends StatefulWidget {
   const MyPropertiesPage({super.key});

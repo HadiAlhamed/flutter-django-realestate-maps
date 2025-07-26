@@ -10,10 +10,10 @@ import 'package:real_estate/models/profile_info.dart';
 import 'package:real_estate/services/api.dart';
 import 'package:real_estate/services/auth_apis/auth_apis.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
-import 'package:real_estate/widgets/my_button.dart';
-import 'package:real_estate/widgets/my_input_field.dart';
+import 'package:real_estate/widgets/general_widgets/my_button.dart';
+import 'package:real_estate/widgets/general_widgets/my_input_field.dart';
 import 'package:intl/intl.dart';
-import 'package:real_estate/widgets/my_snackbar.dart';
+import 'package:real_estate/widgets/general_widgets/my_snackbar.dart';
 
 class ProfilePage extends StatelessWidget {
   final TextEditingController firstNameController = TextEditingController();

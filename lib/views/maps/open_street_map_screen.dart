@@ -11,8 +11,8 @@ import 'package:real_estate/controllers/main_controllers/bottom_navigation_bar_c
 import 'package:real_estate/controllers/main_controllers/my_map_controller.dart';
 import 'package:real_estate/controllers/properties_controllers/property_controller.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
-import 'package:real_estate/widgets/my_bottom_navigation_bar.dart';
-import 'package:real_estate/widgets/my_snackbar.dart';
+import 'package:real_estate/widgets/general_widgets/my_bottom_navigation_bar.dart';
+import 'package:real_estate/widgets/general_widgets/my_snackbar.dart';
 import 'package:http/http.dart' as http;
 
 class OpenStreetMapScreen extends StatefulWidget {

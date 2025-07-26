@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:real_estate/controllers/chat_controllers/chat_controller.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
-import 'package:real_estate/widgets/typing_indicator.dart';
+import 'package:real_estate/widgets/chat_widgets/typing_indicator.dart';
 
 class ChatTile extends StatelessWidget {
   final int conversationId;

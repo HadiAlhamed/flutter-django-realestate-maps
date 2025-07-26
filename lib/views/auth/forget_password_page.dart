@@ -5,9 +5,9 @@ import 'package:real_estate/controllers/auth_controllers/forget_password_control
 import 'package:real_estate/services/auth_apis/auth_apis.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 import 'package:real_estate/textstyles/text_styles.dart';
-import 'package:real_estate/widgets/my_button.dart';
-import 'package:real_estate/widgets/my_input_field.dart';
-import 'package:real_estate/widgets/my_snackbar.dart';
+import 'package:real_estate/widgets/general_widgets/my_button.dart';
+import 'package:real_estate/widgets/general_widgets/my_input_field.dart';
+import 'package:real_estate/widgets/general_widgets/my_snackbar.dart';
 
 class ForgetPasswordPage extends StatelessWidget {
   ForgetPasswordPage({super.key});

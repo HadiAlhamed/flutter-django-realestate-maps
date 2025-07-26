@@ -5,9 +5,9 @@ import 'package:real_estate/controllers/main_controllers/bottom_navigation_bar_c
 import 'package:real_estate/controllers/properties_controllers/property_controller.dart';
 import 'package:real_estate/controllers/properties_controllers/property_details_controller.dart';
 import 'package:real_estate/models/properties/property.dart';
-import 'package:real_estate/widgets/my_bottom_navigation_bar.dart';
-import 'package:real_estate/widgets/my_floating_action_button.dart';
-import 'package:real_estate/widgets/property_card.dart';
+import 'package:real_estate/widgets/general_widgets/my_bottom_navigation_bar.dart';
+import 'package:real_estate/widgets/general_widgets/my_floating_action_button.dart';
+import 'package:real_estate/widgets/property_widgets/property_card.dart';
 
 class FavoritesPage extends StatefulWidget {
   const FavoritesPage({super.key});

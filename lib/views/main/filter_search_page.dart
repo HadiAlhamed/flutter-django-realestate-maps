@@ -5,8 +5,8 @@ import 'package:multi_select_flutter/util/multi_select_item.dart';
 import 'package:multi_select_flutter/util/multi_select_list_type.dart';
 import 'package:real_estate/controllers/filter_controller.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
-import 'package:real_estate/widgets/my_button.dart';
-import 'package:real_estate/widgets/option_container.dart';
+import 'package:real_estate/widgets/general_widgets/my_button.dart';
+import 'package:real_estate/widgets/general_widgets/option_container.dart';
 
 class FilterSearchPage extends StatefulWidget {
   const FilterSearchPage({super.key});
