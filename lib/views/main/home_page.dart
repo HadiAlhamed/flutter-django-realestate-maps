@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
-import 'package:real_estate/controllers/bottom_navigation_bar_controller.dart';
-import 'package:real_estate/controllers/chat_controller.dart';
-import 'package:real_estate/controllers/profile_controller.dart';
-import 'package:real_estate/controllers/property_controller.dart';
-import 'package:real_estate/controllers/property_details_controller.dart';
+import 'package:real_estate/controllers/main_controllers/bottom_navigation_bar_controller.dart';
+import 'package:real_estate/controllers/chat_controllers/chat_controller.dart';
+import 'package:real_estate/controllers/main_controllers/profile_controller.dart';
+import 'package:real_estate/controllers/properties_controllers/property_controller.dart';
+import 'package:real_estate/controllers/properties_controllers/property_details_controller.dart';
 import 'package:real_estate/controllers/theme_controller.dart';
 import 'package:real_estate/models/conversations/paginated_conversation.dart';
 import 'package:real_estate/models/properties/paginated_property.dart';

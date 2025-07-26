@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:real_estate/controllers/bottom_navigation_bar_controller.dart';
-import 'package:real_estate/controllers/chat_controller.dart';
+import 'package:real_estate/controllers/main_controllers/bottom_navigation_bar_controller.dart';
+import 'package:real_estate/controllers/chat_controllers/chat_controller.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 

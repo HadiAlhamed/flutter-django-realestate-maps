@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:real_estate/controllers/login_controller.dart';
-import 'package:real_estate/controllers/profile_controller.dart';
+import 'package:real_estate/controllers/auth_controllers/login_controller.dart';
+import 'package:real_estate/controllers/main_controllers/profile_controller.dart';
 import 'package:real_estate/models/profile_info.dart';
 import 'package:real_estate/services/api.dart';
 import 'package:real_estate/services/auth_apis/auth_apis.dart';

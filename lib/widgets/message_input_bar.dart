@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:real_estate/controllers/chat_controller.dart';
-import 'package:real_estate/controllers/message_input_controller.dart';
+import 'package:real_estate/controllers/chat_controllers/chat_controller.dart';
+import 'package:real_estate/controllers/chat_controllers/message_input_controller.dart';
 import 'package:real_estate/services/chat_apis/chat_apis.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 import 'package:file_picker/file_picker.dart';
@@ -205,27 +205,27 @@ class _MessageInputBarState extends State<MessageInputBar> {
     Get.back();
   }
 
+  Future<void> handleAddingOneImage(String imagePath) async {}
   Future<void> handleAddingChatImage(bool fromGallery) async {
     // Handle gallery pick
-    XFile? image = await messageController.imagepicker.pickImage(
-      source: fromGallery ? ImageSource.gallery : ImageSource.camera,
-    );
-    if (image != null) {
-      final File fImage = File(image.path);
-      final XFile? compressedImage = await ChatApis.compressImage(fImage); //1
-      if (compressedImage != null) {
-        final File imageToUpload = File(compressedImage.path);
-        final String? uploadedImageUrl =
-            await ChatApis.uploadFile(file: imageToUpload); //2
-        //send it via websocket
 
-        if (uploadedImageUrl != null) {
-          //3
-          chatController.sendMessage(
-            conversationId: chatController.currentConvId,
-            fileUrl: uploadedImageUrl,
-          );
+    if (fromGallery) {
+      List<XFile?> images = await messageController.imagepicker.pickMultiImage(
+        limit: 10,
+      );
+      if (images.isNotEmpty) {
+        for (XFile? image in images) {
+          if (image != null) {
+            await handleAddingOneImage(image.path);
+          }
         }
+      }
+    } else {
+      XFile? image = await messageController.imagepicker.pickImage(
+        source: ImageSource.camera,
+      );
+      if (image != null) {
+        await handleAddingOneImage(image.path);
       }
     }
     Get.back();

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
-import 'package:real_estate/controllers/bottom_navigation_bar_controller.dart';
-import 'package:real_estate/controllers/property_controller.dart';
-import 'package:real_estate/controllers/property_details_controller.dart';
+import 'package:real_estate/controllers/main_controllers/bottom_navigation_bar_controller.dart';
+import 'package:real_estate/controllers/properties_controllers/property_controller.dart';
+import 'package:real_estate/controllers/properties_controllers/property_details_controller.dart';
 import 'package:real_estate/models/properties/property.dart';
 import 'package:real_estate/widgets/my_bottom_navigation_bar.dart';
 import 'package:real_estate/widgets/my_floating_action_button.dart';

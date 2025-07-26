@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:real_estate/bindings/my_bindings.dart';
-import 'package:real_estate/controllers/chat_controller.dart';
+import 'package:real_estate/controllers/chat_controllers/chat_controller.dart';
 import 'package:real_estate/controllers/theme_controller.dart';
 import 'package:real_estate/services/api.dart';
 import 'package:real_estate/services/app_lifecycle/app_lifecycle_handler.dart';
 import 'package:real_estate/services/auth_apis/auth_apis.dart';
 import 'package:real_estate/services/auth_services/token_service.dart';
 import 'package:real_estate/services/chat_apis/chat_apis.dart';
+import 'package:real_estate/services/notifications_apis/notifications_apis.dart';
 import 'package:real_estate/services/properties_apis/properties_apis.dart';
 import 'package:real_estate/textstyles/text_styles.dart';
 import 'package:real_estate/views/auth/change_password_page.dart';
@@ -27,7 +28,6 @@ import 'package:real_estate/views/main/my_properties_page.dart';
 import 'package:real_estate/views/main/profile_page.dart';
 import 'package:real_estate/views/main/property_details_page.dart';
 import 'package:real_estate/views/main/search_result_page.dart';
-
 import 'package:real_estate/views/maps/open_street_map_screen.dart';
 
 void main() async {
@@ -41,6 +41,7 @@ void main() async {
     TokenService.clearTokens(),
     ThemeController().init(),
     ChatApis.init(),
+    NotificationsApis.init(),
     Api.init(),
   ]);
   runApp(MyApp());

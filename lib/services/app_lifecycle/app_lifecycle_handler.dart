@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:real_estate/controllers/chat_controller.dart';
+import 'package:real_estate/controllers/chat_controllers/chat_controller.dart';
 import 'package:real_estate/models/conversations/conversation.dart';
 import 'package:real_estate/models/conversations/paginated_conversation.dart';
 import 'package:real_estate/services/api.dart';

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:real_estate/controllers/property_details_controller.dart';
+import 'package:real_estate/controllers/properties_controllers/property_details_controller.dart';
 import 'package:real_estate/models/properties/facility.dart';
 import 'package:real_estate/models/properties/property_details.dart';
 import 'package:real_estate/models/properties/property_image.dart';
