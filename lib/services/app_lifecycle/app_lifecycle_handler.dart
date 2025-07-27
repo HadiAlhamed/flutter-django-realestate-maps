@@ -4,7 +4,7 @@ import 'package:real_estate/controllers/chat_controllers/chat_controller.dart';
 import 'package:real_estate/models/conversations/conversation.dart';
 import 'package:real_estate/models/conversations/paginated_conversation.dart';
 import 'package:real_estate/services/api.dart';
-import 'package:real_estate/services/chat_apis/chat_apis.dart';
+import 'package:real_estate/services/chat_services/chat_apis.dart';
 
 class AppLifecycleHandler extends WidgetsBindingObserver {
   final ChatController chatController = Get.find<ChatController>();

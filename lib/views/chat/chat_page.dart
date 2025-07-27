@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:real_estate/controllers/chat_controllers/chat_controller.dart';
 import 'package:real_estate/models/conversations/message.dart';
 import 'package:real_estate/services/api.dart';
-import 'package:real_estate/services/chat_apis/chat_apis.dart';
+import 'package:real_estate/services/chat_services/chat_apis.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 import 'package:real_estate/widgets/chat_widgets/chat_bubble.dart';
 import 'package:real_estate/widgets/chat_widgets/message_input_bar.dart';

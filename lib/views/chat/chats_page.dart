@@ -6,7 +6,7 @@ import 'package:real_estate/controllers/main_controllers/bottom_navigation_bar_c
 import 'package:real_estate/controllers/chat_controllers/chat_controller.dart';
 import 'package:real_estate/models/conversations/conversation.dart';
 import 'package:real_estate/models/conversations/paginated_conversation.dart';
-import 'package:real_estate/services/chat_apis/chat_apis.dart';
+import 'package:real_estate/services/chat_services/chat_apis.dart';
 import 'package:real_estate/widgets/chat_widgets/chat_tile.dart';
 import 'package:real_estate/widgets/general_widgets/my_bottom_navigation_bar.dart';
 import 'package:real_estate/widgets/general_widgets/my_floating_action_button.dart';

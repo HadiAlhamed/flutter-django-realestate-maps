@@ -5,10 +5,10 @@ import 'package:real_estate/controllers/chat_controllers/chat_controller.dart';
 import 'package:real_estate/controllers/theme_controller.dart';
 import 'package:real_estate/services/api.dart';
 import 'package:real_estate/services/app_lifecycle/app_lifecycle_handler.dart';
-import 'package:real_estate/services/auth_apis/auth_apis.dart';
+import 'package:real_estate/services/auth_services/auth_apis.dart';
 import 'package:real_estate/services/auth_services/token_service.dart';
-import 'package:real_estate/services/chat_apis/chat_apis.dart';
-import 'package:real_estate/services/notifications_apis/notifications_apis.dart';
+import 'package:real_estate/services/chat_services/chat_apis.dart';
+import 'package:real_estate/services/notifications_services/notifications_apis.dart';
 import 'package:real_estate/services/properties_apis/properties_apis.dart';
 import 'package:real_estate/textstyles/text_styles.dart';
 import 'package:real_estate/views/auth/change_password_page.dart';
@@ -29,6 +29,7 @@ import 'package:real_estate/views/main/profile_page.dart';
 import 'package:real_estate/views/main/property_details_page.dart';
 import 'package:real_estate/views/main/search_result_page.dart';
 import 'package:real_estate/views/maps/open_street_map_screen.dart';
+import 'package:real_estate/views/notifications/notifications_list_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -73,6 +74,12 @@ class MyApp extends StatelessWidget {
         // initialRoute : '/openStreetMap',
         initialBinding: MyBindings(),
         getPages: [
+          GetPage(
+            name: '/notificationsListPage',
+            page: () => NotificationsListPage(),
+            transition: Transition.fade,
+            transitionDuration: const Duration(milliseconds: 300),
+          ),
           GetPage(
             name: '/login',
             page: () => Login(),

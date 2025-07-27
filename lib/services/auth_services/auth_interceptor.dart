@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:real_estate/services/auth_apis/auth_apis.dart';
+import 'package:real_estate/services/auth_services/auth_apis.dart';
 import 'package:real_estate/services/auth_services/token_service.dart';
 
 class AuthInterceptor extends Interceptor {

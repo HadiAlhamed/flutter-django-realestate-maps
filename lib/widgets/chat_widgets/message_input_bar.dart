@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:real_estate/controllers/chat_controllers/chat_controller.dart';
 import 'package:real_estate/controllers/chat_controllers/message_input_controller.dart';
-import 'package:real_estate/services/chat_apis/chat_apis.dart';
+import 'package:real_estate/services/chat_services/chat_apis.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 import 'package:file_picker/file_picker.dart';
 

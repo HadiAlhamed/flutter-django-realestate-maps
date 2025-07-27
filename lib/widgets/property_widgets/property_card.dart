@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:real_estate/controllers/properties_controllers/property_details_controller.dart';
@@ -65,53 +67,61 @@ class PropertyCard extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "${property.price.toString()} \$",
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    "${property.propertyType} located in ${property.city}",
-                    style: h4TitleStyleGrey.copyWith(fontSize: 10),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 0, sigmaY: 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      infoIconText(Icons.aspect_ratio_outlined,
-                          property.area!.toStringAsFixed(0)),
-                      infoIconText(Icons.bed_outlined,
-                          property.numberOfRooms.toString()),
-                      infoIconText(Icons.bathtub_outlined,
-                          property.bathrooms.toString()),
-                      if (favorite != null)
-                        IconButton(
-                          onPressed: () async {
-                            bool result = pdController!.isFavorite[property.id!]
-                                ? await PropertiesApis.cancelFavorite(
-                                    propertyId: property.id!)
-                                : await PropertiesApis.addFavorite(
-                                    propertyId: property.id!);
-                            if (result) {
-                              pdController?.flipIsFavorite(
-                                propertyId: property.id!,
-                              );
-                            } else {
-                              Get.showSnackbar(MySnackbar(
-                                  success: false,
-                                  title: "Favorite",
-                                  message:
-                                      "Failed to update Favorite,please try again later"));
-                            }
-                          },
-                          icon: Icon(Icons.favorite,
-                              color: favorite! ? primaryColor : Colors.grey),
-                        )
+                      Text(
+                        "${property.price.toString()} \$",
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        "${property.propertyType} located in ${property.city}",
+                        style: h4TitleStyleGrey.copyWith(fontSize: 10),
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          infoIconText(Icons.aspect_ratio_outlined,
+                              property.area!.toStringAsFixed(0)),
+                          infoIconText(Icons.bed_outlined,
+                              property.numberOfRooms.toString()),
+                          infoIconText(Icons.bathtub_outlined,
+                              property.bathrooms.toString()),
+                          if (favorite != null)
+                            IconButton(
+                              onPressed: () async {
+                                bool result =
+                                    pdController!.isFavorite[property.id!]
+                                        ? await PropertiesApis.cancelFavorite(
+                                            propertyId: property.id!)
+                                        : await PropertiesApis.addFavorite(
+                                            propertyId: property.id!);
+                                if (result) {
+                                  pdController?.flipIsFavorite(
+                                    propertyId: property.id!,
+                                  );
+                                } else {
+                                  Get.showSnackbar(MySnackbar(
+                                      success: false,
+                                      title: "Favorite",
+                                      message:
+                                          "Failed to update Favorite,please try again later"));
+                                }
+                              },
+                              icon: Icon(Icons.favorite,
+                                  color:
+                                      favorite! ? primaryColor : Colors.grey),
+                            )
+                        ],
+                      ),
                     ],
                   ),
-                ],
+                ),
               ),
             ),
           ],

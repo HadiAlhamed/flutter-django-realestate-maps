@@ -9,7 +9,7 @@ import 'package:real_estate/controllers/properties_controllers/property_controll
 import 'package:real_estate/controllers/properties_controllers/property_details_controller.dart';
 import 'package:real_estate/controllers/theme_controller.dart';
 import 'package:real_estate/services/api.dart';
-import 'package:real_estate/services/auth_apis/auth_apis.dart';
+import 'package:real_estate/services/auth_services/auth_apis.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 import 'package:real_estate/textstyles/text_styles.dart';
 import 'package:real_estate/widgets/general_widgets/my_bottom_navigation_bar.dart';
@@ -209,7 +209,11 @@ class AccountPage extends StatelessWidget {
             "Notifications",
           ),
           trailing: const Icon(Icons.keyboard_arrow_right, size: 32),
-          onTap: () {},
+          onTap: () {
+            Get.toNamed(
+              '/notificationsListPage',
+            );
+          },
         ),
         const SizedBox(height: 10),
         darkModeSwitch(),

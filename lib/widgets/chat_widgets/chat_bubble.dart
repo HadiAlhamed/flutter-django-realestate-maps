@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:real_estate/models/conversations/message.dart';
 import 'package:real_estate/services/api.dart';
-import 'package:real_estate/services/chat_apis/chat_apis.dart';
+import 'package:real_estate/services/chat_services/chat_apis.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 
 class ChatBubble extends StatelessWidget {
