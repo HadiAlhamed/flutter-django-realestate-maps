@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:real_estate/controllers/properties_controllers/property_details_controller.dart';
 import 'package:real_estate/models/properties/property.dart';
+import 'package:real_estate/services/api.dart';
 import 'package:real_estate/services/properties_apis/properties_apis.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 import 'package:real_estate/textstyles/text_styles.dart';
@@ -60,10 +61,15 @@ class PropertyCard extends StatelessWidget {
             SizedBox(
               height: 100,
               width: double.infinity,
-              child: Image.asset(
-                "assets/images/house.jpg",
-                fit: BoxFit.cover,
-              ),
+              child: property.mainPhotoUrl == null
+                  ? Image.asset(
+                      "assets/images/house.jpg",
+                      fit: BoxFit.cover,
+                    )
+                  : Image.network(
+                      "${Api.baseUrl}${property.mainPhotoUrl!}",
+                      fit: BoxFit.cover,
+                    ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
