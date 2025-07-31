@@ -61,15 +61,7 @@ class PropertyCard extends StatelessWidget {
             SizedBox(
               height: 100,
               width: double.infinity,
-              child: property.mainPhotoUrl == null
-                  ? Image.asset(
-                      "assets/images/house.jpg",
-                      fit: BoxFit.cover,
-                    )
-                  : Image.network(
-                      "${Api.baseUrl}${property.mainPhotoUrl!}",
-                      fit: BoxFit.cover,
-                    ),
+              child: handleMainPhoto(),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -134,6 +126,27 @@ class PropertyCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Image handleMainPhoto() {
+    final String? photoUrl = property.mainPhotoUrl;
+
+    return photoUrl == null
+        ? Image.asset(
+            "assets/images/house.jpg",
+            fit: BoxFit.cover,
+          )
+        : Image.network(
+            "${Api.baseUrl}$photoUrl",
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              // print("Image failed to load: $error");
+              return Image.asset(
+                "assets/images/house.jpg",
+                fit: BoxFit.cover,
+              );
+            },
+          );
   }
 
   Widget infoIconText(IconData icon, String text) {

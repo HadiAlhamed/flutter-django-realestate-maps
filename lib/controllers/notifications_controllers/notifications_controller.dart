@@ -10,7 +10,7 @@ class NotificationsController extends GetxController {
       <my_notification.Notification>[].obs;
   RxBool isLoading = false.obs;
   String? nextPageUrl;
-
+  RxInt unreadCount = 0.obs;
   void Function(my_notification.Notification)? onNotificationInserted;
 
   void setInsertCallback(Function(my_notification.Notification) callback) {
@@ -52,9 +52,23 @@ class NotificationsController extends GetxController {
     return nextPageUrl != null;
   }
 
+  Future<void> markAllRead() async {
+    unreadCount.value = 0;
+    for (int i = 0; i < notifications.length; i++) {
+      notifications[i].isRead = true;
+    }
+    NotificationsApis.markAllRead();
+  }
+
+  Future<void> getUnreadCount() async {
+    final count = await NotificationsApis.getUnreadCount();
+    unreadCount.value = count;
+  }
+
   void clear() {
     notifications.clear();
     nextPageUrl = null;
     isLoading.value = false;
+    unreadCount.value = 0;
   }
 }

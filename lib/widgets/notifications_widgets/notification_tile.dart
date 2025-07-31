@@ -62,11 +62,12 @@ class NotificationTile extends StatelessWidget {
                         ],
                       ),
                       const Spacer(),
-                      Icon(
-                        Icons.fiber_new_sharp,
-                        color: primaryColor,
-                        size: 35,
-                      ),
+                      if (!notification.isRead)
+                        Icon(
+                          Icons.fiber_new_sharp,
+                          color: primaryColor,
+                          size: 35,
+                        ),
                     ],
                   ),
                   const SizedBox(height: 10),

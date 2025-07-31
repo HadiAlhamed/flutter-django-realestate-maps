@@ -17,14 +17,43 @@ import 'package:real_estate/widgets/general_widgets/my_bottom_navigation_bar.dar
 import 'package:real_estate/widgets/general_widgets/my_floating_action_button.dart';
 import 'package:real_estate/widgets/general_widgets/my_snackbar.dart';
 
-class AccountPage extends StatelessWidget {
-  AccountPage({super.key});
+class AccountPage extends StatefulWidget {
+  const AccountPage({super.key});
+
+  @override
+  State<AccountPage> createState() => _AccountPageState();
+}
+
+class _AccountPageState extends State<AccountPage> {
   final AccountPageController accountController =
       Get.find<AccountPageController>();
+
   final BottomNavigationBarController bottomController =
       Get.find<BottomNavigationBarController>();
+
   final ProfileController profileController = Get.find<ProfileController>();
+
   final ThemeController themeController = Get.find<ThemeController>();
+
+  final ChatController chatController = Get.find<ChatController>();
+
+  final PropertyDetailsController pdController =
+      Get.find<PropertyDetailsController>();
+
+  final PropertyController pController = Get.find<PropertyController>();
+
+  final MyPropertiesController myPController =
+      Get.find<MyPropertiesController>();
+
+  final NotificationsController notifController =
+      Get.find<NotificationsController>();
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    notifController.getUnreadCount();
+  }
+
   @override
   Widget build(BuildContext context) {
     final double screenHeight = MediaQuery.sizeOf(context).height;
@@ -146,8 +175,28 @@ class AccountPage extends StatelessWidget {
               "${profileController.currentUserInfo?.firstName} ${profileController.currentUserInfo?.lastName}",
               style: h2TitleStyleWhite),
         ),
-        trailing:
+        trailing: Stack(
+          clipBehavior: Clip.none, // Important to allow badge to overflow
+          children: [
             const Icon(Icons.notifications, size: 30, color: Colors.white),
+            Obx(
+              () {
+                if (notifController.unreadCount.value == 0) {
+                  return const SizedBox.shrink();
+                }
+                return Positioned(
+                  top: -5,
+                  left: -4,
+                  child: CircleAvatar(
+                    radius: 11,
+                    backgroundColor: primaryColorInactive,
+                    child: Text("${notifController.unreadCount.value}"),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -239,15 +288,6 @@ class AccountPage extends StatelessWidget {
 
       await Api.box.write('rememberMe', false);
 
-      final ChatController chatController = Get.find<ChatController>();
-
-      final PropertyDetailsController pdController =
-          Get.find<PropertyDetailsController>();
-      final PropertyController pController = Get.find<PropertyController>();
-      final MyPropertiesController myPController =
-          Get.find<MyPropertiesController>();
-      final NotificationsController notifController =
-          Get.find<NotificationsController>();
       notifController.clear();
       chatController.clear();
       pdController.clear();

@@ -13,7 +13,7 @@ class NotificationsApis {
   static Future<PaginatedNotifications> getNotifications({String? url}) async {
     print("fetching notifiations $url");
     try {
-      final response = await _dio.get("${Api.baseUrl}/notifications/");
+      final response = await _dio.get(url ?? "${Api.baseUrl}/notifications/");
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = response.data;
         print("notifications :: $data");
@@ -28,5 +28,43 @@ class NotificationsApis {
       }
     }
     return PaginatedNotifications(notifications: [], nextUrl: null);
+  }
+
+  static Future<int> getUnreadCount() async {
+    print("fetching unread count notifiations ");
+    try {
+      final response =
+          await _dio.get("${Api.baseUrl}/notifications/unread-count/");
+      if (response.statusCode == 200) {
+        return response.data['unread_count'];
+      }
+    } catch (e) {
+      if (e is DioException) {
+        print(
+            "NotificationsApis :: getUnreadCount :: DioX :: ${e.response?.data}");
+      } else {
+        print("NotificationsApis :: getUnreadCount :: NetworkError :: $e");
+      }
+    }
+    return -1;
+  }
+
+  static Future<bool> markAllRead() async {
+    print("mark all notifiations read");
+    try {
+      final response =
+          await _dio.post("${Api.baseUrl}/notifications/mark-all-read/");
+      if (response.statusCode == 200) {
+        return true;
+      }
+    } catch (e) {
+      if (e is DioException) {
+        print(
+            "NotificationsApis :: markAllRead :: DioX :: ${e.response?.data}");
+      } else {
+        print("NotificationsApis :: markAllRead :: NetworkError :: $e");
+      }
+    }
+    return false;
   }
 }
