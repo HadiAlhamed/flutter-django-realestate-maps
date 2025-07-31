@@ -33,6 +33,62 @@ class Property {
     this.mainPhotoUrl,
     this.address,
   });
+  Property copyWith({
+    int? id,
+    int? owner,
+    bool? isActive,
+    String? propertyType,
+    String? city,
+    int? numberOfRooms,
+    int? bathrooms,
+    double? area,
+    double? price,
+    bool? isForRent,
+    double? latitude,
+    double? longitude,
+    String? mainPhotoUrl,
+    String? address,
+    double? rating,
+  }) {
+    return Property(
+      id: id ?? this.id,
+      owner: owner ?? this.owner,
+      isActive: isActive ?? this.isActive,
+      propertyType: propertyType ?? this.propertyType,
+      city: city ?? this.city,
+      numberOfRooms: numberOfRooms ?? this.numberOfRooms,
+      bathrooms: bathrooms ?? this.bathrooms,
+      area: area ?? this.area,
+      price: price ?? this.price,
+      isForRent: isForRent ?? this.isForRent,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      mainPhotoUrl: mainPhotoUrl ?? this.mainPhotoUrl,
+      address: address ?? this.address,
+      rating: rating ?? this.rating,
+    );
+  }
+
+  Property copyWithFromjson(Map<String, dynamic> json) {
+    //we will use this with real time update to keep data consistent
+    return Property(
+      id: (json['id'] as int?) ?? id,
+      owner: (json['owner'] as int?) ?? owner,
+      area: (double.tryParse(json['area'] ?? '')) ?? area,
+      city: (json['city'] as String?) ?? city,
+      isForRent: (json['is_for_rent'] as bool?) ?? isForRent,
+      numberOfRooms: (json['number_of_rooms'] as int?) ?? numberOfRooms,
+      price: (double.tryParse(json['price'] ?? '')) ?? price,
+      propertyType: (json['ptype'] as String?) ?? propertyType,
+      latitude: (double.tryParse(json['latitude'] ?? '')) ?? latitude,
+      longitude: (double.tryParse(json['longitude'] ?? '')) ?? longitude,
+      mainPhotoUrl: (json['main_photo'] as String?) ?? mainPhotoUrl,
+      address: (json['address'] as String?) ?? address,
+      bathrooms: (json['bathrooms'] as int?) ?? bathrooms,
+      isActive: (json['is_active'] ?? true) ?? isActive,
+      rating: (double.tryParse(json['rating'] ?? '')) ?? rating,
+    );
+  }
 
   factory Property.fromJson(Map<String, dynamic> json) {
     return Property(

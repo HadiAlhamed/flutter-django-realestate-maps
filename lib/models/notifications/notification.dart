@@ -1,5 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
+import 'package:real_estate/models/properties/property.dart';
+
 enum NotificationType {
   propertyStatus,
   propertyFavorited,
@@ -53,15 +55,15 @@ NotificationType notificationTypeFromJson(String? value) {
 }
 
 class Notification {
-  final int id;
+  final int id; //*
   final int recipientId;
   final String recipientEmail;
-  final NotificationType notificationType;
-  final String notificationTypeDisplay; // title
-  final String message;
-  bool isRead;
-  final DateTime createdAt;
-  final String relatedObjectData;
+  final NotificationType notificationType; //*
+  final String notificationTypeDisplay; // title //*
+  final String message; //*
+  bool isRead; //*
+  final DateTime createdAt; //*
+  final Property relatedObjectData; //*
 
   Notification({
     required this.id,
@@ -84,7 +86,7 @@ class Notification {
     String? message,
     bool? isRead,
     DateTime? createdAt,
-    String? relatedObjectData,
+    Property? relatedObjectData,
   }) {
     return Notification(
       id: id ?? this.id,
@@ -110,7 +112,7 @@ class Notification {
       'message': message,
       'is_read': isRead,
       'created_at': createdAt.toIso8601String(),
-      'related_object_data': relatedObjectData,
+      'related_object_data': relatedObjectData.toJson(),
     };
   }
 
@@ -125,7 +127,8 @@ class Notification {
       message: map['message'] as String,
       isRead: map['is_read'] as bool,
       createdAt: DateTime.parse(map['created_at'] as String),
-      relatedObjectData: map['related_object_data'] as String,
+      relatedObjectData: Property.fromJson(map[
+          'related_object_data']), //use Property.copyWith , find property of id , then do copyWith
     );
   }
 
@@ -161,4 +164,5 @@ class Notification {
         createdAt.hashCode ^
         relatedObjectData.hashCode;
   }
+  //relatedObjectData is a property with identifier and the changed shit
 }

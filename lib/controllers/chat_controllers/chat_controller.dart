@@ -8,8 +8,10 @@ import 'package:real_estate/models/conversations/message.dart';
 import 'package:real_estate/services/api.dart';
 import 'package:real_estate/services/auth_services/token_service.dart';
 import 'package:real_estate/services/chat_services/chat_web_socket_service.dart';
+import 'package:real_estate/services/notifications_services/notifications_services.dart';
 
 class ChatController extends GetxController {
+  final notificationHandler = NotificationsServices();
   final Map<int, ChatWebSocketService> _activeSockets = {};
   final Map<int, Stream<Map<String, dynamic>>> _messageStreams = {};
   Map<int, RxList<Message>> messages = {}; //userid , list of messages with him
@@ -219,6 +221,17 @@ class ChatController extends GetxController {
 
     //update unread count :
     getUnreadCountFor(conversation.id).value = conversation.unreadCount;
+    //show a notification that someone has sent the user a message
+    if (!lastMessageData.isRead &&
+        lastMessageData.senderId != Api.box.read("currentUserId") &&
+        currentConversationId != conversation.id) {
+      notificationHandler.showNotification(
+        id: conversation.id,
+        title:
+            "${lastMessageData.senderFirstName} ${lastMessageData.senderLastName}",
+        body: lastMessageData.content ?? "File",
+      );
+    }
   }
 
   void _markMessagesAsRead(List<String> ids, int conversationId) {

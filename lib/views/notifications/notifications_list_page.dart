@@ -1,58 +1,70 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:real_estate/controllers/notifications_controllers/notifications_controller.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 import 'package:real_estate/widgets/notifications_widgets/notification_tile.dart';
-import 'package:real_estate/models/notifications/notification.dart'
-    as my_notification;
 
-class NotificationsListPage extends StatelessWidget {
-  NotificationsListPage({super.key});
-  final List<my_notification.Notification> notifications = [
-    my_notification.Notification(
-      id: 1,
-      recipientId: 1,
-      recipientEmail: 'hadialhamed.py@gmail.com',
-      notificationType: my_notification.NotificationType.propertyFavorited,
-      notificationTypeDisplay: 'Property Favorited',
-      message: 'Someone finds your property special!',
-      isRead: false,
-      createdAt: DateTime.now(),
-      relatedObjectData: '',
-    ),
-    my_notification.Notification(
-      id: 2,
-      recipientId: 2,
-      recipientEmail: 'hadialhamed.py@gmail.com',
-      notificationType: my_notification.NotificationType.propertyPriceChange,
-      notificationTypeDisplay: 'Property Price Changed',
-      message:
-          'Property located at Damascus changed its price from 600\$ to 550\$',
-      isRead: false,
-      createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-      relatedObjectData: '',
-    ),
-    my_notification.Notification(
-      id: 3,
-      recipientId: 3,
-      recipientEmail: 'hadialhamed.py@gmail.com',
-      notificationType: my_notification.NotificationType.propertyRated,
-      notificationTypeDisplay: 'Property Rated',
-      message: 'Someone  rated your property with 4 stars!',
-      isRead: false,
-      createdAt: DateTime.now().subtract(const Duration(minutes: 32)),
-      relatedObjectData: '',
-    ),
-    my_notification.Notification(
-      id: 4,
-      recipientId: 4,
-      recipientEmail: 'hadialhamed.py@gmail.com',
-      notificationType: my_notification.NotificationType.propertyStatus,
-      notificationTypeDisplay: 'Property Status',
-      message: 'a property you like has been back to the market!',
-      isRead: false,
-      createdAt: DateTime.now().subtract(const Duration(days: 2)),
-      relatedObjectData: '',
-    ),
-  ];
+class NotificationsListPage extends StatefulWidget {
+  const NotificationsListPage({super.key});
+
+  @override
+  State<NotificationsListPage> createState() => _NotificationsListPageState();
+}
+
+class _NotificationsListPageState extends State<NotificationsListPage> {
+  final ScrollController _scrollController = ScrollController();
+  final NotificationsController notificationsController =
+      Get.find<NotificationsController>();
+
+  // Key used to manipulate AnimatedList programmatically (insert/delete)
+  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
+
+  @override
+  void initState() {
+    super.initState();
+    notificationsController.setInsertCallback((notif) {
+      _listKey.currentState
+          ?.insertItem(0, duration: const Duration(milliseconds: 300));
+    });
+    // Fetch the first page of notifications after the frame is ready
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchInitialNotifications();
+    });
+
+    // Scroll listener to trigger pagination (load more when nearing bottom)
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+              _scrollController.position.maxScrollExtent - 300 &&
+          !notificationsController.isLoading.value &&
+          notificationsController.hasMoreData()) {
+        _fetchMoreNotifications();
+      }
+    });
+  }
+
+  Future<void> _fetchInitialNotifications() async {
+    final newItems = await notificationsController
+        .getNotifications(); // Returns List<Notification>
+    for (int i = 0; i < newItems.length; i++) {
+      _listKey.currentState?.insertItem(i);
+    }
+  }
+
+  Future<void> _fetchMoreNotifications() async {
+    final startIndex = notificationsController.notifications.length;
+    final newItems = await notificationsController.getNotifications();
+    for (int i = 0; i < newItems.length; i++) {
+      _listKey.currentState?.insertItem(startIndex + i);
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  // Main UI
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,6 +73,7 @@ class NotificationsListPage extends StatelessWidget {
       ),
       body: Stack(
         children: [
+          // Gradient background
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -75,14 +88,42 @@ class NotificationsListPage extends StatelessWidget {
               ),
             ),
           ),
-          ListView.builder(
-            itemCount: 4,
-            itemBuilder: (context, index) {
-              return NotificationTile(
-                notification: notifications[index],
-              );
-            },
-          ),
+
+          // Reactive UI for notification list
+          Obx(() {
+            final notifs = notificationsController.notifications;
+            if (notificationsController.notifications.isEmpty) {
+              return Center(child: const Text("You have no notifications yet"));
+            }
+            return AnimatedList(
+              key: _listKey,
+              controller: _scrollController,
+              initialItemCount: notificationsController.notifications.length +
+                  (notificationsController.isLoading.value
+                      ? 1
+                      : 0), //if loading add a space for the loading indicator
+              itemBuilder: (context, index, animation) {
+                // Show loading indicator at bottom
+                if (index == notifs.length) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+
+                final notif = notifs[index];
+
+                return SizeTransition(
+                  sizeFactor: animation,
+                  child: NotificationTile(
+                    key: ValueKey(
+                        notif.id), // Ensures Flutter reuses widget properly
+                    notification: notif,
+                  ),
+                );
+              },
+            );
+          }),
         ],
       ),
     );

@@ -30,6 +30,7 @@ import 'package:real_estate/views/main/property_details_page.dart';
 import 'package:real_estate/views/main/search_result_page.dart';
 import 'package:real_estate/views/maps/open_street_map_screen.dart';
 import 'package:real_estate/views/notifications/notifications_list_page.dart';
+import 'package:real_estate/services/notifications_services/notifications_services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,6 +45,7 @@ void main() async {
     ChatApis.init(),
     NotificationsApis.init(),
     Api.init(),
+    NotificationsServices().init(),
   ]);
   runApp(MyApp());
 }

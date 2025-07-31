@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:real_estate/controllers/main_controllers/account_page_controller.dart';
 import 'package:real_estate/controllers/main_controllers/bottom_navigation_bar_controller.dart';
 import 'package:real_estate/controllers/chat_controllers/chat_controller.dart';
+import 'package:real_estate/controllers/notifications_controllers/notifications_controller.dart';
 import 'package:real_estate/controllers/properties_controllers/my_properties_controller.dart';
 import 'package:real_estate/controllers/main_controllers/profile_controller.dart';
 import 'package:real_estate/controllers/properties_controllers/property_controller.dart';
@@ -245,6 +246,9 @@ class AccountPage extends StatelessWidget {
       final PropertyController pController = Get.find<PropertyController>();
       final MyPropertiesController myPController =
           Get.find<MyPropertiesController>();
+      final NotificationsController notifController =
+          Get.find<NotificationsController>();
+      notifController.clear();
       chatController.clear();
       pdController.clear();
       pController.clear();
