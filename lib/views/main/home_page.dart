@@ -13,6 +13,7 @@ import 'package:real_estate/models/profile_info.dart';
 import 'package:real_estate/models/properties/property.dart';
 import 'package:real_estate/services/auth_services/auth_apis.dart';
 import 'package:real_estate/services/chat_services/chat_apis.dart';
+import 'package:real_estate/services/notifications_services/notifications_webscoket_service.dart';
 import 'package:real_estate/services/properties_apis/properties_apis.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 import 'package:real_estate/textstyles/text_styles.dart';
@@ -51,6 +52,7 @@ class _HomePageState extends State<HomePage>
         _fetchProperties(),
         if (profileController.isInitialLoading) _fetchUserInfo(),
         if (pdController.isFavoriteSet.isEmpty) _fetchFavorites(),
+        NotificationsWebscoketService().connect(),
       ]);
     });
   }
