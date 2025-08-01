@@ -35,6 +35,7 @@ class _ChatPageState extends State<ChatPage> {
           conversationId: chatController.currentConvId,
           currentUserId: Api.box.read('currentUserId'));
     }
+
     index = args['index'];
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _fetchMessages(); // fetch messages after UI is ready
@@ -78,6 +79,7 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
+    print("chatPage :: build :: currentIndex : $index");
     final double screenWidth = MediaQuery.sizeOf(context).width;
 
     final double screenHeight = MediaQuery.sizeOf(context).height;
@@ -103,54 +105,59 @@ class _ChatPageState extends State<ChatPage> {
             const SizedBox(
               width: 10,
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                    "${chatController.chats[index].otherUserFirstName} ${chatController.chats[index].otherUserLastName}"),
-                Obx(() {
-                  bool isOtherTyping = chatController
-                      .isTyping[chatController.chats[index].otherUserId]!.value;
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "${chatController.chats[index].otherUserFirstName} ${chatController.chats[index].otherUserLastName}",
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Obx(() {
+                    bool isOtherTyping = chatController
+                        .isTyping[chatController.chats[index].otherUserId]!
+                        .value;
 
-                  bool onlineStatus = chatController
-                      .isOtherUserOnline[
-                          chatController.chats[index].otherUserId]!
-                      .value;
-                  return isOtherTyping
-                      ? Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              "typing",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium!
-                                  .copyWith(
-                                    color: primaryColor,
-                                  ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(width: 4),
-                            TypingIndicator(dotColor: primaryColor),
-                          ],
-                        )
-                      : Text(
-                          onlineStatus
-                              ? "Online"
-                              : chatController
-                                  .lastSeen[
-                                      chatController.chats[index].otherUserId]!
-                                  .value,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium!
-                              .copyWith(
-                                color:
-                                    onlineStatus ? primaryColor : Colors.grey,
+                    bool onlineStatus = chatController
+                        .isOtherUserOnline[
+                            chatController.chats[index].otherUserId]!
+                        .value;
+                    return isOtherTyping
+                        ? Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                "typing",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium!
+                                    .copyWith(
+                                      color: primaryColor,
+                                    ),
+                                textAlign: TextAlign.center,
                               ),
-                        );
-                }),
-              ],
+                              const SizedBox(width: 4),
+                              TypingIndicator(dotColor: primaryColor),
+                            ],
+                          )
+                        : Text(
+                            onlineStatus
+                                ? "Online"
+                                : chatController
+                                    .lastSeen[chatController
+                                        .chats[index].otherUserId]!
+                                    .value,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium!
+                                .copyWith(
+                                  color:
+                                      onlineStatus ? primaryColor : Colors.grey,
+                                ),
+                          );
+                  }),
+                ],
+              ),
             )
             // other widgets if needed
           ],
@@ -189,6 +196,7 @@ class _ChatPageState extends State<ChatPage> {
             ),
           ),
           Obx(() {
+            print("Obx :: index : $index");
             if (chatController
                 .getIsTypingFor(chatController.chats[index].otherUserId)
                 .value) {

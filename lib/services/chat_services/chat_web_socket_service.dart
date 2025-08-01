@@ -20,7 +20,7 @@ class ChatWebSocketService {
     required String accessToken,
     required int conversationId,
   }) async {
-    if (_isConnectingOrConnected) {
+    if (_isConnectingOrConnected || _channel != null) {
       print(
           "⚠️ Already connecting or connected. Skipping redundant connect call.");
       return;
@@ -80,6 +80,7 @@ class ChatWebSocketService {
           await _webSocketSubscription?.cancel();
           _webSocketSubscription = null;
           _channel = null;
+          scheduleReconnect(conversationId);
         },
         cancelOnError: true,
       );

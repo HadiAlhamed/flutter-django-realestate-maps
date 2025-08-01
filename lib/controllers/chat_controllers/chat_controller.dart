@@ -93,96 +93,101 @@ class ChatController extends GetxController {
     //change what need to be changed
     _messageStreams[conversationId] = socketService.messagesStream;
 
-    _messageStreams[conversationId]!.listen(
-      (data) {
-        print(
-            "new data from chat stream for conversation : $conversationId : $data");
-        final String? type = data['type'];
-        print("type : $type");
-        if (type == null) {
-          //incoming chat
-          //conversation of this message should be on top
-          handleIncomingMessage(data, conversationId);
-        } else if (type == "typing_status") {
-          int userId = data['user_id'] is String
-              ? int.parse(data['user_id'])
-              : data['user_id'];
-          if (userId != currentUserId) {
-            getIsTypingFor(userId).value = data['is_typing'];
-          }
-        } else if (type == 'user_status_update') {
-          int userId = data['user_id'] is String
-              ? int.parse(data['user_id'])
-              : data['user_id'];
-          if (userId != currentUserId) {
-            getIsOtherUserOnlineFor(userId).value = data['is_online'];
-            //change conversationId to userId
-            //same for isTyping
-            if (data['last_seen'] != null) {
-              handleLastSeen(data, userId);
+    if (_messageStreams[conversationId] != null) {
+      _messageStreams[conversationId]!.listen(
+        (data) {
+          print(
+              "new data from chat stream for conversation : $conversationId : $data");
+          final String? type = data['type'];
+          print("type : $type");
+          if (type == null) {
+            //incoming chat
+            //conversation of this message should be on top
+            handleIncomingMessage(data, conversationId);
+          } else if (type == "typing_status") {
+            int userId = data['user_id'] is String
+                ? int.parse(data['user_id'])
+                : data['user_id'];
+            if (userId != currentUserId) {
+              getIsTypingFor(userId).value = data['is_typing'];
             }
-          }
-        } else if (type == 'messages_read_confirmation') {
-          if (data['reader_user_id'] != currentUserId) {
-            // print(data['message_ids']);
-            print(data['message_ids'].runtimeType);
+          } else if (type == 'user_status_update') {
+            int userId = data['user_id'] is String
+                ? int.parse(data['user_id'])
+                : data['user_id'];
+            if (userId != currentUserId) {
+              getIsOtherUserOnlineFor(userId).value = data['is_online'];
+              //change conversationId to userId
+              //same for isTyping
+              if (data['last_seen'] != null) {
+                handleLastSeen(data, userId);
+              }
+            }
+          } else if (type == 'messages_read_confirmation') {
+            if (data['reader_user_id'] != currentUserId) {
+              // print(data['message_ids']);
+              print(data['message_ids'].runtimeType);
 
-            List<String> messageIds = (data['message_ids'] as List)
-                .map((id) => id.toString())
-                .toList();
-            print("messageIds : $messageIds");
-            _markMessagesAsRead(messageIds, conversationId);
-          }
-        } else if (type == 'conversation_list_update') {
-          print("chat controller : conversation list update message:");
-          Message lastMessageData = Message.fromJson(data['last_message_data']);
-          bool isNew = data['is_new_conversation'];
+              List<String> messageIds = (data['message_ids'] as List)
+                  .map((id) => id.toString())
+                  .toList();
+              print("messageIds : $messageIds");
+              _markMessagesAsRead(messageIds, conversationId);
+            }
+          } else if (type == 'conversation_list_update') {
+            print("chat controller : conversation list update message:");
+            Message lastMessageData =
+                Message.fromJson(data['last_message_data']);
+            bool isNew = data['is_new_conversation'];
 
-          Conversation conversation = Conversation(
-            id: data['conversation_id'] is String
-                ? int.parse(data['conversation_id'])
-                : data['conversation_id'],
-            otherUserId: data['other_participant_details']['id'] is String
-                ? int.parse(data['other_participant_details']['id'])
-                : data['other_participant_details']['id'],
-            otherUserFirstName: data['other_participant_details']['first_name'],
-            otherUserLastName: data['other_participant_details']['last_name'],
-            unreadCount: data['unread_count_for_this_conversation'],
-            lastMessage: lastMessageData.content,
-            createdAt: DateTime.parse(data['created_at']).toLocal(),
-            updatedAt: DateTime.parse(data['updated_at']).toLocal(),
-            otherUserIsOnline: data['other_participant_details']['is_online'],
-            otherUserLastSeen:
-                DateTime.parse(data['other_participant_details']['last_seen']),
-            otherUserPhotoUrl: data['other_participant_details']['photo_url'],
-          );
-          print("HI");
-          handleConversationListUpdate(
-            conversation: conversation,
-            isNew: isNew,
-            lastMessageData: lastMessageData,
-          );
-        } else if (type == 'typing_status_list_update') {
-          int userId = data['user_id'] is String
-              ? int.parse(data['user_id'])
-              : data['user_id'];
-          getIsTypingFor(userId).value = data['is_typing'] as bool;
-        } else if (type == 'total_unread_chat_count') {
-          changeTotalUnreadCount(data['count'] as int);
-        }
-      },
-      onError: (error) {
-        print("WebSocket error: $error");
-      },
-      onDone: () {
-        print("WebSocket closed for conversation $conversationId");
-        print(
-            "we will schdule a reconnect if = anyConversationId ($anyConversationId)");
-        if (conversationId == anyConversationId) {
-          _activeSockets[conversationId]!.scheduleReconnect(conversationId);
-        }
-      },
-    );
+            Conversation conversation = Conversation(
+              id: data['conversation_id'] is String
+                  ? int.parse(data['conversation_id'])
+                  : data['conversation_id'],
+              otherUserId: data['other_participant_details']['id'] is String
+                  ? int.parse(data['other_participant_details']['id'])
+                  : data['other_participant_details']['id'],
+              otherUserFirstName: data['other_participant_details']
+                  ['first_name'],
+              otherUserLastName: data['other_participant_details']['last_name'],
+              unreadCount: data['unread_count_for_this_conversation'],
+              lastMessage: lastMessageData.content,
+              createdAt: DateTime.parse(data['created_at']).toLocal(),
+              updatedAt: DateTime.parse(data['updated_at']).toLocal(),
+              otherUserIsOnline: data['other_participant_details']['is_online'],
+              otherUserLastSeen: DateTime.parse(
+                  data['other_participant_details']['last_seen']),
+              otherUserPhotoUrl: data['other_participant_details']['photo_url'],
+            );
+            print("HI");
+            handleConversationListUpdate(
+              conversation: conversation,
+              isNew: isNew,
+              lastMessageData: lastMessageData,
+            );
+          } else if (type == 'typing_status_list_update') {
+            int userId = data['user_id'] is String
+                ? int.parse(data['user_id'])
+                : data['user_id'];
+            getIsTypingFor(userId).value = data['is_typing'] as bool;
+          } else if (type == 'total_unread_chat_count') {
+            changeTotalUnreadCount(data['count'] as int);
+          }
+        },
+        onError: (error) {
+          print("WebSocket error: $error");
+        },
+        onDone: () {
+          print("WebSocket closed for conversation $conversationId");
+          print(
+              "we will schdule a reconnect if = anyConversationId ($anyConversationId)");
+          if (conversationId == anyConversationId &&
+              _activeSockets[conversationId] != null) {
+            _activeSockets[conversationId]!.scheduleReconnect(conversationId);
+          }
+        },
+      );
+    }
     print("chatController :: connectToChat :: success!!");
   }
 
@@ -312,6 +317,7 @@ class ChatController extends GetxController {
       _activeSockets[key]?.dispose();
       _activeSockets.remove(key);
       _messageStreams.remove(key); // ✅ remove stream reference
+      //should i delete messages too ?
     }
   }
 

@@ -1,8 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 import 'package:real_estate/controllers/chat_controllers/chat_controller.dart';
 import 'package:real_estate/controllers/chat_controllers/message_input_controller.dart';
 import 'package:real_estate/services/chat_services/chat_apis.dart';
@@ -206,24 +209,27 @@ class _MessageInputBarState extends State<MessageInputBar> {
   }
 
   Future<void> handleAddingOneImage(String imagePath) async {
-    try {
-      print("📤 Uploading image: $imagePath");
+    final File originalFile = File(imagePath);
 
-      final uploadedUrl = await ChatApis.uploadFile(file: File(imagePath));
+    if (!originalFile.existsSync()) {
+      print("❌ Image file does not exist at: $imagePath");
+      return;
+    }
+    XFile? compressedFile = await ChatApis.compressImage(originalFile);
+    if (compressedFile == null) {
+      print("❌ Image compression failed");
+      return;
+    }
 
-      if (uploadedUrl != null) {
-        print("✅ Image uploaded. URL: $uploadedUrl");
+    print("✅ Compressed image size: ${await compressedFile.length()} bytes");
 
-        chatController.sendMessage(
-          conversationId: chatController.currentConvId,
-          content: null, // since it's an image
-          fileUrl: uploadedUrl,
-        );
-      } else {
-        print("❌ Failed to upload image.");
-      }
-    } catch (e) {
-      print("❌ Exception while uploading image: $e");
+    final uploadedFileUrl =
+        await ChatApis.uploadFile(file: File(compressedFile.path));
+    if (uploadedFileUrl != null) {
+      chatController.sendMessage(
+        conversationId: chatController.currentConvId,
+        fileUrl: uploadedFileUrl,
+      );
     }
   }
 
@@ -245,6 +251,7 @@ class _MessageInputBarState extends State<MessageInputBar> {
       XFile? image = await messageController.imagepicker.pickImage(
         source: ImageSource.camera,
       );
+      await Future.delayed(const Duration(milliseconds: 100));
       if (image != null) {
         await handleAddingOneImage(image.path);
       }

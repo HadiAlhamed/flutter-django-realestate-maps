@@ -66,6 +66,7 @@ dependencies:
     open_filex: ^4.7.0
     flutter_local_notifications: ^19.4.0
     permission_handler: ^12.0.1
+    flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
     flutter_test:
@@ -121,3 +122,8 @@ flutter:
     #
     # For details regarding fonts from package dependencies,
     # see https://flutter.dev/to/font-from-package
+flutter_launcher_icons:
+    android: "launcher_icon"
+    ios: true
+    image_path: "assets/images/Aqari_logo_primary_towers.png"
+    min_sdk_android: 21 # android min sdk min:16, default 21

@@ -22,7 +22,7 @@ class AppLifecycleHandler extends WidgetsBindingObserver {
       case AppLifecycleState.resumed:
         print("App in Foreground");
         // Reconnect sockets or resume tasks
-        _handleResumed();
+        // _handleResumed();
         break;
       case AppLifecycleState.paused:
         print("App in Background");
@@ -36,40 +36,45 @@ class AppLifecycleHandler extends WidgetsBindingObserver {
         break;
       case AppLifecycleState.inactive:
         print("App is inactive");
+        // _handlePaused();
         break;
       case AppLifecycleState.hidden:
         print("App is hidden ??");
+        // _handlePaused();
         break;
       // TODO: Handle this case.
     }
   }
 
   Future<void> _handleResumed() async {
-    if (Get.currentRoute == '/chatsPage' || Get.currentRoute == '/chatPage') {
-      await _fetchConversations();
-    }
-
-    if (chatController.currentConvId != -1) {
+    await _fetchConversations();
+    if (chatController.anyConvId != -1) {
       chatController.connectToChat(
         conversationId: chatController.anyConvId,
+        currentUserId: Api.box.read("currentUserId"),
+      );
+    }
+    if (chatController.currentConvId != -1 &&
+        chatController.currentConvId != chatController.anyConvId) {
+      chatController.connectToChat(
+        conversationId: chatController.currentConvId,
         currentUserId: Api.box.read("currentUserId"),
       );
     }
   }
 
   void _handlePaused() {
-    chatController.disconnect();
     chatController.clear(leaveConvIds: true);
   }
 
   void _handleDetached() {
+    chatController.disconnect();
     chatController.clear();
   }
 
   Future<void> _fetchConversations() async {
     if (chatController.fetchedAll) return;
-    // chatController.chats.clear();
-    //make use of the pagination concept , current implementation is wrong
+
     PaginatedConversation pConversation = await ChatApis.getConversations();
     do {
       for (Conversation conversation in pConversation.conversations) {
