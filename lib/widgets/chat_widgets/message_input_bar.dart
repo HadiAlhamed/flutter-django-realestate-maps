@@ -205,7 +205,28 @@ class _MessageInputBarState extends State<MessageInputBar> {
     Get.back();
   }
 
-  Future<void> handleAddingOneImage(String imagePath) async {}
+  Future<void> handleAddingOneImage(String imagePath) async {
+    try {
+      print("📤 Uploading image: $imagePath");
+
+      final uploadedUrl = await ChatApis.uploadFile(file: File(imagePath));
+
+      if (uploadedUrl != null) {
+        print("✅ Image uploaded. URL: $uploadedUrl");
+
+        chatController.sendMessage(
+          conversationId: chatController.currentConvId,
+          content: null, // since it's an image
+          fileUrl: uploadedUrl,
+        );
+      } else {
+        print("❌ Failed to upload image.");
+      }
+    } catch (e) {
+      print("❌ Exception while uploading image: $e");
+    }
+  }
+
   Future<void> handleAddingChatImage(bool fromGallery) async {
     // Handle gallery pick
 

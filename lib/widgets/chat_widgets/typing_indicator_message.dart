@@ -13,9 +13,7 @@ class TypingIndicatorMessage extends StatelessWidget {
       alignment: Alignment.centerLeft,
       child: TypingIndicator(
         dotColor: primaryColor,
-        backgroundColor: Theme.of(context).brightness == Brightness.dark
-            ? Colors.blueGrey
-            : Colors.grey[300]!,
+        backgroundColor: Colors.blueGrey,
         dotSize: 10.0,
         dotCount: 3,
         duration: Duration(milliseconds: 1500),
