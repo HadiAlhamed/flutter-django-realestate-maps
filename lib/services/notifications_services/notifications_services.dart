@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 @pragma('vm:entry-point')
 void notificationTapBackground(NotificationResponse notificationResponse) {
@@ -19,8 +20,15 @@ class NotificationsServices {
 
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
+  Future<void> requestPermissions() async {
+    if (await Permission.notification.isDenied) {
+      await Permission.notification.request();
+    }
+  }
 
   Future<void> init() async {
+    await requestPermissions();
+
     const androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
     const initializationSettings = InitializationSettings(
@@ -42,7 +50,7 @@ class NotificationsServices {
     String? payload,
   }) async {
     final androidNotificationsDetail = AndroidNotificationDetails(
-      id.toString(),
+      'general_channel',
       'General Notifications',
       channelDescription: 'For showing basic notifications',
       importance: Importance.max,
@@ -52,6 +60,7 @@ class NotificationsServices {
     final NotificationDetails notificationDetails = NotificationDetails(
       android: androidNotificationsDetail,
     );
+    print("trying to show notificaition : $id , $title , $body");
     await flutterLocalNotificationsPlugin.show(
       id,
       title,

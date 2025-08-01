@@ -4,6 +4,7 @@ import 'package:real_estate/models/notifications/notification.dart'
     as my_notification;
 import 'package:real_estate/models/notifications/paginated_notifications.dart';
 import 'package:real_estate/services/notifications_services/notifications_apis.dart';
+import 'package:real_estate/services/notifications_services/notifications_services.dart';
 
 class NotificationsController extends GetxController {
   RxList<my_notification.Notification> notifications =
@@ -11,7 +12,19 @@ class NotificationsController extends GetxController {
   RxBool isLoading = false.obs;
   String? nextPageUrl;
   RxInt unreadCount = 0.obs;
+  bool needInitialLoad = true;
+  final NotificationsServices notificationsServices = NotificationsServices();
   void Function(my_notification.Notification)? onNotificationInserted;
+
+  void incrementUnreadCount() {
+    unreadCount.value++;
+  }
+
+  void decrementUnreadCount() {
+    unreadCount.value--;
+  }
+
+  set setUnreadCount(int value) => unreadCount.value = value;
 
   void setInsertCallback(Function(my_notification.Notification) callback) {
     onNotificationInserted = callback;
@@ -44,8 +57,15 @@ class NotificationsController extends GetxController {
   void insertNewNotification(
     my_notification.Notification notif,
   ) {
+    print("trying to insert notification : $notif");
     notifications.insert(0, notif); // Insert at top
     onNotificationInserted?.call(notif); // Notify widget to animate
+    notificationsServices.showNotification(
+      id: notif.id,
+      title: notif.notificationTypeDisplay,
+      body: notif.message,
+    );
+    incrementUnreadCount();
   }
 
   bool hasMoreData() {
@@ -61,8 +81,14 @@ class NotificationsController extends GetxController {
   }
 
   Future<void> getUnreadCount() async {
+    if (!needInitialLoad) return;
     final count = await NotificationsApis.getUnreadCount();
     unreadCount.value = count;
+    needInitialLoad = false;
+  }
+
+  void changeNeedInitialLoad(bool value) {
+    needInitialLoad = value;
   }
 
   void clear() {
@@ -70,5 +96,6 @@ class NotificationsController extends GetxController {
     nextPageUrl = null;
     isLoading.value = false;
     unreadCount.value = 0;
+    needInitialLoad = true;
   }
 }

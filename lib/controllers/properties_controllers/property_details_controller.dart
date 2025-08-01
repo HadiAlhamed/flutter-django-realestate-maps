@@ -13,6 +13,21 @@ class PropertyDetailsController extends GetxController {
   bool wantToRate = false;
 
   List<double> cardAnimationScale = List.generate(100005, (index) => 1.0);
+  void updateFavoriteProperty(int id,
+      {double? newPrice, bool? isActive, double? newRating}) {
+    for (final property in isFavoriteSet) {
+      if (property.id == id) {
+        if (newPrice != null) property.price = newPrice;
+        if (isActive != null) property.isActive = isActive;
+        if (newRating != null) property.rating = newRating;
+        print("✅ Property with id $id updated");
+        update(["isFavorite$id"]);
+        return;
+      }
+    }
+    print("❌ Property with id $id not found in favorites");
+  }
+
   void updateFlutterMap() {
     update(["flutterMap"]);
   }

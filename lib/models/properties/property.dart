@@ -9,13 +9,13 @@ class Property {
   final int? numberOfRooms;
   final int? bathrooms;
   final double? area;
-  final double? price;
+  double? price;
   final bool? isForRent;
   final double? latitude;
   final double? longitude;
   final String? mainPhotoUrl;
   final String? address;
-  final double? rating;
+  double? rating;
   Property({
     this.isActive,
     this.bathrooms,

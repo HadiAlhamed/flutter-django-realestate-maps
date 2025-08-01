@@ -16,6 +16,7 @@ import 'package:real_estate/textstyles/text_styles.dart';
 import 'package:real_estate/widgets/general_widgets/my_bottom_navigation_bar.dart';
 import 'package:real_estate/widgets/general_widgets/my_floating_action_button.dart';
 import 'package:real_estate/widgets/general_widgets/my_snackbar.dart';
+import 'package:real_estate/services/notifications_services/notifications_webscoket_service.dart';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
@@ -293,6 +294,7 @@ class _AccountPageState extends State<AccountPage> {
       pdController.clear();
       pController.clear();
       myPController.clear();
+      NotificationsWebscoketService().disconnectNotificationWebSocket();
       Get.offAllNamed('/login');
     } else {
       Get.showSnackbar(
