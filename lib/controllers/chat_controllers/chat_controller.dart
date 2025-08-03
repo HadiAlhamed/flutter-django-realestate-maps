@@ -230,11 +230,11 @@ class ChatController extends GetxController {
     if (!lastMessageData.isRead &&
         lastMessageData.senderId != Api.box.read("currentUserId") &&
         currentConversationId != conversation.id) {
-      notificationHandler.showNotification(
-        id: conversation.id,
-        title:
+      notificationHandler.showMessageNotification(
+        messageText: lastMessageData.content ?? "File",
+        senderId: (conversation.id).toString(),
+        senderName:
             "${lastMessageData.senderFirstName} ${lastMessageData.senderLastName}",
-        body: lastMessageData.content ?? "File",
       );
     }
   }
@@ -340,6 +340,10 @@ class ChatController extends GetxController {
       currentConversationId = -1;
       anyConversationId = -1;
     }
+  }
+
+  void clearMessageHistoryFor(int conversationId) {
+    notificationHandler.clearMessageHistoryFor(conversationId.toString());
   }
 
   @override

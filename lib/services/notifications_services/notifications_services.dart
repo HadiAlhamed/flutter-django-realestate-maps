@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -20,6 +22,11 @@ class NotificationsServices {
 
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
+  final Map<String, List<Message>> _messageHistory =
+      HashMap(); // senderId -> messages
+  final Map<String, Person> _people = {}; // senderId -> Person
+  final Person _me = const Person(name: "You", key: "me");
+
   Future<void> requestPermissions() async {
     if (await Permission.notification.isDenied) {
       await Permission.notification.request();
@@ -55,6 +62,7 @@ class NotificationsServices {
       channelDescription: 'For showing basic notifications',
       importance: Importance.max,
       priority: Priority.high,
+      icon: 'ic_stat_aqari_logo_primary_towers', // ← no file extension
     );
 
     final NotificationDetails notificationDetails = NotificationDetails(
@@ -70,49 +78,57 @@ class NotificationsServices {
     );
   }
 
-  Future<void> showMessagingStyleNotification() async {
-    // Define the people in the conversation
-    final Person me = Person(
-      name: 'You',
-      key: 'you',
+  Future<void> showMessageNotification({
+    required String senderId,
+    required String senderName,
+    required String messageText,
+    String? conversationTitle,
+    String? payload,
+  }) async {
+    // Register the sender if not already
+    _people.putIfAbsent(
+        senderId, () => Person(name: senderName, key: senderId));
+
+    // Add new message to history
+    _messageHistory.putIfAbsent(senderId, () => []);
+    _messageHistory[senderId]!.add(
+      Message(messageText, DateTime.now(), _people[senderId]!),
     );
 
-    final Person sarah = Person(
-      name: 'Sarah',
-      key: 'sarah',
-    );
-
-    // List of messages
-    final styleInformation = MessagingStyleInformation(
-      me, // yourself
-      conversationTitle: 'Chat with Sarah',
-      messages: [
-        Message('Hey, are you free tonight?',
-            DateTime.now().subtract(Duration(minutes: 3)), sarah),
-        Message('Yes, I am. What’s up?',
-            DateTime.now().subtract(Duration(minutes: 2)), me),
-        Message('Wanna grab coffee?',
-            DateTime.now().subtract(Duration(minutes: 1)), sarah),
-      ],
+    final style = MessagingStyleInformation(
+      _me,
+      conversationTitle: conversationTitle ?? senderName,
+      messages: _messageHistory[senderId]!,
     );
 
     final androidDetails = AndroidNotificationDetails(
       'chat_channel_id',
       'Chat Notifications',
-      channelDescription: 'For messaging style chat notifications',
+      channelDescription: 'Used for chat messages',
       importance: Importance.high,
       priority: Priority.high,
-      styleInformation: styleInformation,
+      styleInformation: style,
+      icon: 'ic_stat_aqari_logo_primary_towers', // ← no file extension
     );
 
     final notificationDetails = NotificationDetails(android: androidDetails);
 
+    // Use a consistent ID per sender
+    final notificationId = senderId.hashCode;
+
     await flutterLocalNotificationsPlugin.show(
-      1,
-      'New messages from Sarah', // Fallback title
-      'Hey, are you free tonight?', // Fallback body
+      notificationId,
+      senderName,
+      messageText,
       notificationDetails,
-      payload: 'chat_sarah_1',
+      payload: payload,
     );
+  }
+
+  void clearMessageHistoryFor(String senderId) {
+    _messageHistory.putIfAbsent(senderId, () => []);
+    _messageHistory[senderId]!.clear();
+    final notificationId = senderId.hashCode;
+    flutterLocalNotificationsPlugin.cancel(notificationId);
   }
 }

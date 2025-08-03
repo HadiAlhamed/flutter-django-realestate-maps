@@ -45,6 +45,9 @@ class _ChatPageState extends State<ChatPage> {
       print("Messages updated, scrolling down...");
       _scrollToBottom();
     });
+    //clear messageHistory for this person for the chat
+    //remove notification for this chat if exists
+    chatController.clearMessageHistoryFor(chatController.currentConvId);
   }
 
   Future<void> _fetchMessages() async {
