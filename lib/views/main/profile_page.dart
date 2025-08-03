@@ -92,6 +92,10 @@ class ProfilePage extends StatelessWidget {
                 height: 20,
               ),
               myProfileInput(
+                hint: 'National Id',
+                readOnly: true,
+              ),
+              myProfileInput(
                 hint: 'First Name',
                 controller: firstNameController,
               ),
@@ -375,7 +379,7 @@ class ProfilePage extends StatelessWidget {
       {required String hint,
       Widget? suffixWidget,
       Widget? prefixWidget,
-      required TextEditingController controller,
+      TextEditingController? controller,
       bool? readOnly,
       void Function()? ontap,
       TextInputType? keyboardType}) {

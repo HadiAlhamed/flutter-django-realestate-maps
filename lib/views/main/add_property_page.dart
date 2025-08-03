@@ -159,6 +159,14 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
                   height: 20,
                 ),
                 propertyInput(
+                  hint: 'Property State Number',
+                  readOnly: true,
+                  keyboardType: TextInputType.number,
+                  suffixWidget: const Icon(
+                    Icons.numbers,
+                  ),
+                ),
+                propertyInput(
                   ontap: () async {
                     final addressCoordinate =
                         await Get.toNamed('/openStreetMap', arguments: {
@@ -738,14 +746,15 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
     );
   }
 
-  MyInputField propertyInput(
-      {required String hint,
-      Widget? suffixWidget,
-      Widget? prefixWidget,
-      required TextEditingController controller,
-      bool? readOnly,
-      void Function()? ontap,
-      TextInputType? keyboardType}) {
+  MyInputField propertyInput({
+    required String hint,
+    Widget? suffixWidget,
+    Widget? prefixWidget,
+    TextEditingController? controller,
+    bool? readOnly,
+    void Function()? ontap,
+    TextInputType? keyboardType,
+  }) {
     return MyInputField(
       keyboardType: keyboardType,
       prefixWidget: prefixWidget,
