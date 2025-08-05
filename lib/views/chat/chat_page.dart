@@ -28,25 +28,71 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    if (chatController.currentConvId != chatController.anyConvId) {
-      chatController.connectToChat(
-          conversationId: chatController.currentConvId,
-          currentUserId: Api.box.read('currentUserId'));
-    }
+    debugPrint("initState :: chatPage :: running");
+    debugPrint(
+        "initState :: chatPage :: anyConvId :: ${chatController.anyConvId}");
 
-    index = args['index'];
+    try {
+      debugPrint(
+          "chatController.currentConvId = ${chatController.currentConvId}");
+      index = args['index'];
+      if (args['conversationId'] != null) {
+        chatController.currentConvId = args['conversationId'];
+      }
+    } catch (e, s) {
+      debugPrint("initState error: $e\n$s");
+    }
+    debugPrint(
+        "chatController.currentConvId = ${chatController.currentConvId}");
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await _fetchMessages(); // fetch messages after UI is ready
-      _scrollToBottom(); // scroll to bottom after fetching
+      try {
+        debugPrint(
+            "are messages empty ? ${chatController.getMessagesFor(chatController.currentConvId).isEmpty}");
+
+        // if (chatController
+        //     .getMessagesFor(chatController.currentConvId)
+        //     .isEmpty) {
+        //   //update chatController to add any new message otherwise this shit does not work
+        if (chatController.getNeedFirstFetch(chatController.currentConvId)) {
+          await _fetchMessages();
+          chatController.needFirstFetch[chatController.currentConvId] = false;
+        }
+        // }
+        if (chatController.currentConvId != chatController.anyConvId) {
+          await chatController.connectToChat(
+            conversationId: chatController.currentConvId,
+            currentUserId: Api.box.read('currentUserId'),
+          );
+        }
+        //markAsRead for each time we open the chatPage will be handled by an api
+        //that returns messageIds of unReadMessages
+        //update it later when api ready
+        List<Message> list =
+            chatController.getMessagesFor(chatController.currentConvId);
+        List<String> messageIds = [];
+        for (int i = list.length - 1; i >= 0 && messageIds.length < 15; i--) {
+          if (list[i].senderId != Api.box.read("currentUserId")) {
+            messageIds.add(list[i].id.toString());
+          }
+        }
+        print("init chat page!!!!!!!!!!!");
+        print(messageIds);
+        if (messageIds.isNotEmpty) {
+          chatController.markAsRead(messageIds, chatController.currentConvId);
+        }
+        _scrollToBottom();
+      } catch (e, s) {
+        print("post frame error: $e\n$s");
+      }
     });
+
     ever(chatController.getMessagesFor(chatController.currentConvId), (_) {
       print("Messages updated, scrolling down...");
       _scrollToBottom();
     });
-    //clear messageHistory for this person for the chat
-    //remove notification for this chat if exists
+
     chatController.clearMessageHistoryFor(chatController.currentConvId);
   }
 
@@ -56,27 +102,10 @@ class _ChatPageState extends State<ChatPage> {
     chatController.getMessagesFor(chatController.currentConvId).clear();
     chatController.getMessagesFor(chatController.currentConvId).value =
         await ChatApis.getMessagesFor(chatController.currentConvId);
-    //send a realtime markas read for other
-    List<Message> list =
-        chatController.getMessagesFor(chatController.currentConvId);
-    List<String> messageIds = [];
-    for (int i = list.length - 1; i >= 0 && messageIds.length < 15; i--) {
-      if (list[i].senderId != Api.box.read("currentUserId")) {
-        messageIds.add(list[i].id.toString());
-      }
-    }
-    print("init chat page!!!!!!!!!!!");
-    print(messageIds);
-    if (messageIds.isNotEmpty) {
-      chatController.markAsRead(messageIds, chatController.currentConvId);
-    }
   }
 
   @override
   dispose() {
-    chatController.sendTypingStatus(false, chatController.currentConvId);
-    chatController.disconnect(onlyThis: chatController.currentConvId);
-    chatController.currentConvId = -1;
     super.dispose();
   }
 
@@ -88,129 +117,152 @@ class _ChatPageState extends State<ChatPage> {
     final double screenHeight = MediaQuery.sizeOf(context).height;
     // Scroll to bottom
 
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          onPressed: () {
-            Get.back();
-          },
-          icon: const Icon(Icons.arrow_back),
-        ),
-        title: Row(
-          children: [
-            CircleAvatar(
-              radius: screenWidth * 0.06,
-              backgroundImage: chatController.chats[index].otherUserPhotoUrl !=
-                      null
-                  ? NetworkImage(chatController.chats[index].otherUserPhotoUrl!)
-                  : const AssetImage('assets/images/person.jpg'),
-            ),
-            const SizedBox(
-              width: 10,
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "${chatController.chats[index].otherUserFirstName} ${chatController.chats[index].otherUserLastName}",
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Obx(() {
-                    bool isOtherTyping = chatController
-                        .isTyping[chatController.chats[index].otherUserId]!
-                        .value;
-
-                    bool onlineStatus = chatController
-                        .isOtherUserOnline[
-                            chatController.chats[index].otherUserId]!
-                        .value;
-                    return isOtherTyping
-                        ? Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                "typing",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium!
-                                    .copyWith(
-                                      color: primaryColor,
-                                    ),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(width: 4),
-                              TypingIndicator(dotColor: primaryColor),
-                            ],
-                          )
-                        : Text(
-                            onlineStatus
-                                ? "Online"
-                                : chatController
-                                    .lastSeen[chatController
-                                        .chats[index].otherUserId]!
-                                    .value,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium!
-                                .copyWith(
-                                  color:
-                                      onlineStatus ? primaryColor : Colors.grey,
-                                ),
-                          );
-                  }),
-                ],
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) return;
+        chatController.sendTypingStatus(false, chatController.currentConvId);
+        chatController.disconnect(onlyThis: chatController.currentConvId);
+        chatController.currentConvId = -1; //might cause problems , check it
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            onPressed: () {
+              Get.back();
+            },
+            icon: const Icon(Icons.arrow_back),
+          ),
+          title: Row(
+            children: [
+              CircleAvatar(
+                radius: screenWidth * 0.06,
+                backgroundImage:
+                    chatController.chats[index].otherUserPhotoUrl != null
+                        ? NetworkImage(
+                            chatController.chats[index].otherUserPhotoUrl!)
+                        : const AssetImage('assets/images/person.jpg'),
               ),
-            )
-            // other widgets if needed
-          ],
+              const SizedBox(
+                width: 10,
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "${chatController.chats[index].otherUserFirstName} ${chatController.chats[index].otherUserLastName}",
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Obx(() {
+                      bool isOtherTyping = chatController
+                          .isTyping[chatController.chats[index].otherUserId]!
+                          .value;
+
+                      bool onlineStatus = chatController
+                          .isOtherUserOnline[
+                              chatController.chats[index].otherUserId]!
+                          .value;
+                      return isOtherTyping
+                          ? Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "typing",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium!
+                                      .copyWith(
+                                        color: primaryColor,
+                                      ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(width: 4),
+                                TypingIndicator(dotColor: primaryColor),
+                              ],
+                            )
+                          : Text(
+                              onlineStatus
+                                  ? "Online"
+                                  : chatController
+                                      .lastSeen[chatController
+                                          .chats[index].otherUserId]!
+                                      .value,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium!
+                                  .copyWith(
+                                    color: onlineStatus
+                                        ? primaryColor
+                                        : Colors.grey,
+                                  ),
+                            );
+                    }),
+                  ],
+                ),
+              )
+              // other widgets if needed
+            ],
+          ),
         ),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: AnimationLimiter(
-              child: Obx(() {
-                return ListView.builder(
-                  controller: _scrollController,
-                  itemCount: chatController
-                      .getMessagesFor(chatController.currentConvId)
-                      .length,
-                  itemBuilder: (context, index) {
-                    return AnimationConfiguration.staggeredList(
-                      position: index,
-                      duration: const Duration(milliseconds: 375),
-                      child: SlideAnimation(
-                        verticalOffset: 50.0,
-                        child: ScaleAnimation(
-                          scale: 0.9,
-                          child: FadeInAnimation(
-                            child: ChatBubble(
-                                screenWidth: screenWidth,
-                                message: chatController.messages[
-                                    chatController.currentConvId]![index]),
+        body: Column(
+          children: [
+            Expanded(
+              child: AnimationLimiter(
+                child: Obx(() {
+                  return ListView.builder(
+                    controller: _scrollController,
+                    itemCount: chatController
+                        .getMessagesFor(chatController.currentConvId)
+                        .length,
+                    itemBuilder: (context, index) {
+                      Message message = Message(
+                          id: 123,
+                          senderId: 5,
+                          senderFirstName: "asdf",
+                          senderLastName: "asd",
+                          messageType: "text",
+                          createdAt: DateTime.now(),
+                          isRead: true);
+                      try {
+                        message = chatController
+                            .messages[chatController.currentConvId]![index];
+                      } catch (e) {
+                        debugPrint("chatPage :: MessageError :: $e");
+                      }
+
+                      return AnimationConfiguration.staggeredList(
+                        position: index,
+                        duration: const Duration(milliseconds: 375),
+                        child: SlideAnimation(
+                          verticalOffset: 50.0,
+                          child: ScaleAnimation(
+                            scale: 0.9,
+                            child: FadeInAnimation(
+                              child: ChatBubble(
+                                  screenWidth: screenWidth, message: message),
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  },
-                );
-              }),
+                      );
+                    },
+                  );
+                }),
+              ),
             ),
-          ),
-          Obx(() {
-            print("Obx :: index : $index");
-            if (chatController
-                .getIsTypingFor(chatController.chats[index].otherUserId)
-                .value) {
-              return TypingIndicatorMessage();
-            }
-            return const SizedBox.shrink();
-          }),
-          MessageInputBar(
-            screenHeight: screenHeight,
-          ),
-        ],
+            Obx(() {
+              print("Obx :: index : $index");
+              if (chatController
+                  .getIsTypingFor(chatController.chats[index].otherUserId)
+                  .value) {
+                return TypingIndicatorMessage();
+              }
+              return const SizedBox.shrink();
+            }),
+            MessageInputBar(
+              screenHeight: screenHeight,
+            ),
+          ],
+        ),
       ),
     );
   }

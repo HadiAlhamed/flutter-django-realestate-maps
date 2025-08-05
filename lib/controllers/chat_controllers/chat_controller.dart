@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
@@ -23,7 +25,7 @@ class ChatController extends GetxController {
   Map<int, RxString> lastSeen = {}; //user id , his last seen
   Map<int, RxString> lastMessageFor = {};
   Map<int, RxString> lastMessageTime = {};
-
+  Map<int, bool> needFirstFetch = {};
   RxList<Conversation> chats = <Conversation>[].obs;
   int currentConversationId = -1;
   int anyConversationId = -1;
@@ -77,6 +79,11 @@ class ChatController extends GetxController {
     required int conversationId,
     required int currentUserId,
   }) async {
+    if (conversationId == -1) {
+      debugPrint(
+          "chatController :: connectToChat :: ERROR :: cannot have a conversationId equals to -1!!");
+      return;
+    }
     print("chatController :: connectToChat : conversationId $conversationId");
     String? accessToken = await TokenService.getAccessToken();
     if (accessToken == null) {
@@ -160,11 +167,14 @@ class ChatController extends GetxController {
               otherUserPhotoUrl: data['other_participant_details']['photo_url'],
             );
             print("HI");
-            handleConversationListUpdate(
-              conversation: conversation,
-              isNew: isNew,
-              lastMessageData: lastMessageData,
-            );
+            if (conversationId == anyConversationId) {
+              //so that we handle it once
+              handleConversationListUpdate(
+                conversation: conversation,
+                isNew: isNew,
+                lastMessageData: lastMessageData,
+              );
+            }
           } else if (type == 'typing_status_list_update') {
             int userId = data['user_id'] is String
                 ? int.parse(data['user_id'])
@@ -197,7 +207,7 @@ class ChatController extends GetxController {
         currentConversationId == conversationId) {
       markAsRead([message.id.toString()], conversationId);
     }
-    getMessagesFor(conversationId).add(message);
+    // getMessagesFor(conversationId).add(message);
   }
 
   void handleConversationListUpdate({
@@ -215,6 +225,7 @@ class ChatController extends GetxController {
       }
     } else if (index == -1) {
       chats.insert(0, conversation);
+      index = 0;
     }
     if (lastMessageData.fileUrl == null) {
       getLastMessageFor(conversation.id).value = lastMessageData.content!;
@@ -227,6 +238,10 @@ class ChatController extends GetxController {
     //update unread count :
     getUnreadCountFor(conversation.id).value = conversation.unreadCount;
     //show a notification that someone has sent the user a message
+    if (!lastMessageData.isRead) {
+      //isRead is it enough?
+      getMessagesFor(conversation.id).add(lastMessageData);
+    }
     if (!lastMessageData.isRead &&
         lastMessageData.senderId != Api.box.read("currentUserId") &&
         currentConversationId != conversation.id) {
@@ -235,7 +250,67 @@ class ChatController extends GetxController {
         senderId: (conversation.id).toString(),
         senderName:
             "${lastMessageData.senderFirstName} ${lastMessageData.senderLastName}",
+        payload: jsonEncode({
+          'type': 'message',
+          'conversationId': conversation.id,
+          'index': index,
+        }),
       );
+    }
+  }
+
+  @override
+  void onReady() {
+    // TODO: implement onReady
+    super.onReady();
+    notificationHandler.registerForegroundTapHandler(onTapForeground);
+  }
+
+  void onTapForeground(String payload) async {
+    //use payload to determine type of notificaiton : message or regular property notification
+    Map<String, dynamic> payloadData = jsonDecode(payload);
+
+    // Get.snackbar("from onTapForeground", "payloadData : $payloadData");
+    // Get.snackbar("from onTapForeground",
+    //     "type : ${payloadData['type']} , type : ${payloadData['type'].runtimeType}");
+
+    if (payloadData['type'] == 'property') {
+      //type%notifId%propertyId
+      int propertyId = payloadData['propertyId'];
+      int notifId =
+          payloadData['notificationId']; //we need to make isRead = true
+      // Get.snackbar("from onTapForeground",
+      //     "goint ot proertyDetails with propertyId $propertyId from notification ");
+      if (Get.currentRoute == '/propertyDetails') {
+        Get.back(); // pop current details
+        await Future.delayed(
+            Duration(milliseconds: 100)); // allow stack to clear
+      }
+
+      Get.toNamed(
+        '/propertyDetails',
+        arguments: {
+          'propertyId': propertyId,
+        },
+      );
+    } else {
+      //type = message
+      while (Get.currentRoute == '/chatPage') {
+        debugPrint("currentRoute : ${Get.currentRoute}");
+        Get.back();
+      }
+      await Future.delayed(const Duration(milliseconds: 100));
+      debugPrint(
+          "onTapForegroud :: chatController.currentConversationId : $currentConversationId"); //should be -1 when currentRoute was /chatpage
+      int conversationId = payloadData['conversationId'];
+      int index = payloadData['index'];
+
+      currentConversationId = conversationId;
+
+      Get.toNamed('/chatPage', arguments: {
+        'index': index,
+        'conversationId': conversationId,
+      });
     }
   }
 
@@ -254,7 +329,7 @@ class ChatController extends GetxController {
       {String? content, String? fileUrl, required int conversationId}) {
     print("trying to send text message for conversation $conversationId");
     if (content != null) {
-      _activeSockets[conversationId]!.sendMessage(
+      _activeSockets[conversationId]?.sendMessage(
         content,
         fileUrl,
         "text",
@@ -262,7 +337,7 @@ class ChatController extends GetxController {
     } else if (fileUrl != null) {
       String messageType =
           path.extension(fileUrl).toLowerCase() == '.pdf' ? 'pdf' : 'image';
-      _activeSockets[conversationId]!.sendMessage(
+      _activeSockets[conversationId]?.sendMessage(
         content,
         fileUrl,
         messageType,
@@ -276,11 +351,15 @@ class ChatController extends GetxController {
   }
 
   void sendTypingStatus(bool isTyping, int conversationId) {
-    _activeSockets[conversationId]!.sendIsTyping(isTyping);
+    if (_activeSockets[conversationId] != null) {
+      _activeSockets[conversationId]!.sendIsTyping(isTyping);
+    }
   }
 
   Future<void> markAsRead(List<String> messageIds, int conversationId) async {
-    _activeSockets[conversationId]!.markAsRead(messageIds);
+    if (_activeSockets[conversationId] != null) {
+      _activeSockets[conversationId]!.markAsRead(messageIds);
+    }
   }
 
   RxList<Message> getMessagesFor(int conversationId) {
@@ -297,6 +376,10 @@ class ChatController extends GetxController {
 
   RxBool getIsOtherUserOnlineFor(int userId) {
     return isOtherUserOnline.putIfAbsent(userId, () => RxBool(false));
+  }
+
+  bool getNeedFirstFetch(int conversationId) {
+    return needFirstFetch.putIfAbsent(conversationId, () => true);
   }
 
   void disconnect({int? exceptId, int? onlyThis}) {
@@ -335,7 +418,7 @@ class ChatController extends GetxController {
     fetchedAll = false;
     leaveConvIds ??= false;
     chats.clear();
-
+    needFirstFetch.clear();
     if (!leaveConvIds) {
       currentConversationId = -1;
       anyConversationId = -1;

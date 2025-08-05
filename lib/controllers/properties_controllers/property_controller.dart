@@ -28,7 +28,50 @@ class PropertyController extends GetxController {
     update(['all', 'villa', 'house', 'flat']);
   }
 
-  void addProperty(Property property) {
+  void updateProperty(int id,
+      {double? newPrice, bool? isActive, double? newRating}) {
+    String? type;
+    for (final property in properties) {
+      if (property.id == id) {
+        type = property.propertyType;
+        if (newPrice != null) property.price = newPrice;
+        if (isActive != null) property.isActive = isActive;
+        if (newRating != null) property.rating = newRating;
+        print("✅ Property with id $id updated");
+        break;
+      }
+    }
+    if (type != null) {
+      int index;
+      if (type == 'house') {
+        index = houses.indexWhere((p) => p.id == id);
+        if (index == -1) return;
+        if (newPrice != null) houses[index].price = newPrice;
+        if (isActive != null) houses[index].isActive = isActive;
+        if (newRating != null) houses[index].rating = newRating;
+        update(['all', 'house']);
+      } else if (type == 'villa') {
+        index = villas.indexWhere((p) => p.id == id);
+        if (index == -1) return;
+        if (newPrice != null) villas[index].price = newPrice;
+        if (isActive != null) villas[index].isActive = isActive;
+        if (newRating != null) villas[index].rating = newRating;
+        update(['all', 'villa']);
+      } else if (type == 'flat') {
+        index = flats.indexWhere((p) => p.id == id);
+        if (index == -1) return;
+        if (newPrice != null) flats[index].price = newPrice;
+        if (isActive != null) flats[index].isActive = isActive;
+        if (newRating != null) flats[index].rating = newRating;
+        update(['all', 'flat']);
+      }
+    }
+    print("❌ Property with id $id not found in properties");
+  }
+
+  void addProperty(
+    Property property,
+  ) {
     int index = properties.indexWhere((p) {
       return p.id! == property.id!;
     });

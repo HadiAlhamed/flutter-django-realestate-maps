@@ -254,6 +254,7 @@ class _HomePageState extends State<HomePage>
                             scale: controller.cardAnimationScale[index],
                             duration: const Duration(milliseconds: 150),
                             child: PropertyCard(
+                              key: ValueKey(wantedList[index].id!),
                               property: wantedList[index],
                               scaleController: propertyController,
                               index: index,

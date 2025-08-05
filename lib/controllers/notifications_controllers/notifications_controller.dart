@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/state_manager.dart';
 import 'package:real_estate/models/notifications/notification.dart'
@@ -64,6 +66,11 @@ class NotificationsController extends GetxController {
       id: notif.id,
       title: notif.notificationTypeDisplay,
       body: notif.message,
+      payload: jsonEncode({
+        'type': 'property',
+        'notificationId': notif.id,
+        'propertyId': notif.relatedObjectData.id!,
+      }),
     );
     incrementUnreadCount();
   }

@@ -2,6 +2,7 @@ import 'dart:collection';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 @pragma('vm:entry-point')
@@ -26,6 +27,10 @@ class NotificationsServices {
       HashMap(); // senderId -> messages
   final Map<String, Person> _people = {}; // senderId -> Person
   final Person _me = const Person(name: "You", key: "me");
+  void Function(String payload)? _onForegroundNotificationTap;
+  void registerForegroundTapHandler(void Function(String payload) handler) {
+    _onForegroundNotificationTap = handler;
+  }
 
   Future<void> requestPermissions() async {
     if (await Permission.notification.isDenied) {
@@ -45,7 +50,9 @@ class NotificationsServices {
       initializationSettings,
       onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
       onDidReceiveNotificationResponse: (details) {
-        debugPrint("Notification clicked with payload: ${details.payload}");
+        // Get.snackbar("Tapped", "Notification payload: ${details.payload}");
+
+        _onForegroundNotificationTap?.call(details.payload!);
       },
     );
   }
