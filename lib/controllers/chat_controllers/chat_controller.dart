@@ -10,6 +10,7 @@ import 'package:real_estate/models/conversations/message.dart';
 import 'package:real_estate/services/api.dart';
 import 'package:real_estate/services/auth_services/token_service.dart';
 import 'package:real_estate/services/chat_services/chat_web_socket_service.dart';
+import 'package:real_estate/services/notifications_services/notifications_apis.dart';
 import 'package:real_estate/services/notifications_services/notifications_services.dart';
 
 class ChatController extends GetxController {
@@ -270,23 +271,16 @@ class ChatController extends GetxController {
     //use payload to determine type of notificaiton : message or regular property notification
     Map<String, dynamic> payloadData = jsonDecode(payload);
 
-    // Get.snackbar("from onTapForeground", "payloadData : $payloadData");
-    // Get.snackbar("from onTapForeground",
-    //     "type : ${payloadData['type']} , type : ${payloadData['type'].runtimeType}");
-
     if (payloadData['type'] == 'property') {
-      //type%notifId%propertyId
       int propertyId = payloadData['propertyId'];
       int notifId =
           payloadData['notificationId']; //we need to make isRead = true
-      // Get.snackbar("from onTapForeground",
-      //     "goint ot proertyDetails with propertyId $propertyId from notification ");
       if (Get.currentRoute == '/propertyDetails') {
         Get.back(); // pop current details
         await Future.delayed(
             Duration(milliseconds: 100)); // allow stack to clear
       }
-
+      await NotificationsApis.markOneRead(notifId);
       Get.toNamed(
         '/propertyDetails',
         arguments: {

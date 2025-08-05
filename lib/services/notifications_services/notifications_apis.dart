@@ -67,4 +67,25 @@ class NotificationsApis {
     }
     return false;
   }
+
+  static Future<bool> markOneRead(int notificationId) async {
+    print("mark all notifiations read");
+    try {
+      final response = await _dio.post(
+        "${Api.baseUrl}/notifications/$notificationId/mark-read/",
+        data: {'pk': notificationId.toString()},
+      );
+      if (response.statusCode == 200) {
+        return true;
+      }
+    } catch (e) {
+      if (e is DioException) {
+        print(
+            "NotificationsApis :: markOneRead :: DioX :: ${e.response?.data}");
+      } else {
+        print("NotificationsApis :: markOneRead :: NetworkError :: $e");
+      }
+    }
+    return false;
+  }
 }

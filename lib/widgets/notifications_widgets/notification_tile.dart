@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 import 'package:real_estate/models/notifications/notification.dart'
@@ -12,7 +13,10 @@ class NotificationTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        Get.toNamed("/propertyDetails",
+            arguments: {'propertyId': notification.relatedObjectData.id!});
+      },
       child: Padding(
         // Outer margin for spacing between tiles
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),

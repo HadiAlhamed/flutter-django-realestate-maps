@@ -53,7 +53,7 @@ class MyBottomNavigationBar extends StatelessWidget {
                   if (unreadCount > 0)
                     Positioned(
                       top: 8,
-                      right: 12,
+                      right: bottomController.selectedIndex == 2 ? 18 : 12,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 5, vertical: 2),

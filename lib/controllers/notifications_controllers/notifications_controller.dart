@@ -87,6 +87,15 @@ class NotificationsController extends GetxController {
     NotificationsApis.markAllRead();
   }
 
+  void markOneRead(int notificationId) {
+    int index = notifications.indexWhere((notif) => notif.id == notificationId);
+    if (index != -1) {
+      notifications[index].isRead = true;
+      refresh();
+    }
+    decrementUnreadCount();
+  }
+
   Future<void> getUnreadCount() async {
     if (!needInitialLoad) return;
     final count = await NotificationsApis.getUnreadCount();

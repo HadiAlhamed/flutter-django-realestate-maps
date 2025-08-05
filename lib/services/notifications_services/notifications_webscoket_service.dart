@@ -104,6 +104,10 @@ class NotificationsWebscoketService {
         notificationsController.setUnreadCount = newCount;
         //handle the update from the notificationController
         break;
+      case 'notification.single_read_update':
+        int notifId = data['notification_id'];
+        notificationsController.markOneRead(notifId);
+        break;
       case 'pong': //ping pong ,
         print('Received pong from server.');
         break;
