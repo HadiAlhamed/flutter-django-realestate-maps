@@ -2,7 +2,6 @@ import 'dart:collection';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 @pragma('vm:entry-point')
@@ -10,6 +9,8 @@ void notificationTapBackground(NotificationResponse notificationResponse) {
   debugPrint(
       'Background notification tap received: ${notificationResponse.payload}');
   // Add background logic here if needed
+  NotificationsServices().tappedBackgroundPayload =
+      notificationResponse.payload;
 }
 
 class NotificationsServices {
@@ -28,6 +29,8 @@ class NotificationsServices {
   final Map<String, Person> _people = {}; // senderId -> Person
   final Person _me = const Person(name: "You", key: "me");
   void Function(String payload)? _onForegroundNotificationTap;
+  String? tappedBackgroundPayload; //for background handling
+
   void registerForegroundTapHandler(void Function(String payload) handler) {
     _onForegroundNotificationTap = handler;
   }

@@ -22,12 +22,12 @@ class AppLifecycleHandler extends WidgetsBindingObserver {
       case AppLifecycleState.resumed:
         print("App in Foreground");
         // Reconnect sockets or resume tasks
-        // _handleResumed();
+        _handleResumed();
         break;
       case AppLifecycleState.paused:
         print("App in Background");
         // Pause operations or release resources
-        // _handlePaused();
+        _handlePaused();
         break;
       case AppLifecycleState.detached:
         print("App Terminated or detached");
@@ -47,24 +47,26 @@ class AppLifecycleHandler extends WidgetsBindingObserver {
   }
 
   Future<void> _handleResumed() async {
-    await _fetchConversations();
-    if (chatController.anyConvId != -1) {
-      chatController.connectToChat(
-        conversationId: chatController.anyConvId,
-        currentUserId: Api.box.read("currentUserId"),
-      );
-    }
-    if (chatController.currentConvId != -1 &&
-        chatController.currentConvId != chatController.anyConvId) {
-      chatController.connectToChat(
-        conversationId: chatController.currentConvId,
-        currentUserId: Api.box.read("currentUserId"),
-      );
-    }
+    chatController.changeIsBackground(false);
+    // await _fetchConversations();
+    // if (chatController.anyConvId != -1) {
+    //   chatController.connectToChat(
+    //     conversationId: chatController.anyConvId,
+    //     currentUserId: Api.box.read("currentUserId"),
+    //   );
+    // }
+    // if (chatController.currentConvId != -1 &&
+    //     chatController.currentConvId != chatController.anyConvId) {
+    //   chatController.connectToChat(
+    //     conversationId: chatController.currentConvId,
+    //     currentUserId: Api.box.read("currentUserId"),
+    //   );
+    // }
   }
 
   void _handlePaused() {
-    chatController.clear(leaveConvIds: true);
+    chatController.changeIsBackground(true);
+    // chatController.clear(leaveConvIds: true);
   }
 
   void _handleDetached() {

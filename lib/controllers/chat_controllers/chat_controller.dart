@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
@@ -31,6 +32,11 @@ class ChatController extends GetxController {
   int currentConversationId = -1;
   int anyConversationId = -1;
   RxInt totalUnreadCount = RxInt(-1);
+  bool isBackground = false;
+  void changeIsBackground(bool value) {
+    isBackground = value;
+  }
+
   set anyConvId(int conversationId) => anyConversationId = conversationId;
   int get anyConvId => anyConversationId;
   set currentConvId(int conversationId) =>
@@ -245,7 +251,7 @@ class ChatController extends GetxController {
     }
     if (!lastMessageData.isRead &&
         lastMessageData.senderId != Api.box.read("currentUserId") &&
-        currentConversationId != conversation.id) {
+        (isBackground || currentConversationId != conversation.id)) {
       notificationHandler.showMessageNotification(
         messageText: lastMessageData.content ?? "File",
         senderId: (conversation.id).toString(),
@@ -265,6 +271,15 @@ class ChatController extends GetxController {
     // TODO: implement onReady
     super.onReady();
     notificationHandler.registerForegroundTapHandler(onTapForeground);
+    // Post-frame to ensure Get.currentRoute is ready
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final String? backgroundPayload =
+          notificationHandler.tappedBackgroundPayload;
+      if (backgroundPayload != null) {
+        onTapForeground(backgroundPayload);
+        notificationHandler.tappedBackgroundPayload = null;
+      }
+    });
   }
 
   void onTapForeground(String payload) async {

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart' hide Notification;
 import 'package:get/get.dart';
 import 'package:real_estate/controllers/notifications_controllers/notifications_controller.dart';
 import 'package:real_estate/controllers/properties_controllers/property_details_controller.dart';
@@ -56,6 +57,8 @@ class NotificationsWebscoketService {
         print('Notification WebSocket disconnected.');
         _connected = false;
         _channel = null;
+        //handle reconnection
+        scheduleReconnect();
       },
       onError: (error) {
         print('Notification WebSocket error: $error');
@@ -63,8 +66,17 @@ class NotificationsWebscoketService {
         _channel = null;
         // Handle errors, e.g., token expired, network issues
         // If token expired, prompt user to re-authenticate},
+        //handle reconnection
+        scheduleReconnect();
       },
     );
+  }
+
+  void scheduleReconnect() {
+    Future.delayed(Duration(seconds: 5), () async {
+      debugPrint("🔁 Trying to reconnect for notification websocket...");
+      await connect();
+    });
   }
 
   void disconnectNotificationWebSocket() {
