@@ -165,6 +165,15 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
                   suffixWidget: const Icon(
                     Icons.numbers,
                   ),
+                  // validator: (String? value) {
+                  //   if (value == null || value.isEmpty) {
+                  //     return "Please Enter Property state number";
+                  //   }
+                  //   if (!value.isNum) {
+                  //     return "Property state number has to be numbers";
+                  //   }
+                  //   return null;
+                  // },
                 ),
                 propertyInput(
                   ontap: () async {
@@ -191,6 +200,17 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
                   suffixWidget: const Icon(
                     Icons.bed,
                   ),
+                  validator: !isAdd
+                      ? null
+                      : (String? value) {
+                          if (value == null || value.isEmpty) {
+                            return "Please Enter Number Of Rooms";
+                          }
+                          if (!value.isNum) {
+                            return "Number Of Rooms has to be a number";
+                          }
+                          return null;
+                        },
                 ),
                 propertyInput(
                   hint: 'Number of baths',
@@ -199,6 +219,17 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
                   suffixWidget: const Icon(
                     Icons.bathtub,
                   ),
+                  validator: !isAdd
+                      ? null
+                      : (String? value) {
+                          if (value == null || value.isEmpty) {
+                            return "Please Enter Number Of Baths";
+                          }
+                          if (!value.isNum) {
+                            return "Number Of Baths has to be a number";
+                          }
+                          return null;
+                        },
                 ),
                 propertyInput(
                   hint: 'Total area by squared meter',
@@ -207,6 +238,17 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
                   suffixWidget: const Icon(
                     Icons.aspect_ratio,
                   ),
+                  validator: !isAdd
+                      ? null
+                      : (String? value) {
+                          if (value == null || value.isEmpty) {
+                            return "Please Enter Property Area";
+                          }
+                          if (!value.isNum) {
+                            return "Property Area Has To Be A Floating Number";
+                          }
+                          return null;
+                        },
                 ),
                 propertyInput(
                   hint: 'Price',
@@ -215,6 +257,17 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
                   suffixWidget: const Icon(
                     Icons.attach_money,
                   ),
+                  validator: !isAdd
+                      ? null
+                      : (String? value) {
+                          if (value == null || value.isEmpty) {
+                            return "Please Enter Property Price";
+                          }
+                          if (!value.isNum) {
+                            return "Property Price Has To Be A Floating Number";
+                          }
+                          return null;
+                        },
                 ),
                 Row(
                   children: [
@@ -263,6 +316,8 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
                         onChanged: (value) {
                           if (value != null) {
                             addProController.changeIsActive(value);
+                            debugPrint(
+                                "current active value : ${addProController.isActive}");
                           }
                         },
                       ),
@@ -278,6 +333,8 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
                         onChanged: (value) {
                           if (value != null) {
                             addProController.changeIsActive(value);
+                            debugPrint(
+                                "current active value : ${addProController.isActive}");
                           }
                         },
                       ),
@@ -317,6 +374,7 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
     if (formKey.currentState!.validate()) {
       addProController.changeIsAddLoading(true);
       print("hello from handle upate property....");
+      debugPrint("current active value : ${addProController.isActive}");
       final Property? propertyResult = await PropertiesApis.updateProperty(
         property: Property(
           id: propertyId!,
@@ -754,6 +812,7 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
     bool? readOnly,
     void Function()? ontap,
     TextInputType? keyboardType,
+    String? Function(String?)? validator,
   }) {
     return MyInputField(
       keyboardType: keyboardType,
@@ -763,6 +822,7 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
       controller: controller,
       suffixWidget: suffixWidget,
       hint: hint,
+      validator: validator,
       borderSide: BorderSide.none,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),

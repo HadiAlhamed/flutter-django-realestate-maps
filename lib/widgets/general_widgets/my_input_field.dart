@@ -40,7 +40,11 @@ class MyInputField extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 20),
       child: TextFormField(
         // onTapAlwaysCalled: true,
-        validator: validator,
+        validator: validator ??
+            (String? value) {
+              if (value == null || value.isEmpty) {}
+              return null;
+            },
         onTap: ontap,
         readOnly: readOnly ?? false,
         controller: controller,
