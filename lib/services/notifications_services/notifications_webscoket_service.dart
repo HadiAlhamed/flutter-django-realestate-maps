@@ -23,7 +23,7 @@ class NotificationsWebscoketService {
       Get.find<PropertyDetailsController>();
   final PropertyController pController = Get.find<PropertyController>();
   bool _connected = false;
-
+  bool get isConnected => _connected;
   Future<void> connect() async {
     print(
         "connect() called from: ${StackTrace.current}"); // 🐞 For debugging origin

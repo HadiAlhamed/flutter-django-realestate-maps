@@ -52,7 +52,8 @@ class _HomePageState extends State<HomePage>
         _fetchProperties(),
         if (profileController.isInitialLoading) _fetchUserInfo(),
         if (pdController.isFavoriteSet.isEmpty) _fetchFavorites(),
-        NotificationsWebscoketService().connect(),
+        if (!NotificationsWebscoketService().isConnected)
+          NotificationsWebscoketService().connect(),
       ]);
     });
   }
