@@ -105,7 +105,7 @@ class Property {
       mainPhotoUrl: json['main_photo'] as String?,
       address: json['address'] as String?,
       bathrooms: json['bathrooms'] as int?,
-      isActive: json['is_active'] ?? true,
+      isActive: json['active'] ?? true,
       rating: double.tryParse(json['rating'] ?? '') ?? 0.0,
     );
   }
@@ -125,7 +125,7 @@ class Property {
       if (isForRent != null) 'is_for_rent': isForRent,
       if (latitude != null) 'latitude': latitude!.toStringAsFixed(5),
       if (longitude != null) 'longitude': longitude!.toStringAsFixed(5),
-      if (isActive != null) 'is_active': isActive,
+      if (isActive != null) 'active': isActive,
       if (rating != null) 'rating': rating,
       if (bathrooms != null) 'bathrooms': bathrooms,
     };
