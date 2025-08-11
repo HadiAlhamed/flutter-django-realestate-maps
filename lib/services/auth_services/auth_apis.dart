@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:real_estate/models/profile_info.dart';
 import 'package:real_estate/services/api.dart';
@@ -322,9 +323,11 @@ class AuthApis {
     String? country,
     String? phoneNumber,
     XFile? photo, // use File for images
+    String? nationalId,
   }) async {
-    print("Trying to update profile info");
-    print(firstName);
+    debugPrint("Trying to update profile info");
+    debugPrint(firstName);
+    debugPrint("nationalId : $nationalId");
     try {
       final formData = FormData.fromMap({
         if (firstName != null) 'first_name': firstName,
@@ -334,6 +337,7 @@ class AuthApis {
         if (phoneNumber != null) 'phone_number': phoneNumber,
         if (gender != null) 'gender': gender,
         if (photo != null) 'photo': await _handleImage(photo),
+        if (nationalId != null) 'national_id_number': nationalId,
       });
 
       final response = await _dio.patch(

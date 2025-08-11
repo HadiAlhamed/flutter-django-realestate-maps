@@ -13,6 +13,8 @@ class ProfileInfo {
   final String phoneNumber;
   final int points;
   final bool isSeller;
+  String? nationalId;
+  bool? isIdentityVerified = false;
   ProfileInfo({
     required this.id,
     required this.firstName,
@@ -24,6 +26,8 @@ class ProfileInfo {
     required this.phoneNumber,
     required this.points,
     required this.isSeller,
+    this.nationalId,
+    this.isIdentityVerified,
   });
 
   ProfileInfo copyWith({
@@ -37,6 +41,8 @@ class ProfileInfo {
     String? phoneNumber,
     int? points,
     bool? isSeller,
+    String? nationalId,
+    bool? isIdentityVerified,
   }) {
     return ProfileInfo(
       id: id ?? this.id,
@@ -49,6 +55,8 @@ class ProfileInfo {
       phoneNumber: phoneNumber ?? this.phoneNumber,
       points: points ?? this.points,
       isSeller: isSeller ?? this.isSeller,
+      nationalId: nationalId ?? this.nationalId,
+      isIdentityVerified: isIdentityVerified ?? this.isIdentityVerified,
     );
   }
 
@@ -64,6 +72,8 @@ class ProfileInfo {
       'phone_number': phoneNumber,
       'points': points,
       'is_seller': isSeller,
+      'national_id_number': nationalId,
+      'is_identity_verified': isIdentityVerified,
     };
   }
 
@@ -79,12 +89,14 @@ class ProfileInfo {
       phoneNumber: map['phone_number'] as String,
       points: map['points'],
       isSeller: map['is_seller'] as bool,
+      nationalId: map['national_id_number'] as String?,
+      isIdentityVerified: map['is_identity_verified'] as bool?,
     );
   }
 
   @override
   String toString() {
-    return 'ProfileInfo(id: $id, firstName: $firstName, lastName: $lastName, gender: $gender, profilePhoto: $profilePhoto, birthData: ${DateFormat('yyyy-MM-dd').format(birthDate)}, country: $country, phoneNumber: $phoneNumber, points: $points, isSeller: $isSeller)';
+    return 'ProfileInfo(id: $id, firstName: $firstName, lastName: $lastName, gender: $gender, profilePhoto: $profilePhoto, birthData: ${DateFormat('yyyy-MM-dd').format(birthDate)}, country: $country, phoneNumber: $phoneNumber, points: $points, isSeller: $isSeller) ,  nationalId: $nationalId, isIdentityVerified : $isIdentityVerified';
   }
 
   @override
@@ -100,7 +112,9 @@ class ProfileInfo {
         other.country == country &&
         other.phoneNumber == phoneNumber &&
         other.points == points &&
-        other.isSeller == isSeller;
+        other.isSeller == isSeller &&
+        other.nationalId == nationalId &&
+        other.isIdentityVerified == isIdentityVerified;
   }
 
   @override
@@ -114,6 +128,8 @@ class ProfileInfo {
         country.hashCode ^
         phoneNumber.hashCode ^
         points.hashCode ^
-        isSeller.hashCode;
+        isSeller.hashCode ^
+        nationalId.hashCode ^
+        isIdentityVerified.hashCode;
   }
 }

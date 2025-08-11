@@ -22,6 +22,7 @@ class ProfilePage extends StatelessWidget {
   final TextEditingController birthDateController = TextEditingController();
   final TextEditingController countryController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
+  final TextEditingController nationalIdController = TextEditingController();
   final DropDownController dropDownController = Get.find<DropDownController>();
   final ProfileController profileController = Get.find<ProfileController>();
   final ImagePicker imagePicker = ImagePicker();
@@ -97,9 +98,22 @@ class ProfilePage extends StatelessWidget {
                   height: 20,
                 ),
                 myProfileInput(
-                  hint: 'National Id',
-                  readOnly: true,
-                ),
+                    hint: 'National Id',
+                    controller: nationalIdController,
+                    validator: (String? value) {
+                      if (value == null || value.isEmpty) {
+                        if (!isNew) return null;
+                        return "Please Enter Your National Id";
+                      }
+
+                      if (!value.isNum) {
+                        return "Your National Id Has To Be A Number";
+                      }
+                      if (value.length > 20) {
+                        return "Your National Id Cannot Be More Than 20 digits";
+                      }
+                      return null;
+                    }),
                 myProfileInput(
                   hint: 'First Name',
                   controller: firstNameController,
@@ -307,7 +321,7 @@ class ProfilePage extends StatelessWidget {
                           profileController.currentUserInfo?.country ?? 'Syria',
                         ),
                         phoneNumber: _handleNullValues(
-                          phoneController.text.trim(),
+                          _fetchPhoneNumber(),
                           profileController.currentUserInfo?.phoneNumber ??
                               '000000000',
                         ),
@@ -316,6 +330,7 @@ class ProfilePage extends StatelessWidget {
                           dropDownController.selectedGender[0],
                           profileController.currentUserInfo?.gender ?? 'M',
                         ),
+                        nationalId: nationalIdController.text.trim(),
                       );
                       profileController.changeIsUpdateLoading(false);
 
@@ -348,8 +363,21 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  bool _checkIsEmpty(value) {
+  bool _checkIsEmpty(dynamic value) {
     return value == null || value == '';
+  }
+
+  String? _fetchPhoneNumber() {
+    if (phoneController.text.isEmpty) {
+      return null;
+    }
+    String ret = "";
+    String code = dropDownController.selectedCountry;
+    for (int i = 0; i < code.length; i++) {
+      if (code[i].isNum) ret += code[i];
+    }
+    ret += phoneController.text.trim();
+    return ret;
   }
 
   GetBuilder<DropDownController> genderDropDownMenu() {
