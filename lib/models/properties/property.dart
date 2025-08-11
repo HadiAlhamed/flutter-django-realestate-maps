@@ -15,6 +15,8 @@ class Property {
   final double? longitude;
   final String? mainPhotoUrl;
   final String? address;
+  String? propertyStateNumber;
+  bool? isOwnerVerified;
   double? rating;
   Property({
     this.isActive,
@@ -32,6 +34,8 @@ class Property {
     this.longitude,
     this.mainPhotoUrl,
     this.address,
+    this.propertyStateNumber,
+    this.isOwnerVerified,
   });
   Property copyWith({
     int? id,
@@ -49,6 +53,8 @@ class Property {
     String? mainPhotoUrl,
     String? address,
     double? rating,
+    String? propertyStateNumber,
+    bool? isOwnerVerified,
   }) {
     return Property(
       id: id ?? this.id,
@@ -66,6 +72,8 @@ class Property {
       mainPhotoUrl: mainPhotoUrl ?? this.mainPhotoUrl,
       address: address ?? this.address,
       rating: rating ?? this.rating,
+      propertyStateNumber: propertyStateNumber ?? this.propertyStateNumber,
+      isOwnerVerified: isOwnerVerified ?? this.isOwnerVerified,
     );
   }
 
@@ -87,6 +95,9 @@ class Property {
       bathrooms: (json['bathrooms'] as int?) ?? bathrooms,
       isActive: (json['is_active'] ?? true) ?? isActive,
       rating: (double.tryParse(json['rating'] ?? '')) ?? rating,
+      propertyStateNumber:
+          (json['property_registry_number']) ?? propertyStateNumber,
+      isOwnerVerified: (json['is_owner_verified']) ?? isOwnerVerified,
     );
   }
 
@@ -107,6 +118,8 @@ class Property {
       bathrooms: json['bathrooms'] as int?,
       isActive: json['active'] ?? true,
       rating: double.tryParse(json['rating'] ?? '') ?? 0.0,
+      propertyStateNumber: json['property_registry_number'],
+      isOwnerVerified: json['is_owner_verified'],
     );
   }
 
@@ -128,12 +141,15 @@ class Property {
       if (isActive != null) 'active': isActive,
       if (rating != null) 'rating': rating,
       if (bathrooms != null) 'bathrooms': bathrooms,
+      if (propertyStateNumber != null)
+        'property_registry_number': propertyStateNumber,
+      if (isOwnerVerified != null) 'is_owner_verified': isOwnerVerified,
     };
   }
 
   @override
   String toString() {
-    return 'Property(id: $id, propertyType: $propertyType, city: $city, numberOfRooms: $numberOfRooms, area: $area, price: $price, isForRent: $isForRent, latitude: $latitude, longitude: $longitude, mainPhotoUrl: $mainPhotoUrl)';
+    return 'Property(id: $id, propertyType: $propertyType, city: $city, numberOfRooms: $numberOfRooms, area: $area, price: $price, isForRent: $isForRent, latitude: $latitude, longitude: $longitude, mainPhotoUrl: $mainPhotoUrl , property state number : $propertyStateNumber)';
   }
 
   @override

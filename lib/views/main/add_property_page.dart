@@ -40,6 +40,8 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
   final TextEditingController addressController = TextEditingController();
 
   final TextEditingController priceController = TextEditingController();
+  final TextEditingController propertyStateNumberController =
+      TextEditingController();
 
   final DropDownController dropDownController = Get.find<DropDownController>();
 
@@ -159,22 +161,23 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
                   height: 20,
                 ),
                 propertyInput(
-                  hint: 'Property State Number',
-                  readOnly: true,
-                  keyboardType: TextInputType.number,
-                  suffixWidget: const Icon(
-                    Icons.numbers,
-                  ),
-                  // validator: (String? value) {
-                  //   if (value == null || value.isEmpty) {
-                  //     return "Please Enter Property state number";
-                  //   }
-                  //   if (!value.isNum) {
-                  //     return "Property state number has to be numbers";
-                  //   }
-                  //   return null;
-                  // },
-                ),
+                    hint: 'Property State Number',
+                    controller: propertyStateNumberController,
+                    keyboardType: TextInputType.number,
+                    suffixWidget: const Icon(
+                      Icons.numbers,
+                    ),
+                    validator: (String? value) {
+                      if (value == null || value.isEmpty) {
+                        if (!isAdd) return null;
+                        return "Please Enter Property State Number";
+                      }
+
+                      if (value.length > 50) {
+                        return "Property State Number Cannot Be More Than 50 digits";
+                      }
+                      return null;
+                    }),
                 propertyInput(
                   ontap: () async {
                     final addressCoordinate =
@@ -386,6 +389,7 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
           isForRent: addProController.isForRent,
           bathrooms: int.tryParse(bathController.text.trim()),
           isActive: addProController.isActive,
+          propertyStateNumber: propertyStateNumberController.text.trim(),
         ),
       );
       addProController.changeIsAddLoading(false);
@@ -427,6 +431,7 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
           longitude: addProController.newPropertyCoordinates.longitude,
           bathrooms: int.parse(bathController.text.trim()),
           isActive: addProController.isActive,
+          propertyStateNumber: propertyStateNumberController.text.trim(),
         ),
       );
       addProController.changeIsAddLoading(false);

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:real_estate/models/properties/facility.dart';
 import 'package:real_estate/models/filter_options.dart';
@@ -74,11 +75,13 @@ class PropertiesApis {
         "${Api.baseUrl}/properties/${property.id!}/edit/",
         data: property.toJson(),
       );
-      print("HI");
+
       if (response.statusCode == 200) {
-        print("property added Successfully...");
+        debugPrint("property added Successfully...");
         final Map<String, dynamic> data = response.data;
         final Property pro = Property.fromJson(data);
+        debugPrint(
+            "PropertiesApis :: updateProperty :: updatedProperty :: $pro");
         return pro;
       } else {
         print(response.statusMessage);
