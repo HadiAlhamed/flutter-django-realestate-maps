@@ -24,6 +24,7 @@ import 'package:real_estate/views/chat/chats_page.dart';
 import 'package:real_estate/views/main/favorites_page.dart';
 import 'package:real_estate/views/main/filter_search_page.dart';
 import 'package:real_estate/views/main/home_page.dart';
+import 'package:real_estate/views/main/my_points_page.dart';
 import 'package:real_estate/views/main/my_properties_page.dart';
 import 'package:real_estate/views/main/profile_page.dart';
 import 'package:real_estate/views/main/property_details_page.dart';
@@ -181,6 +182,12 @@ class MyApp extends StatelessWidget {
           GetPage(
             name: '/changePasswordPage',
             page: () => const ChangePasswordPage(),
+            transition: Transition.fade,
+            transitionDuration: const Duration(milliseconds: 300),
+          ),
+          GetPage(
+            name: '/myPointsPage',
+            page: () => MyPointsPage(),
             transition: Transition.fade,
             transitionDuration: const Duration(milliseconds: 300),
           ),

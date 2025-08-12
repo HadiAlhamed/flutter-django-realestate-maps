@@ -205,16 +205,6 @@ class _AccountPageState extends State<AccountPage> {
   Column getListTiles() {
     return Column(
       children: [
-        ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-          leading: const Icon(Icons.calendar_month),
-          title: const Text(
-            "My Booking",
-          ),
-          trailing: const Icon(Icons.keyboard_arrow_right, size: 32),
-          onTap: () {},
-        ),
-        const SizedBox(height: 10),
         GetBuilder(
           init: accountController,
           id: 'sellerMode',
@@ -240,6 +230,16 @@ class _AccountPageState extends State<AccountPage> {
           trailing: const Icon(Icons.keyboard_arrow_right, size: 32),
           onTap: () {
             Get.toNamed('/profilePage');
+          },
+        ),
+        const SizedBox(height: 10),
+        ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+          leading: const Icon(Icons.control_point_duplicate_sharp),
+          title: const Text("My Points"),
+          trailing: const Icon(Icons.keyboard_arrow_right, size: 32),
+          onTap: () {
+            Get.toNamed('/myPointsPage');
           },
         ),
         const SizedBox(height: 10),

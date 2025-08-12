@@ -3,6 +3,7 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 import 'package:real_estate/controllers/main_controllers/bottom_navigation_bar_controller.dart';
 import 'package:real_estate/controllers/chat_controllers/chat_controller.dart';
+import 'package:real_estate/controllers/main_controllers/my_points_controller.dart';
 import 'package:real_estate/controllers/main_controllers/profile_controller.dart';
 import 'package:real_estate/controllers/properties_controllers/property_controller.dart';
 import 'package:real_estate/controllers/properties_controllers/property_details_controller.dart';
@@ -37,7 +38,7 @@ class _HomePageState extends State<HomePage>
   final ProfileController profileController = Get.find<ProfileController>();
   final PropertyDetailsController pdController =
       Get.find<PropertyDetailsController>();
-
+  final MyPointsController myPointsController = Get.find<MyPointsController>();
   final ThemeController themeController = Get.find<ThemeController>();
   final ChatController chatController = Get.find<ChatController>();
   late TabController _tabController;
@@ -78,6 +79,7 @@ class _HomePageState extends State<HomePage>
       return;
     }
     profileController.changeCurrentUserInfo(profileInfo);
+    myPointsController.changeMyPoints(profileInfo.points);
     profileController.changeIsInitialLoading(false);
   }
 

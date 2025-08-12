@@ -17,7 +17,8 @@ class MyInputField extends StatelessWidget {
   final void Function()? ontap;
   final TextInputType? keyboardType;
   final String? Function(String?)? validator;
-  const MyInputField({
+  void Function(String)? onChanged;
+  MyInputField({
     super.key,
     required this.hint,
     this.prefixIcon,
@@ -31,6 +32,7 @@ class MyInputField extends StatelessWidget {
     this.prefixWidget,
     this.keyboardType,
     this.validator,
+    this.onChanged,
   });
 
   @override
@@ -40,6 +42,8 @@ class MyInputField extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 20),
       child: TextFormField(
         // onTapAlwaysCalled: true,
+        onChanged: onChanged,
+
         validator: validator ??
             (String? value) {
               if (value == null || value.isEmpty) {}

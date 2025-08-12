@@ -98,6 +98,9 @@ flutter:
         - assets/gifs/Forgot_password_1_transparent.gif
         - assets/gifs/Forgot_password_transparent.gif
         - assets/images/person.jpg
+        - assets/images/logos/alBarakaLogo.png
+        - assets/images/logos/bemoLogo.jpg
+        - assets/images/logos/paypalLogo.png
 
     # An image asset can refer to one or more resolution-specific "variants", see
     # https://flutter.dev/to/resolution-aware-images

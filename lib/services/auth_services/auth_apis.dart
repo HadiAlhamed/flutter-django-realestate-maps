@@ -396,4 +396,34 @@ class AuthApis {
     );
     return multipartImage;
   }
+
+  static Future<int> chargePoints({
+    required String bankName,
+    required String creditCardNumber,
+    required String password,
+    required String amount,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '${Api.baseUrl}/users/charge-points/',
+        data: {
+          'bank_name': bankName,
+          'credit_card_number': creditCardNumber,
+          'password': password,
+          'amount': amount,
+        },
+      );
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = response.data;
+        return data['new_points_balance'];
+      }
+    } catch (e) {
+      if (e is DioException) {
+        debugPrint("AuthApis :: chargePoints :: ${e.response?.data}");
+      } else {
+        debugPrint("AuthApis :: chargePoints :: Network Error : $e");
+      }
+    }
+    return -1;
+  }
 }

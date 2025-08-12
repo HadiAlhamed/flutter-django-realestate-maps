@@ -10,6 +10,7 @@ import 'package:real_estate/controllers/main_controllers/home_page_tab_controlle
 import 'package:real_estate/controllers/auth_controllers/login_controller.dart';
 import 'package:real_estate/controllers/chat_controllers/message_input_controller.dart';
 import 'package:real_estate/controllers/main_controllers/my_map_controller.dart';
+import 'package:real_estate/controllers/main_controllers/my_points_controller.dart';
 import 'package:real_estate/controllers/notifications_controllers/notifications_controller.dart';
 import 'package:real_estate/controllers/properties_controllers/my_properties_controller.dart';
 import 'package:real_estate/controllers/main_controllers/profile_controller.dart';
@@ -42,5 +43,6 @@ class MyBindings extends Bindings {
     Get.put(ChangePasswordController());
     Get.put(MessageInputController());
     Get.put(NotificationsController());
+    Get.put(MyPointsController());
   }
 }
