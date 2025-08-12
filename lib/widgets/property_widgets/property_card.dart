@@ -137,7 +137,7 @@ class PropertyCard extends StatelessWidget {
             fit: BoxFit.cover,
           )
         : Image.network(
-            "${Api.baseUrl}$photoUrl",
+            photoUrl,
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               // print("Image failed to load: $error");
