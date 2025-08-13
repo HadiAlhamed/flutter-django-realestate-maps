@@ -54,7 +54,7 @@ class ChatController extends GetxController {
     totalUnreadCount.value = value;
   }
 
-  void add(Conversation conversation) {
+  Future<void> add(Conversation conversation) async {
     print("adding conversation : $conversation\n");
 
     chats.add(conversation);
@@ -68,14 +68,15 @@ class ChatController extends GetxController {
     getLastMessageFor(conversation.id).value =
         conversation.lastMessage ?? "null";
     getLastMessageTimeFor(conversation.id).value =
-        handleLastMessageTime(conversation.updatedAt!);
+        handleLastMessageTime(conversation.updatedAt);
     if (anyConversationId == -1) anyConversationId = conversation.id;
     if (!isConnected) {
-      connectToChat(
+      await connectToChat(
           conversationId: conversation.id,
           currentUserId: Api.box.read('currentUserId'));
     }
     isConnected = true;
+    return;
   }
 
   void changeIsConnected(bool value) {
@@ -173,7 +174,9 @@ class ChatController extends GetxController {
                   data['other_participant_details']['last_seen']),
               otherUserPhotoUrl: data['other_participant_details']['photo_url'],
             );
-            print("HI");
+            debugPrint(
+              "HI conversationId : $conversationId , anyConversationId : $anyConversationId",
+            );
             if (conversationId == anyConversationId) {
               //so that we handle it once
               handleConversationListUpdate(
@@ -245,7 +248,8 @@ class ChatController extends GetxController {
     //update unread count :
     getUnreadCountFor(conversation.id).value = conversation.unreadCount;
     //show a notification that someone has sent the user a message
-    if (!lastMessageData.isRead) {
+    if (!lastMessageData.isRead &&
+        lastMessageData.senderId != Api.box.read("currentUserId")) {
       //isRead is it enough?
       getMessagesFor(conversation.id).add(lastMessageData);
     }
@@ -444,7 +448,8 @@ class ChatController extends GetxController {
     super.onClose();
   }
 
-  String handleLastMessageTime(DateTime lastMessageTime) {
+  String handleLastMessageTime(DateTime? lastMessageTime) {
+    if (lastMessageTime == null) return "";
     lastMessageTime = lastMessageTime.toLocal();
     DateTime now = DateTime.now();
     String wantedDate = "";

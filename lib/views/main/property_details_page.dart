@@ -2,15 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:real_estate/controllers/chat_controllers/chat_controller.dart';
+import 'package:real_estate/controllers/main_controllers/profile_controller.dart';
 import 'package:real_estate/controllers/properties_controllers/property_details_controller.dart';
+import 'package:real_estate/models/conversations/activate_chat_model.dart';
+import 'package:real_estate/models/conversations/chat_status_check.dart';
+import 'package:real_estate/models/conversations/conversation.dart';
 import 'package:real_estate/models/properties/facility.dart';
 import 'package:real_estate/models/properties/property_details.dart';
 import 'package:real_estate/models/properties/property_image.dart';
+import 'package:real_estate/services/api.dart';
+import 'package:real_estate/services/chat_services/chat_apis.dart';
 import 'package:real_estate/services/properties_apis/properties_apis.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 import 'package:real_estate/widgets/general_widgets/my_button.dart';
 import 'package:real_estate/widgets/general_widgets/my_snackbar.dart';
 import 'package:flutter_rating/flutter_rating.dart';
+
+import '../../controllers/main_controllers/my_points_controller.dart';
 
 class PropertyDetailsPage extends StatefulWidget {
   const PropertyDetailsPage({super.key});
@@ -23,6 +32,9 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
   final MapController _mapController = MapController();
   final PropertyDetailsController pdController =
       Get.find<PropertyDetailsController>();
+  final ProfileController profileController = Get.find<ProfileController>();
+  final MyPointsController myPointsController = Get.find<MyPointsController>();
+  final ChatController chatController = Get.find<ChatController>();
   late final bool mapReadOnly;
   late final int propertyId;
   @override
@@ -302,8 +314,203 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
             MyButton(
               title: 'Book Now',
               width: 0.8 * screenWidth,
+              onPressed: () async {
+                if (Api.box.read("currentUserId") ==
+                    pdController.propertyDetails!.owner) {
+                  Get.snackbar(
+                    'Booking Property',
+                    "You Are The Owner Of This Property",
+                  );
+                  return;
+                }
+                final ChatStatusCheck? result =
+                    await ChatApis.checkStatus(propertyId: propertyId);
+                if (result == null) {
+                  Get.snackbar("Booking Property",
+                      "Failed to book property , please try again later");
+                  return;
+                }
+                _handleBookingStatusCode(result);
+              },
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _handleBookingStatusCode(ChatStatusCheck result) async {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final double screenWidth = MediaQuery.sizeOf(context).width;
+
+    String statusCode = result.statusCode;
+    switch (statusCode) {
+      case 'CHAT_ACTIVE':
+        Get.toNamed("/chatPage", arguments: {
+          'conversationId': result.conversationId,
+        });
+        break;
+      case 'CHAT_EXPIRED_REACTIVATE':
+        await _handleActivateReactivate(
+          screenHeight: screenHeight,
+          screenWidth: screenWidth,
+          result: result,
+          isExpired: true,
+        );
+        break;
+      case 'NEW_CHAT_AVAILABLE':
+        await _handleActivateReactivate(
+          screenHeight: screenHeight,
+          screenWidth: screenWidth,
+          result: result,
+          isExpired: false,
+        );
+        break;
+      case 'INSUFFICIENT_POINTS':
+        Get.snackbar(
+          'Booking Property',
+          'Your Current Aqari Points Are ${result.currentPoint} , you need a minimum of ${result.cost}.\nYou can buy aqari points via the Aqari Points page',
+        );
+        break;
+      default:
+        Get.snackbar("_handleBookingStatusCode", "unknown status code");
+        break;
+    }
+  }
+
+  Future<dynamic> _handleActivateReactivate({
+    required bool isExpired,
+    required double screenHeight,
+    required double screenWidth,
+    required ChatStatusCheck result,
+  }) {
+    return Get.dialog(
+      barrierDismissible: true,
+      Center(
+        // Center the dialog manually
+        child: Material(
+          borderRadius: BorderRadius.circular(12),
+          clipBehavior: Clip.antiAlias,
+          child: Container(
+            constraints: BoxConstraints(
+              maxHeight: 0.5 * screenHeight,
+              maxWidth: 0.9 * screenWidth,
+            ),
+            padding: const EdgeInsets.all(18),
+            color: Colors.white,
+            // alignment: Alignment.center,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        const TextSpan(
+                          text:
+                              "Starting a new booking chat for two months period with the owner of this property will cost you ",
+                        ),
+                        TextSpan(
+                          text:
+                              "${result.cost!.toStringAsFixed(2)} Aqari points",
+                          style: TextStyle(
+                            color: primaryColor, // Highlighted color
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyLarge, // Default style
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      TextButton(
+                        child: Text(
+                          "Confirm",
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyLarge!
+                              .copyWith(color: primaryColor),
+                        ),
+                        onPressed: () async {
+                          final ActivateChatModel? activateChatModel =
+                              await ChatApis.activateChat(
+                            propertyId: propertyId,
+                            conversationId: result.conversationId,
+                          );
+                          if (activateChatModel == null) {
+                            Get.snackbar("Booking Property",
+                                "Failed to book property , please try again later");
+                            return;
+                          }
+                          if (isExpired) {
+                            Get.back();
+
+                            Get.snackbar("Booking property",
+                                "Booking chat activated successfully , your new Aqari Points : ${activateChatModel.newPointsBalance}");
+                            myPointsController.changeMyPoints(
+                                activateChatModel.newPointsBalance);
+                            profileController.currentUserInfo!.points =
+                                activateChatModel.newPointsBalance.toInt();
+                            Get.toNamed(
+                              '/chatPage',
+                              arguments: {
+                                'conversationId': result.conversationId,
+                              },
+                            );
+                          } else {
+                            //new chat
+                            Get.back();
+
+                            Get.snackbar("Booking property",
+                                "Booking chat activated successfully , your new Aqari Points : ${activateChatModel.newPointsBalance}");
+
+                            myPointsController.changeMyPoints(
+                                activateChatModel.newPointsBalance);
+                            profileController.currentUserInfo!.points =
+                                activateChatModel.newPointsBalance.toInt();
+                            final Conversation? newConversation =
+                                await ChatApis.getConversation(
+                              conversationId: activateChatModel.conversationId!,
+                            );
+                            if (newConversation == null) {
+                              Get.snackbar("New Conversation",
+                                  "Failed to get new conversation");
+                              return;
+                            }
+                            await chatController.add(newConversation);
+                            Get.toNamed(
+                              '/chatPage',
+                              arguments: {
+                                'conversationId': newConversation.id,
+                              },
+                            );
+                          }
+                        },
+                      ),
+                      TextButton(
+                        child: Text(
+                          "Cancel",
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyLarge!
+                              .copyWith(color: primaryColor),
+                        ),
+                        onPressed: () {
+                          Get.back();
+                        },
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );

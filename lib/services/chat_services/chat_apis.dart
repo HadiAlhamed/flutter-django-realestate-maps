@@ -1,11 +1,15 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
+import 'package:real_estate/models/conversations/activate_chat_model.dart';
+import 'package:real_estate/models/conversations/chat_status_check.dart';
+import 'package:real_estate/models/conversations/conversation.dart';
 import 'package:real_estate/models/conversations/message.dart';
 
 import 'package:real_estate/models/conversations/paginated_conversation.dart';
@@ -191,5 +195,79 @@ class ChatApis {
         print("chatApis :: openRemoteFile :: NetworkE Error :: $e");
       }
     }
+  }
+
+  static Future<ChatStatusCheck?> checkStatus({required int propertyId}) async {
+    try {
+      final response = await _dio.get(
+        "${Api.baseUrl}/chats/conversations/check-status/$propertyId/",
+      );
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = response.data;
+        debugPrint("ChatApis :: checkStatus :: result :: $data");
+        return ChatStatusCheck.fromJson(data);
+      }
+    } catch (e) {
+      if (e is DioException) {
+        debugPrint("ChatApis :: checkStatus :: DioX :: ${e.response?.data}");
+      } else {
+        debugPrint("ChatApis :: checkStatus :: General Error :: $e");
+      }
+    }
+    return null;
+  }
+
+  static Future<ActivateChatModel?> activateChat({
+    required int propertyId,
+    int? conversationId,
+  }) async {
+    try {
+      final response = await _dio.post(
+        "${Api.baseUrl}/chats/conversations/activate/",
+        data: {
+          'property_id': propertyId,
+          if (conversationId != null) 'conversation_id': conversationId,
+        },
+      );
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = response.data;
+        debugPrint("ChatApis :: activateChat :: result :: $data");
+        return ActivateChatModel.fromJson(data);
+      }
+    } catch (e) {
+      if (e is DioException) {
+        debugPrint("ChatApis :: activateChat :: DioX :: ${e.response?.data}");
+      } else {
+        debugPrint("ChatApis :: activateChat :: General Error :: $e");
+      }
+    }
+    return null;
+  }
+
+  static Future<Conversation?> getConversation({
+    required int conversationId,
+  }) async {
+    try {
+      final response = await _dio.get(
+        "${Api.baseUrl}/chats/conversations/$conversationId/info/",
+        data: {
+          'pk': conversationId,
+          'id ': conversationId.toString(),
+        },
+      );
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = response.data;
+        debugPrint("ChatApis :: getConversation :: result :: $data");
+        return Conversation.fromJson(data);
+      }
+    } catch (e) {
+      if (e is DioException) {
+        debugPrint(
+            "ChatApis :: getConversation :: DioX :: ${e.response?.data}");
+      } else {
+        debugPrint("ChatApis :: getConversation :: General Error :: $e");
+      }
+    }
+    return null;
   }
 }

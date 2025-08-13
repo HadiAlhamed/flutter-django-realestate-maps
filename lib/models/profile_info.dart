@@ -11,7 +11,7 @@ class ProfileInfo {
   final DateTime birthDate;
   final String country;
   final String phoneNumber;
-  final int points;
+  int points;
   final bool isSeller;
   String? nationalId;
   bool? isIdentityVerified = false;

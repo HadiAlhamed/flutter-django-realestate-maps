@@ -55,11 +55,11 @@ class MyPointsPage extends StatelessWidget {
                       init: myPointsController,
                       builder: (controller) {
                         return Text(
-                          "${controller.myPoints}",
+                          "You Have ${controller.myPoints} Aqari Points",
                           textAlign: TextAlign.center,
                           style:
                               Theme.of(context).textTheme.bodyLarge!.copyWith(
-                                    fontSize: 30,
+                                    fontSize: 25,
                                   ),
                         );
                       },

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:real_estate/controllers/main_controllers/account_page_controller.dart';
 import 'package:real_estate/controllers/main_controllers/bottom_navigation_bar_controller.dart';
 import 'package:real_estate/controllers/chat_controllers/chat_controller.dart';
+import 'package:real_estate/controllers/main_controllers/my_points_controller.dart';
 import 'package:real_estate/controllers/notifications_controllers/notifications_controller.dart';
 import 'package:real_estate/controllers/properties_controllers/my_properties_controller.dart';
 import 'package:real_estate/controllers/main_controllers/profile_controller.dart';
@@ -45,7 +46,7 @@ class _AccountPageState extends State<AccountPage> {
 
   final MyPropertiesController myPController =
       Get.find<MyPropertiesController>();
-
+  final MyPointsController myPointsController = Get.find<MyPointsController>();
   final NotificationsController notifController =
       Get.find<NotificationsController>();
   @override
@@ -236,7 +237,7 @@ class _AccountPageState extends State<AccountPage> {
         ListTile(
           contentPadding: const EdgeInsets.symmetric(horizontal: 10),
           leading: const Icon(Icons.control_point_duplicate_sharp),
-          title: const Text("My Points"),
+          title: const Text("My Aqari Points"),
           trailing: const Icon(Icons.keyboard_arrow_right, size: 32),
           onTap: () {
             Get.toNamed('/myPointsPage');
@@ -294,6 +295,7 @@ class _AccountPageState extends State<AccountPage> {
       pdController.clear();
       pController.clear();
       myPController.clear();
+      myPointsController.clear();
       NotificationsWebscoketService().disconnectNotificationWebSocket();
       Get.offAllNamed('/login');
     } else {

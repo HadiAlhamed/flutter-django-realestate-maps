@@ -79,7 +79,7 @@ class _HomePageState extends State<HomePage>
       return;
     }
     profileController.changeCurrentUserInfo(profileInfo);
-    myPointsController.changeMyPoints(profileInfo.points);
+    myPointsController.changeMyPoints(profileInfo.points.toDouble());
     profileController.changeIsInitialLoading(false);
   }
 

@@ -3,7 +3,7 @@ import 'package:real_estate/services/auth_services/auth_apis.dart';
 import 'package:real_estate/widgets/general_widgets/my_snackbar.dart';
 
 class MyPointsController extends GetxController {
-  int myPoints = 0;
+  double myPoints = 0;
   int chosenPayment = 0;
   bool hidePassword = true;
   void changeChosenPayment(int index) {
@@ -17,7 +17,7 @@ class MyPointsController extends GetxController {
     update(['hidePassword']);
   }
 
-  void changeMyPoints(int value) {
+  void changeMyPoints(double value) {
     myPoints = value;
     update(['points']);
   }
@@ -42,8 +42,15 @@ class MyPointsController extends GetxController {
             message: "Failed to charge points, please try again later"),
       );
     } else {
-      myPoints = result;
+      myPoints = result.toDouble();
       update(['points']);
     }
+  }
+
+  void clear() {
+    myPoints = 0;
+    chosenPayment = 0;
+    hidePassword = true;
+    update([]);
   }
 }

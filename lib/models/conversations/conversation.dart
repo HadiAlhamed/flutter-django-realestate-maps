@@ -10,11 +10,11 @@ class Conversation {
   DateTime? otherUserLastSeen;
   String? lastMessage;
   int? lastMessageId;
-
   int unreadCount;
   DateTime? createdAt;
   DateTime? updatedAt;
-
+  DateTime? expiresAt;
+  DateTime? activatedAt;
   Conversation({
     required this.id,
     required this.otherUserId,
@@ -28,6 +28,8 @@ class Conversation {
     required this.unreadCount,
     this.createdAt,
     this.updatedAt,
+    this.expiresAt,
+    this.activatedAt,
   });
 
   Conversation copyWith({
@@ -42,6 +44,8 @@ class Conversation {
     int? unreadCount,
     DateTime? createdAt,
     DateTime? updatedAt,
+    DateTime? expiresAt,
+    DateTime? activatedAt,
     int? lastMessageId,
   }) {
     return Conversation(
@@ -57,6 +61,8 @@ class Conversation {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       lastMessageId: lastMessageId ?? this.lastMessageId,
+      expiresAt: expiresAt ?? this.expiresAt,
+      activatedAt: activatedAt ?? this.activatedAt,
     );
   }
 
@@ -80,8 +86,11 @@ class Conversation {
       unreadCount: map['unread_count'] ?? 0,
       createdAt:
           map['created_at'] != null ? DateTime.parse(map['created_at']) : null,
-      updatedAt:
-          map['updated_at'] != null ? DateTime.parse(map['updated_at']) : null,
+      expiresAt:
+          map['expires_at'] != null ? DateTime.parse(map['expires_at']) : null,
+      activatedAt: map['activated_at'] != null
+          ? DateTime.parse(map['activated_at'])
+          : null,
     );
   }
 
@@ -98,12 +107,14 @@ class Conversation {
       'unread_count': unreadCount,
       'created_at': createdAt?.toIso8601String(),
       'updated_at': updatedAt?.toIso8601String(),
+      'expires_at': expiresAt?.toIso8601String(),
+      'activated_at': activatedAt?.toIso8601String(),
     };
   }
 
   @override
   String toString() {
-    return 'Conversation(id: $id, otherUserId: $otherUserId, otherUserFirstName: $otherUserFirstName, otherUserLastName: $otherUserLastName, otherUserPhotoUrl: $otherUserPhotoUrl, otherUserIsOnline: $otherUserIsOnline, otherUserLastSeen: $otherUserLastSeen, lastMessage: $lastMessage, unreadCount: $unreadCount, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'Conversation(id: $id, otherUserId: $otherUserId, otherUserFirstName: $otherUserFirstName, otherUserLastName: $otherUserLastName, otherUserPhotoUrl: $otherUserPhotoUrl, otherUserIsOnline: $otherUserIsOnline, otherUserLastSeen: $otherUserLastSeen, lastMessage: $lastMessage, unreadCount: $unreadCount, createdAt: $createdAt, updatedAt: $updatedAt , expiresAt : $expiresAt , activatedAt : $activatedAt)';
   }
 
   @override
@@ -121,6 +132,8 @@ class Conversation {
         other.lastMessage == lastMessage &&
         other.unreadCount == unreadCount &&
         other.createdAt == createdAt &&
+        other.expiresAt == expiresAt &&
+        other.activatedAt == activatedAt &&
         other.updatedAt == updatedAt;
   }
 
@@ -136,6 +149,8 @@ class Conversation {
         lastMessage.hashCode ^
         unreadCount.hashCode ^
         createdAt.hashCode ^
+        expiresAt.hashCode ^
+        activatedAt.hashCode ^
         updatedAt.hashCode;
   }
 }
