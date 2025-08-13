@@ -36,9 +36,16 @@ class _ChatPageState extends State<ChatPage> {
     try {
       debugPrint(
           "chatController.currentConvId = ${chatController.currentConvId}");
-      index = args['index'];
+
       if (args['conversationId'] != null) {
         chatController.currentConvId = args['conversationId'];
+      }
+      if (args['index'] == null) {
+        index = chatController.chats.indexWhere((chat) {
+          return chat.id == chatController.currentConvId;
+        });
+      } else {
+        index = args['index'];
       }
     } catch (e, s) {
       debugPrint("initState error: $e\n$s");
@@ -51,15 +58,11 @@ class _ChatPageState extends State<ChatPage> {
         debugPrint(
             "are messages empty ? ${chatController.getMessagesFor(chatController.currentConvId).isEmpty}");
 
-        // if (chatController
-        //     .getMessagesFor(chatController.currentConvId)
-        //     .isEmpty) {
-        //   //update chatController to add any new message otherwise this shit does not work
         if (chatController.getNeedFirstFetch(chatController.currentConvId)) {
           await _fetchMessages();
           chatController.needFirstFetch[chatController.currentConvId] = false;
         }
-        // }
+
         if (chatController.currentConvId != chatController.anyConvId) {
           await chatController.connectToChat(
             conversationId: chatController.currentConvId,
@@ -204,62 +207,106 @@ class _ChatPageState extends State<ChatPage> {
             ],
           ),
         ),
-        body: Column(
+        body: Stack(
           children: [
-            Expanded(
-              child: AnimationLimiter(
-                child: Obx(() {
-                  return ListView.builder(
-                    controller: _scrollController,
-                    itemCount: chatController
-                        .getMessagesFor(chatController.currentConvId)
-                        .length,
-                    itemBuilder: (context, index) {
-                      Message message = Message(
-                          id: 123,
-                          senderId: 5,
-                          senderFirstName: "asdf",
-                          senderLastName: "asd",
-                          messageType: "text",
-                          createdAt: DateTime.now(),
-                          isRead: true);
-                      try {
-                        message = chatController
-                            .messages[chatController.currentConvId]![index];
-                      } catch (e) {
-                        debugPrint("chatPage :: MessageError :: $e");
-                      }
-
-                      return AnimationConfiguration.staggeredList(
-                        position: index,
-                        duration: const Duration(milliseconds: 375),
-                        child: SlideAnimation(
-                          verticalOffset: 50.0,
-                          child: ScaleAnimation(
-                            scale: 0.9,
-                            child: FadeInAnimation(
-                              child: ChatBubble(
-                                  screenWidth: screenWidth, message: message),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                }),
+            // Background logo (centered, semi-transparent)
+            // Background logo (centered, semi-transparent)
+            Positioned.fill(
+              child: Stack(
+                children: [
+                  Center(
+                    child: Opacity(
+                      opacity: 0.25, // softer logo
+                      child: Image.asset(
+                        'assets/images/Aqari_logo_primary_towers.png',
+                        width: 250,
+                        height: 250,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                  // Gentle gradient overlay to soften the backdrop
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.black.withAlpha(
+                              (255 * 0.05).round()), // subtle top fade
+                          Colors.black.withAlpha(
+                              (0.1 * 255).round()), // more fade near input area
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            Obx(() {
-              print("Obx :: index : $index");
-              if (chatController
-                  .getIsTypingFor(chatController.chats[index].otherUserId)
-                  .value) {
-                return TypingIndicatorMessage();
-              }
-              return const SizedBox.shrink();
-            }),
-            MessageInputBar(
-              screenHeight: screenHeight,
+
+            // Chat content
+            Column(
+              children: [
+                Expanded(
+                  child: AnimationLimiter(
+                    child: Obx(() {
+                      return ListView.builder(
+                        controller: _scrollController,
+                        itemCount: chatController
+                            .getMessagesFor(chatController.currentConvId)
+                            .length,
+                        itemBuilder: (context, index) {
+                          Message message = Message(
+                            id: 123,
+                            senderId: 5,
+                            senderFirstName: "asdf",
+                            senderLastName: "asd",
+                            messageType: "text",
+                            createdAt: DateTime.now(),
+                            isRead: true,
+                          );
+                          try {
+                            message = chatController
+                                .messages[chatController.currentConvId]![index];
+                          } catch (e) {
+                            debugPrint("chatPage :: MessageError :: $e");
+                          }
+
+                          return AnimationConfiguration.staggeredList(
+                            position: index,
+                            duration: const Duration(milliseconds: 375),
+                            child: SlideAnimation(
+                              verticalOffset: 50.0,
+                              child: ScaleAnimation(
+                                scale: 0.9,
+                                child: FadeInAnimation(
+                                  child: ChatBubble(
+                                    screenWidth: screenWidth,
+                                    message: message,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    }),
+                  ),
+                ),
+
+                // Typing indicator
+                Obx(() {
+                  if (chatController
+                      .getIsTypingFor(chatController.chats[index].otherUserId)
+                      .value) {
+                    return TypingIndicatorMessage();
+                  }
+                  return const SizedBox.shrink();
+                }),
+
+                // Input bar
+                MessageInputBar(screenHeight: screenHeight),
+              ],
             ),
           ],
         ),
