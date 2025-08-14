@@ -33,5 +33,8 @@ class ProfileController extends GetxController {
 
   void clear() {
     isUpdateLoading = false;
+    isInitialLoading = true;
+    currentUserInfo = null;
+    profilePhoto = null;
   }
 }

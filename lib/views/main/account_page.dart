@@ -286,18 +286,7 @@ class _AccountPageState extends State<AccountPage> {
 
     if (result) {
       //remember to clear stuff
-      bottomController.clear();
-
-      await Api.box.write('rememberMe', false);
-
-      notifController.clear();
-      chatController.clear();
-      pdController.clear();
-      pController.clear();
-      myPController.clear();
-      myPointsController.clear();
-      NotificationsWebscoketService().disconnectNotificationWebSocket();
-      Get.offAllNamed('/login');
+      await cleanAllData();
     } else {
       Get.showSnackbar(
         MySnackbar(
@@ -306,6 +295,42 @@ class _AccountPageState extends State<AccountPage> {
             message: 'An error has occurred, please try again later'),
       );
     }
+  }
+
+  Future<void> cleanAllData() async {
+    //remember to clear stuff
+
+    // final BottomNavigationBarController bottomController =
+    //     Get.find<BottomNavigationBarController>();
+
+    // final ProfileController profileController = Get.find<ProfileController>();
+
+    // final ChatController chatController = Get.find<ChatController>();
+
+    // final PropertyDetailsController pdController =
+    //     Get.find<PropertyDetailsController>();
+
+    // final PropertyController pController = Get.find<PropertyController>();
+
+    // final MyPropertiesController myPController =
+    //     Get.find<MyPropertiesController>();
+    // final MyPointsController myPointsController =
+    //     Get.find<MyPointsController>();
+    // final NotificationsController notifController =
+    //     Get.find<NotificationsController>();
+    bottomController.clear();
+
+    await Api.box.write('rememberMe', false);
+
+    notifController.clear();
+    chatController.clear();
+    pdController.clear();
+    pController.clear();
+    myPController.clear();
+    myPointsController.clear();
+    profileController.clear();
+    NotificationsWebscoketService().disconnectNotificationWebSocket();
+    Get.offAllNamed('/login');
   }
 
   Obx darkModeSwitch() {

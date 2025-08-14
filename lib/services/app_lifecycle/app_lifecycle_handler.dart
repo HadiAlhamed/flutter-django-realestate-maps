@@ -4,6 +4,7 @@ import 'package:real_estate/controllers/chat_controllers/chat_controller.dart';
 import 'package:real_estate/models/conversations/conversation.dart';
 import 'package:real_estate/models/conversations/paginated_conversation.dart';
 import 'package:real_estate/services/api.dart';
+import 'package:real_estate/services/auth_services/token_service.dart';
 import 'package:real_estate/services/chat_services/chat_apis.dart';
 
 class AppLifecycleHandler extends WidgetsBindingObserver {
@@ -72,6 +73,8 @@ class AppLifecycleHandler extends WidgetsBindingObserver {
   void _handleDetached() {
     chatController.disconnect();
     chatController.clear();
+    bool rememberMe = Api.box.read('rememberMe') ?? false;
+    if (rememberMe != false) TokenService.clearTokens();
   }
 
   Future<void> _fetchConversations() async {

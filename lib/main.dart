@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:real_estate/bindings/my_bindings.dart';
 import 'package:real_estate/controllers/chat_controllers/chat_controller.dart';
 import 'package:real_estate/controllers/theme_controller.dart';
@@ -39,13 +40,15 @@ void main() async {
   final appLifecycleHandler = AppLifecycleHandler();
   appLifecycleHandler.init();
   await Future.wait([
+    GetStorage.init().then(
+      (value) => Api.init(),
+    ), // <--- important
+
     AuthApis.init(),
     PropertiesApis.init(),
-    TokenService.clearTokens(),
     ThemeController().init(),
     ChatApis.init(),
     NotificationsApis.init(),
-    Api.init(),
     NotificationsServices().init(),
   ]);
   runApp(MyApp());
