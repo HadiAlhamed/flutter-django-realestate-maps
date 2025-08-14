@@ -1,21 +1,28 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart' as path;
-import 'package:path_provider/path_provider.dart';
+import 'package:intl/intl.dart';
 import 'package:real_estate/controllers/chat_controllers/chat_controller.dart';
 import 'package:real_estate/controllers/chat_controllers/message_input_controller.dart';
+import 'package:real_estate/controllers/main_controllers/my_points_controller.dart';
+import 'package:real_estate/controllers/main_controllers/profile_controller.dart';
+import 'package:real_estate/models/conversations/chat_status_check.dart';
 import 'package:real_estate/services/chat_services/chat_apis.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 import 'package:file_picker/file_picker.dart';
 
+import '../../models/conversations/activate_chat_model.dart';
+
 class MessageInputBar extends StatefulWidget {
   final double screenHeight;
-
-  const MessageInputBar({super.key, required this.screenHeight});
+  final int index;
+  const MessageInputBar({
+    super.key,
+    required this.screenHeight,
+    required this.index,
+  });
 
   @override
   State<MessageInputBar> createState() => _MessageInputBarState();
@@ -26,6 +33,8 @@ class _MessageInputBarState extends State<MessageInputBar> {
   final ChatController chatController = Get.find<ChatController>();
   final MessageInputController messageController =
       Get.find<MessageInputController>();
+  final MyPointsController myPointsController = Get.find<MyPointsController>();
+  final ProfileController profileController = Get.find<ProfileController>();
 
   @override
   void dispose() {
@@ -44,6 +53,10 @@ class _MessageInputBarState extends State<MessageInputBar> {
         ),
         child: TextField(
           onChanged: (value) {
+            DateTime? expiresAt = chatController.chats[widget.index].expiresAt;
+            if (expiresAt != null && expiresAt.compareTo(DateTime.now()) <= 0) {
+              return;
+            }
             if (value.trim().isNotEmpty) {
               if (!messageController.isTyping) {
                 messageController.changeIsTyping(true);
@@ -111,6 +124,22 @@ class _MessageInputBarState extends State<MessageInputBar> {
                               : primaryColorInactive,
                         ),
                         onPressed: () {
+                          DateTime? expiresAt =
+                              chatController.chats[widget.index].expiresAt;
+                          DateTime? activatedAt =
+                              chatController.chats[widget.index].activatedAt;
+                          if (expiresAt != null &&
+                              expiresAt.compareTo(DateTime.now()) <= 0) {
+                            _controller.clear();
+                            //use Get.dialog instead of snackbar
+                            //so that the user is given the choice to reactivate this chat
+                            _handleActivateReactivate(
+                              activatedAt: activatedAt!,
+                              expiresAt: expiresAt,
+                            );
+
+                            return;
+                          }
                           if (_controller.text.trim().isNotEmpty) {
                             messageController.changeIsTyping(false);
                             chatController.sendTypingStatus(
@@ -147,6 +176,19 @@ class _MessageInputBarState extends State<MessageInputBar> {
   }
 
   void _showAttachmentOptions() {
+    DateTime? expiresAt = chatController.chats[widget.index].expiresAt;
+    DateTime? activatedAt = chatController.chats[widget.index].activatedAt;
+    if (expiresAt != null && expiresAt.compareTo(DateTime.now()) <= 0) {
+      _controller.clear();
+      //use Get.dialog instead of snackbar
+      //so that the user is given the choice to reactivate this chat
+      _handleActivateReactivate(
+        activatedAt: activatedAt!,
+        expiresAt: expiresAt,
+      );
+
+      return;
+    }
     Get.bottomSheet(
       backgroundColor: Theme.of(context).brightness == Brightness.light
           ? Colors.white
@@ -262,5 +304,131 @@ class _MessageInputBarState extends State<MessageInputBar> {
   bool isRTL(String text) {
     final rtlRegex = RegExp(r'^[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]');
     return rtlRegex.hasMatch(text.trim());
+  }
+
+  Future<dynamic> _handleActivateReactivate({
+    required DateTime expiresAt,
+    required DateTime activatedAt,
+  }) {
+    final double screenHeight = MediaQuery.of(context).size.height;
+    final double screenWidth = MediaQuery.of(context).size.width;
+
+    return Get.dialog(
+      barrierDismissible: true,
+      Center(
+        // Center the dialog manually
+        child: Material(
+          borderRadius: BorderRadius.circular(12),
+          clipBehavior: Clip.antiAlias,
+          child: Container(
+            constraints: BoxConstraints(
+              maxHeight: 0.5 * screenHeight,
+              maxWidth: 0.9 * screenWidth,
+            ),
+            padding: const EdgeInsets.all(18),
+            color: Colors.white,
+            // alignment: Alignment.center,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        const TextSpan(
+                          text: "You have activated this booking chat in ",
+                        ),
+                        TextSpan(
+                          text: DateFormat().format(activatedAt),
+                          style: TextStyle(
+                            color: primaryColor, // Highlighted color
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const TextSpan(
+                          text: ", ends at ",
+                        ),
+                        TextSpan(
+                          text: DateFormat().format(expiresAt),
+                          style: TextStyle(
+                            color: primaryColor, // Highlighted color
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        TextSpan(
+                          text: ", you can reactivate it for ",
+                        ),
+                        TextSpan(
+                          text: "50.00 Aqari Points",
+                          style: TextStyle(
+                            color: primaryColor, // Highlighted color
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyLarge, // Default style
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      TextButton(
+                        child: Text(
+                          "Activate",
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyLarge!
+                              .copyWith(color: primaryColor),
+                        ),
+                        onPressed: () async {
+                          int otherUserId =
+                              chatController.chats[widget.index].otherUserId;
+                          final ActivateChatModel? activateChatModel =
+                              await ChatApis.activateChat(
+                            ownerId: otherUserId,
+                            conversationId: chatController.currentConvId,
+                          );
+                          if (activateChatModel == null) {
+                            Get.back();
+                            Get.snackbar("Activate Chat",
+                                "Failed to activate chat, please try again later");
+                            return;
+                          }
+                          Get.back();
+                          chatController.chats[widget.index].expiresAt =
+                              activateChatModel.expiresAt!;
+                          Get.snackbar("Activating Chat",
+                              "Chat Reactivated successfully , your new Aqari Points : ${activateChatModel.newPointsBalance}");
+                          myPointsController.changeMyPoints(
+                              activateChatModel.newPointsBalance);
+                          profileController.currentUserInfo!.points =
+                              activateChatModel.newPointsBalance.toInt();
+                        },
+                      ),
+                      TextButton(
+                        child: Text(
+                          "Cancel",
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyLarge!
+                              .copyWith(color: primaryColorInactive),
+                        ),
+                        onPressed: () {
+                          Get.back();
+                        },
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

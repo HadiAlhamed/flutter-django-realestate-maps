@@ -210,7 +210,7 @@ class _ChatPageState extends State<ChatPage> {
         body: Stack(
           children: [
             // Background logo (centered, semi-transparent)
-            // Background logo (centered, semi-transparent)
+
             Positioned.fill(
               child: Stack(
                 children: [
@@ -305,7 +305,10 @@ class _ChatPageState extends State<ChatPage> {
                 }),
 
                 // Input bar
-                MessageInputBar(screenHeight: screenHeight),
+                MessageInputBar(
+                  screenHeight: screenHeight,
+                  index: index,
+                ),
               ],
             ),
           ],

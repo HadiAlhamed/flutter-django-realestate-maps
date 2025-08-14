@@ -218,14 +218,16 @@ class ChatApis {
   }
 
   static Future<ActivateChatModel?> activateChat({
-    required int propertyId,
+    int? propertyId,
     int? conversationId,
+    required int ownerId,
   }) async {
     try {
       final response = await _dio.post(
         "${Api.baseUrl}/chats/conversations/activate/",
         data: {
-          'property_id': propertyId,
+          'owner_id': ownerId,
+          if (propertyId != null) 'property_id': propertyId,
           if (conversationId != null) 'conversation_id': conversationId,
         },
       );

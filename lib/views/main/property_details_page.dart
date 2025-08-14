@@ -442,6 +442,7 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
                               await ChatApis.activateChat(
                             propertyId: propertyId,
                             conversationId: result.conversationId,
+                            ownerId: pdController.propertyDetails!.owner!,
                           );
                           if (activateChatModel == null) {
                             Get.snackbar("Booking Property",
@@ -499,7 +500,7 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
                           style: Theme.of(context)
                               .textTheme
                               .bodyLarge!
-                              .copyWith(color: primaryColor),
+                              .copyWith(color: primaryColorInactive),
                         ),
                         onPressed: () {
                           Get.back();
