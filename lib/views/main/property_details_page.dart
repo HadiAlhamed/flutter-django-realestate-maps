@@ -78,11 +78,20 @@ class _PropertyDetailsPageState extends State<PropertyDetailsPage> {
   }
 
   Future<void> _determinePosition() async {
-    _mapController.move(
-        LatLng(pdController.propertyDetails!.latitude!,
-            pdController.propertyDetails!.longitude!),
-        15.0);
-    pdController.updateFlutterMap();
+    try {
+      _mapController.move(
+          LatLng(pdController.propertyDetails!.latitude!,
+              pdController.propertyDetails!.longitude!),
+          15.0);
+      pdController.updateFlutterMap();
+    } catch (e) {
+      Future.delayed(const Duration(milliseconds: 50), () {
+        _mapController.move(
+            LatLng(pdController.propertyDetails!.latitude!,
+                pdController.propertyDetails!.longitude!),
+            15.0);
+      });
+    }
   }
 
   @override
