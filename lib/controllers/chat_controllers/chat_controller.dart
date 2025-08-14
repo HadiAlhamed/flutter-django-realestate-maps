@@ -228,6 +228,8 @@ class ChatController extends GetxController {
     int index = chats.indexWhere((conv) {
       return conversation.id == conv.id;
     });
+    debugPrint(
+        "chatController :: handleConversationListUpdate :: chat index :: $index");
     if (index != -1 && lastMessageData.id != chats[index].lastMessageId) {
       if (index != 0) {
         final moved = chats.removeAt(index);
@@ -248,8 +250,7 @@ class ChatController extends GetxController {
     //update unread count :
     getUnreadCountFor(conversation.id).value = conversation.unreadCount;
     //show a notification that someone has sent the user a message
-    if (!lastMessageData.isRead &&
-        lastMessageData.senderId != Api.box.read("currentUserId")) {
+    if (!lastMessageData.isRead) {
       //isRead is it enough?
       getMessagesFor(conversation.id).add(lastMessageData);
     }
