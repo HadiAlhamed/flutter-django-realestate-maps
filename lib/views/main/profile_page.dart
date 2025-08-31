@@ -1,0 +1,467 @@
+import 'dart:io';
+
+import 'package:country_picker/country_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:real_estate/controllers/drop_down_controller.dart';
+import 'package:real_estate/controllers/main_controllers/profile_controller.dart';
+import 'package:real_estate/models/profile_info.dart';
+import 'package:real_estate/services/api.dart';
+import 'package:real_estate/services/auth_services/auth_apis.dart';
+import 'package:real_estate/textstyles/text_colors.dart';
+import 'package:real_estate/widgets/general_widgets/my_button.dart';
+import 'package:real_estate/widgets/general_widgets/my_input_field.dart';
+import 'package:intl/intl.dart';
+import 'package:real_estate/widgets/general_widgets/my_snackbar.dart';
+
+class ProfilePage extends StatelessWidget {
+  final TextEditingController firstNameController = TextEditingController();
+  final TextEditingController lastNameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController birthDateController = TextEditingController();
+  final TextEditingController countryController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController nationalIdController = TextEditingController();
+  final DropDownController dropDownController = Get.find<DropDownController>();
+  final ProfileController profileController = Get.find<ProfileController>();
+  final ImagePicker imagePicker = ImagePicker();
+  XFile? profilePhoto;
+  final args = Get.arguments;
+  GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  ProfilePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.sizeOf(context).width;
+    final bool isNew = args?['isNew'] ?? false;
+
+    if (Api.box.read("currentUserEmail") != null) {
+      emailController.text = Api.box.read("currentUserEmail");
+    }
+    return Scaffold(
+      appBar: AppBar(
+        elevation: 4,
+        title: const Text(
+          "Profile",
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.only(left: 12.0, right: 12.0),
+          child: Form(
+            key: formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Divider(
+                  thickness: 2,
+                ),
+                GetBuilder<ProfileController>(
+                  init: profileController,
+                  id: "profilePhoto",
+                  builder: (controller) {
+                    return CircleAvatar(
+                      radius: screenWidth * 0.3,
+                      backgroundImage: profileController.profilePhoto != null
+                          ? FileImage(
+                              File(profileController.profilePhoto!.path),
+                            )
+                          : profileController.currentUserInfo != null
+                              ? NetworkImage(
+                                  profileController
+                                      .currentUserInfo!.profilePhoto,
+                                )
+                              : AssetImage('assets/images/person.jpg'),
+                      child: Align(
+                        alignment: Alignment.bottomRight,
+                        child: IconButton(
+                          onPressed: () async {
+                            profilePhoto = await imagePicker.pickImage(
+                                source: ImageSource.gallery);
+                            if (profilePhoto != null) {
+                              profileController
+                                  .changeProfilePhoto(profilePhoto!);
+                            }
+                          },
+                          icon: const Icon(
+                            Icons.auto_fix_high,
+                            color: primaryColor,
+                            size: 25,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                myProfileInput(
+                    hint: 'National Id',
+                    controller: nationalIdController,
+                    validator: (String? value) {
+                      if (value == null || value.isEmpty) {
+                        if (!isNew) return null;
+                        return "Please Enter Your National Id";
+                      }
+
+                      if (!value.isNum) {
+                        return "Your National Id Has To Be A Number";
+                      }
+                      if (value.length > 20) {
+                        return "Your National Id Cannot Be More Than 20 digits";
+                      }
+                      return null;
+                    }),
+                myProfileInput(
+                  hint: 'First Name',
+                  controller: firstNameController,
+                ),
+                myProfileInput(
+                    hint: 'Last Name', controller: lastNameController),
+                myProfileInput(
+                    hint: 'Email', controller: emailController, readOnly: true),
+                myProfileInput(
+                  readOnly: true,
+                  controller: birthDateController,
+                  hint: 'date of birth',
+                  suffixWidget: IconButton(
+                    icon: const Icon(Icons.date_range),
+                    onPressed: () async {
+                      DateTime? chosenBirthDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime(DateTime.now().year - 19),
+                        currentDate: DateTime(DateTime.now().year - 19),
+                        firstDate: DateTime(1900),
+                        lastDate: DateTime(DateTime.now().year - 19),
+                      );
+                      if (chosenBirthDate != null) {
+                        String formatedDate =
+                            DateFormat('yyyy-MM-dd').format(chosenBirthDate);
+                        birthDateController.text = formatedDate;
+                      }
+                    },
+                  ),
+                ),
+                genderDropDownMenu(),
+                const SizedBox(height: 20),
+                myProfileInput(
+                  hint: 'Country',
+                  controller: countryController,
+                  suffixWidget: const Icon(Icons.arrow_drop_down),
+                  readOnly: true,
+                  ontap: () {
+                    print("HI");
+                    showCountryPicker(
+                      context: context,
+                      onSelect: (Country country) {
+                        countryController.text =
+                            "${country.flagEmoji} ${country.name}";
+                      },
+                    );
+                  },
+                ),
+                myProfileInput(
+                    hint: 'Phone number',
+                    keyboardType: TextInputType.phone,
+                    controller: phoneController,
+                    prefixWidget: GetBuilder<DropDownController>(
+                      id: 'country',
+                      init: dropDownController,
+                      builder: (controller) {
+                        return SizedBox(
+                          width: 100,
+                          child: InkWell(
+                            onTap: () {
+                              showCountryPicker(
+                                context: context,
+                                showPhoneCode: true,
+                                onSelect: (Country country) {
+                                  dropDownController.changeSelectedCountry(
+                                      country:
+                                          "${country.flagEmoji} ${country.phoneCode}");
+                                },
+                              );
+                            },
+                            child: Row(
+                              children: [
+                                const SizedBox(width: 10),
+                                Text(dropDownController.selectedCountry),
+                                const SizedBox(width: 4),
+                                const Icon(Icons.arrow_drop_down),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    validator: (String? value) {
+                      debugPrint("isNew ? $isNew");
+                      if (isNew) {
+                        if (value == null || value.isEmpty) {
+                          return "Please Enter Your Phone Number";
+                        }
+                        if (value.length < 9 || value.length > 10) {
+                          return "Please Enter A Vaild Phone Number";
+                        }
+                        return null;
+                      } else {
+                        if (value != null &&
+                            value.isNotEmpty &&
+                            (value.length < 9 || value.length > 10)) {
+                          return "Please Enter A Vaild Phone Number";
+                        }
+                      }
+                      return null;
+                    }),
+                GetBuilder<ProfileController>(
+                  id: "updateProfile",
+                  init: profileController,
+                  builder: (controller) => MyButton(
+                    title: profileController.isUpdateLoading
+                        ? null
+                        : isNew
+                            ? 'Submit'
+                            : 'Update',
+                    onPressed: () async {
+                      if (!formKey.currentState!.validate()) {
+                        return;
+                      }
+                      if (isNew) {
+                        if (profilePhoto == null) {
+                          Get.showSnackbar(
+                            MySnackbar(
+                                success: false,
+                                title: 'Missing Info',
+                                message: "Please enter your profile picture"),
+                          );
+                          return;
+                        }
+                        if (_checkIsEmpty(firstNameController.text.trim())) {
+                          Get.showSnackbar(
+                            MySnackbar(
+                                success: false,
+                                title: 'Missing Info',
+                                message: "Please enter your first name"),
+                          );
+                          return;
+                        }
+
+                        if (_checkIsEmpty(lastNameController.text.trim())) {
+                          Get.showSnackbar(
+                            MySnackbar(
+                                success: false,
+                                title: 'Missing Info',
+                                message: "Please enter your last name"),
+                          );
+                          return;
+                        }
+
+                        if (_checkIsEmpty(countryController.text.trim())) {
+                          Get.showSnackbar(
+                            MySnackbar(
+                                success: false,
+                                title: 'Missing Info',
+                                message: "Please enter your country"),
+                          );
+                          return;
+                        }
+
+                        if (_checkIsEmpty(birthDateController.text.trim())) {
+                          Get.showSnackbar(
+                            MySnackbar(
+                                success: false,
+                                title: 'Missing Info',
+                                message: "Please enter your birth date"),
+                          );
+                          return;
+                        }
+
+                        if (_checkIsEmpty(dropDownController.selectedGender)) {
+                          Get.showSnackbar(
+                            MySnackbar(
+                                success: false,
+                                title: 'Missing Info',
+                                message: "Please enter your gender"),
+                          );
+                          return;
+                        }
+
+                        if (_checkIsEmpty(phoneController.text.trim())) {
+                          Get.showSnackbar(
+                            MySnackbar(
+                                success: false,
+                                title: 'Missing Info',
+                                message: "Please enter your phone number"),
+                          );
+                          return;
+                        }
+                      }
+                      print("all entered.....");
+                      profileController.changeIsUpdateLoading(true);
+                      ProfileInfo? result = await AuthApis.updateProfile(
+                        firstName: _handleNullValues(
+                          firstNameController.text.trim(),
+                          profileController.currentUserInfo?.firstName ??
+                              'Guest',
+                        ),
+                        lastName: _handleNullValues(
+                          lastNameController.text.trim(),
+                          profileController.currentUserInfo?.lastName ?? 'User',
+                        ),
+                        bdate: _handleNullValues(
+                          birthDateController.text.trim(),
+                          DateFormat('yyyy-MM-dd').format(
+                              profileController.currentUserInfo?.birthDate ??
+                                  DateTime(2025)),
+                        ),
+                        country: _handleNullValues(
+                          countryController.text.trim(),
+                          profileController.currentUserInfo?.country ?? 'Syria',
+                        ),
+                        phoneNumber: _handleNullValues(
+                          _fetchPhoneNumber(),
+                          profileController.currentUserInfo?.phoneNumber ??
+                              '000000000',
+                        ),
+                        photo: profilePhoto ?? profileController.profilePhoto,
+                        gender: _handleNullValues(
+                          dropDownController.selectedGender[0],
+                          profileController.currentUserInfo?.gender ?? 'M',
+                        ),
+                        nationalId: nationalIdController.text.trim(),
+                      );
+                      profileController.changeIsUpdateLoading(false);
+
+                      print("got updating profile info result");
+                      if (result != null) {
+                        profileController.changeCurrentUserInfo(result);
+                        if (isNew) {
+                          Get.offAllNamed('/home');
+                        } else {
+                          Get.back();
+                        }
+                      } else {
+                        Get.showSnackbar(
+                          MySnackbar(
+                            success: false,
+                            title: 'Updating Profile',
+                            message:
+                                'Failed to update profile info , please try again later.',
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  bool _checkIsEmpty(dynamic value) {
+    return value == null || value == '';
+  }
+
+  String? _fetchPhoneNumber() {
+    if (phoneController.text.isEmpty) {
+      return null;
+    }
+    String ret = "";
+    String code = dropDownController.selectedCountry;
+    for (int i = 0; i < code.length; i++) {
+      if (code[i].isNum) ret += code[i];
+    }
+    ret += phoneController.text.trim();
+    return ret;
+  }
+
+  GetBuilder<DropDownController> genderDropDownMenu() {
+    return GetBuilder<DropDownController>(
+      id: 'gender',
+      init: dropDownController,
+      builder: (controller) {
+        return Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: const [
+              BoxShadow(
+                color: Color.fromRGBO(0, 0, 0, 0.3),
+                offset: Offset(0, 2),
+                blurRadius: 4,
+              ),
+            ],
+          ),
+          child: DropdownButtonFormField(
+            value: dropDownController.selectedGender,
+            decoration: InputDecoration(
+              filled: true,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15),
+                borderSide: BorderSide.none,
+              ),
+            ),
+            items: dropDownController.genders.map((gender) {
+              return DropdownMenuItem(
+                value: gender,
+                child: Text(gender),
+              );
+            }).toList(),
+            onChanged: (gender) {
+              dropDownController.changeSelectedGender(
+                gender: gender,
+              );
+            },
+            validator: (gender) =>
+                gender == null ? "please choose a gender" : null,
+          ),
+        );
+      },
+    );
+  }
+
+  String _handleNullValues(String? value, String candValue) {
+    if (value == null || value == '') {
+      return candValue;
+    } else {
+      return value;
+    }
+  }
+
+  MyInputField myProfileInput({
+    required String hint,
+    Widget? suffixWidget,
+    Widget? prefixWidget,
+    TextEditingController? controller,
+    bool? readOnly,
+    void Function()? ontap,
+    TextInputType? keyboardType,
+    String? Function(String?)? validator,
+  }) {
+    return MyInputField(
+      keyboardType: keyboardType,
+      prefixWidget: prefixWidget,
+      ontap: ontap,
+      readOnly: readOnly,
+      controller: controller,
+      suffixWidget: suffixWidget,
+      hint: hint,
+      borderSide: BorderSide.none,
+      validator: validator,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: const [
+          BoxShadow(
+            color: Color.fromRGBO(0, 0, 0, 0.3),
+            offset: Offset(0, 2),
+            blurRadius: 4,
+          ),
+        ],
+      ),
+    );
+  }
+}
