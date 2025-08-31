@@ -43,13 +43,23 @@ class MyInputField extends StatelessWidget {
       child: TextFormField(
         // onTapAlwaysCalled: true,
         onChanged: onChanged,
-
+        enableInteractiveSelection: true, // default is fine
+        showCursor: true, // ensure the cursor is visible
         validator: validator ??
             (String? value) {
               if (value == null || value.isEmpty) {}
               return null;
             },
-        onTap: ontap,
+        onTap: () {
+          // Place cursor where tapped
+          if (controller != null) {
+            final selection = controller!.selection;
+            controller!.selection =
+                TextSelection.collapsed(offset: selection.extentOffset);
+          }
+          // Call user-provided ontap if exists
+          if (ontap != null) ontap!();
+        },
         readOnly: readOnly ?? false,
         controller: controller,
         obscureText: isObsecure ?? false,
