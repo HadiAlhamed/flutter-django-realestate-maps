@@ -230,46 +230,53 @@ class _HomePageState extends State<HomePage>
             ]);
           },
           child: AnimationLimiter(
-            child: GridView.builder(
-              padding: const EdgeInsets.only(top: 20),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, // Two items per row
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                childAspectRatio: 0.8, // Height to width ratio
-              ),
-              itemCount:
-                  wantedList.length, // For example, 10 items for each tab
-              itemBuilder: (context, index) {
-                return AnimationConfiguration.staggeredGrid(
-                  position: index,
-                  duration: const Duration(milliseconds: 375),
-                  columnCount: 2,
-                  child: SlideAnimation(
-                    verticalOffset: 50.0,
-                    child: ScaleAnimation(
-                      scale: 0.8,
-                      child: FadeInAnimation(
-                        child: GetBuilder<PropertyController>(
-                          init: propertyController,
-                          id: "propertyCard$index",
-                          builder: (controller) => AnimatedScale(
-                            scale: controller.cardAnimationScale[index],
-                            duration: const Duration(milliseconds: 150),
-                            child: PropertyCard(
-                              key: ValueKey(wantedList[index].id!),
-                              property: wantedList[index],
-                              scaleController: propertyController,
-                              index: index,
+            child: wantedList.isEmpty
+                ? const Center(
+                    child: Text(
+                      "There Is No Properties To Show",
+                    ),
+                  )
+                : GridView.builder(
+                    padding: const EdgeInsets.only(top: 20),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2, // Two items per row
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                      childAspectRatio: 0.8, // Height to width ratio
+                    ),
+                    itemCount:
+                        wantedList.length, // For example, 10 items for each tab
+                    itemBuilder: (context, index) {
+                      return AnimationConfiguration.staggeredGrid(
+                        position: index,
+                        duration: const Duration(milliseconds: 375),
+                        columnCount: 2,
+                        child: SlideAnimation(
+                          verticalOffset: 50.0,
+                          child: ScaleAnimation(
+                            scale: 0.8,
+                            child: FadeInAnimation(
+                              child: GetBuilder<PropertyController>(
+                                init: propertyController,
+                                id: "propertyCard$index",
+                                builder: (controller) => AnimatedScale(
+                                  scale: controller.cardAnimationScale[index],
+                                  duration: const Duration(milliseconds: 150),
+                                  child: PropertyCard(
+                                    key: ValueKey(wantedList[index].id!),
+                                    property: wantedList[index],
+                                    scaleController: propertyController,
+                                    index: index,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
           ),
         );
       },
