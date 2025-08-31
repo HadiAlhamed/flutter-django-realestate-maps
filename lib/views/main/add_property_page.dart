@@ -174,7 +174,7 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
                       }
 
                       if (value.length > 50) {
-                        return "Property State Number Cannot Be More Than 50 digits";
+                        return "Property State Number Cannot Be More Than 50 characters";
                       }
                       return null;
                     }),
