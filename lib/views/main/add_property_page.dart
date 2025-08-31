@@ -163,7 +163,7 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
                 propertyInput(
                     hint: 'Property State Number',
                     controller: propertyStateNumberController,
-                    keyboardType: TextInputType.number,
+                    keyboardType: TextInputType.text,
                     suffixWidget: const Icon(
                       Icons.numbers,
                     ),
