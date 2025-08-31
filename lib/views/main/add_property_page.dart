@@ -12,6 +12,7 @@ import 'package:real_estate/models/properties/facility.dart';
 import 'package:real_estate/models/properties/property.dart';
 import 'package:real_estate/models/properties/property_image.dart';
 import 'package:real_estate/services/properties_apis/properties_apis.dart';
+import 'package:real_estate/services/utils.dart';
 import 'package:real_estate/textstyles/text_colors.dart';
 import 'package:real_estate/textstyles/text_styles.dart';
 import 'package:real_estate/widgets/general_widgets/my_bottom_navigation_bar.dart';
@@ -500,6 +501,8 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
     if (addProController.imagesLength > 0) {
       int ImagesSuccess = 0;
       for (var imageFile in addProController.images) {
+        XFile? compressedImageFile = await compressImage(File(imageFile.path));
+        imageFile = compressedImageFile!; //may cause null Exception!!!
         final PropertyImage? propertyImage =
             await PropertiesApis.addImageToProperty(
                 propertyId: propertyResult.id!, image: imageFile);
