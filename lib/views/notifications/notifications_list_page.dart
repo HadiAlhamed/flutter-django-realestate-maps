@@ -76,6 +76,9 @@ class _NotificationsListPageState extends State<NotificationsListPage> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text("Notifications"),
+          backgroundColor: Theme.of(context).brightness == Brightness.dark
+              ? Colors.black45
+              : const Color.fromARGB(133, 205, 175, 192),
         ),
         body: Stack(
           children: [
