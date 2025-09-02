@@ -102,6 +102,10 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
     super.initState();
     isAdd = args['isAdd'];
     propertyId = args['propertyId'];
+    Property property = myPController.myProperties
+        .firstWhere((property) => property.id == propertyId);
+    addProController.isForRent = property.isForRent!;
+    addProController.isActive = property.isActive!;
   }
 
   @override
