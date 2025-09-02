@@ -377,6 +377,9 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
   void handleUpdateProperty() async {
     if (formKey.currentState!.validate()) {
       addProController.changeIsAddLoading(true);
+      String? propertyStateNumberTemp =
+          propertyStateNumberController.text.trim();
+      if (propertyStateNumberTemp.isEmpty) propertyStateNumberTemp = null;
       print("hello from handle upate property....");
       debugPrint("current active value : ${addProController.isActive}");
       final Property? propertyResult = await PropertiesApis.updateProperty(
@@ -390,7 +393,7 @@ class _AddPropertyPageState extends State<AddPropertyPage> {
           isForRent: addProController.isForRent,
           bathrooms: int.tryParse(bathController.text.trim()),
           isActive: addProController.isActive,
-          propertyStateNumber: propertyStateNumberController.text.trim(),
+          propertyStateNumber: propertyStateNumberTemp,
         ),
       );
       addProController.changeIsAddLoading(false);
