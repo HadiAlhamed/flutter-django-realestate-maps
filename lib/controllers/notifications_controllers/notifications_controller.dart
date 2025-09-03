@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:get/state_manager.dart';
 import 'package:real_estate/models/notifications/notification.dart'
     as my_notification;
@@ -72,7 +71,7 @@ class NotificationsController extends GetxController {
         'propertyId': notif.relatedObjectData.id!,
       }),
     );
-    incrementUnreadCount();
+    // incrementUnreadCount();
   }
 
   bool hasMoreData() {
@@ -93,7 +92,7 @@ class NotificationsController extends GetxController {
       notifications[index].isRead = true;
       refresh();
     }
-    decrementUnreadCount();
+    // decrementUnreadCount();
   }
 
   Future<void> getUnreadCount() async {
