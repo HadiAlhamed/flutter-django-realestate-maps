@@ -82,6 +82,8 @@ class _FavoritesPageState extends State<FavoritesPage> {
                                   scale: pdController.cardAnimationScale[index],
                                   duration: const Duration(milliseconds: 150),
                                   child: PropertyCard(
+                                    key:
+                                        ValueKey(favoritesProperties[index].id),
                                     index: index,
                                     scaleController: pdController,
                                     favorite: pdController.isFavorite[

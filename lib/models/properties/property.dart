@@ -155,31 +155,9 @@ class Property {
   @override
   bool operator ==(covariant Property other) {
     if (identical(this, other)) return true;
-
-    return other.id == id &&
-        other.propertyType == propertyType &&
-        other.city == city &&
-        other.numberOfRooms == numberOfRooms &&
-        other.area == area &&
-        other.price == price &&
-        other.isForRent == isForRent &&
-        other.latitude == latitude &&
-        other.longitude == longitude &&
-        other.mainPhotoUrl == mainPhotoUrl &&
-        other.address == address;
+    return other.id == id; // Only compare by ID
   }
 
   @override
-  int get hashCode {
-    return id.hashCode ^
-        propertyType.hashCode ^
-        city.hashCode ^
-        numberOfRooms.hashCode ^
-        area.hashCode ^
-        price.hashCode ^
-        isForRent.hashCode ^
-        latitude.hashCode ^
-        longitude.hashCode ^
-        mainPhotoUrl.hashCode;
-  }
+  int get hashCode => id.hashCode; // Only hash by ID
 }

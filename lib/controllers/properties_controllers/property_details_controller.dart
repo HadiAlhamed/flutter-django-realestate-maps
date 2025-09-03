@@ -15,12 +15,12 @@ class PropertyDetailsController extends GetxController {
   List<double> cardAnimationScale = List.generate(100005, (index) => 1.0);
   void updateFavoriteProperty(int id,
       {double? newPrice, bool? isActive, double? newRating}) {
-    for (final property in isFavoriteSet) {
+    for (Property property in isFavoriteSet) {
       if (property.id == id) {
         if (newPrice != null) property.price = newPrice;
         if (isActive != null) property.isActive = isActive;
         if (newRating != null) property.rating = newRating;
-        print("✅ Property with id $id updated");
+        print("✅ Property with id $id updated in favorties");
         update(["isFavorite$id"]);
         return;
       }

@@ -31,7 +31,7 @@ class PropertyController extends GetxController {
   void updateProperty(int id,
       {double? newPrice, bool? isActive, double? newRating}) {
     String? type;
-    for (final property in properties) {
+    for (Property property in properties) {
       if (property.id == id) {
         type = property.propertyType;
         if (newPrice != null) property.price = newPrice;
@@ -66,7 +66,6 @@ class PropertyController extends GetxController {
         update(['all', 'flat']);
       }
     }
-    print("❌ Property with id $id not found in properties");
   }
 
   void addProperty(
