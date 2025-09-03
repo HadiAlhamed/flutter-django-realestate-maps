@@ -7,8 +7,8 @@ class FilterController extends GetxController {
   bool orderByArea = true, orderByPrice = true, orderAsc = true;
   bool villa = true, flat = true, house = true;
   bool isSaveLoading = false;
-  RangeValues priceRange = const RangeValues(0, 100000);
-  RangeValues areaRange = const RangeValues(0, 1000);
+  RangeValues priceRange = const RangeValues(0, 100001);
+  RangeValues areaRange = const RangeValues(0, 10001);
   RangeValues roomsRange = const RangeValues(0, 10);
   RangeValues bathsRange = const RangeValues(0, 10);
   RangeValues ratingRange = const RangeValues(0, 5);
@@ -31,11 +31,11 @@ class FilterController extends GetxController {
     // selectedCities  = Api.box.read('selectedCities') == null || Api.box.read('selectedCities')
     //       .length < 1? <String>[] : Api.box.read('selectedCities');
     priceRange = await Api.box.read('minPrice') == null
-        ? const RangeValues(0, 10000)
+        ? const RangeValues(0, 100000)
         : RangeValues(
             await Api.box.read('minPrice'), await Api.box.read('maxPrice'));
     areaRange = await Api.box.read('minArea') == null
-        ? const RangeValues(0, 1000)
+        ? const RangeValues(0, 10000)
         : RangeValues(
             await Api.box.read('minArea'), await Api.box.read('maxArea'));
     roomsRange = await Api.box.read('minRooms') == null

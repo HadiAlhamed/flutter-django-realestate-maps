@@ -150,8 +150,8 @@ class _FilterSearchPageState extends State<FilterSearchPage> {
                           filterController.changePriceRange(range);
                         },
                         min: 0,
-                        max: 10000,
-                        divisions: 10000, // <-- Add this
+                        max: 100000,
+                        divisions: 200, // <-- Add this
                         labels: RangeLabels(
                           filterController.priceRange.start.toStringAsFixed(0),
                           filterController.priceRange.end.toStringAsFixed(0),
@@ -170,8 +170,8 @@ class _FilterSearchPageState extends State<FilterSearchPage> {
                           filterController.changeAreaRange(range);
                         },
                         min: 0,
-                        max: 1000,
-                        divisions: 1000, // <-- Add this
+                        max: 10000,
+                        divisions: 100, // <-- Add this
                         labels: RangeLabels(
                           filterController.areaRange.start.toStringAsFixed(0),
                           filterController.areaRange.end.toStringAsFixed(0),
