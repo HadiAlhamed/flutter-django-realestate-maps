@@ -250,7 +250,8 @@ class ChatController extends GetxController {
     //update unread count :
     getUnreadCountFor(conversation.id).value = conversation.unreadCount;
     //show a notification that someone has sent the user a message
-    if (!lastMessageData.isRead) {
+    if (getMessagesFor(conversation.id).isEmpty ||
+        lastMessageData.id != getMessagesFor(conversation.id).last.id) {
       //isRead is it enough?
       getMessagesFor(conversation.id).add(lastMessageData);
     }
