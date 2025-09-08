@@ -114,9 +114,10 @@ class AuthApis {
     print("Email : $email");
     try {
       final response = await _dio.post(
-        "${Api.baseUrl}/users/forgot-password/",
+        "${Api.baseUrl}/users/send-code/",
         data: {
           'email': email,
+          'purpose': 'password_reset',
         },
       );
 
